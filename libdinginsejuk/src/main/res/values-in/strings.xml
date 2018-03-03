@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_signin">Login</string>
+    <string name="action_signup">Daftar</string>
+    <string name="action_signout">Logout</string>
+    <string name="action_next">Selanjutnya</string>
+    <string name="action_signinfacebook">Hubungkan ke Facebook</string>
+    <string name="action_register">Daftar</string>
+    <string name="action_pick_address">Pilih lokasi ini</string>
+    <string name="action_add_address">Tambah</string>
+    <string name="action_update">Perbarui</string>
+    <string name="action_edit_profile">Ubah Profil</string>
+    <string name="action_check_technician_gps">Cek Posisi Teknisi</string>
+    <string name="action_payment">Bayar</string>
+    <string name="action_call_vendor">Hubungi Mitra</string>
+
+    <string name="msg_hello_user">Halo %1s</string>
+
+    <string name="title_home">Beranda</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_history">Histori</string>
+    <string name="title_complaint">Keluhan</string>
+    <string name="title_notifications">Notifikasi</string>
+    <string name="title_schedule">Jadwal</string>
+    <string name="title_pick_mitra">Pilih Mitra</string>
+    <string name="title_add_address">Tambah Alamat</string>
+    <string name="title_delete_address">Hapus Alamat</string>
+    <string name="title_pick_address">Pilih Alamat</string>
+    <string name="title_activity_ac_quickservice">Layanan Segera</string>
+    <string name="title_cancel_order">Batalkan Pesanan</string>
+    <string name="title_reschedule_order">Jadwal Ulang Pesanan</string>
+    <string name="title_activity_ac_schedservice">Layanan Terjadwal</string>
+    <string name="title_service_ac">Service AC</string>
+    <string name="title_add_service">Tambah Layanan</string>
+    <string name="title_orders">Pesanan</string>
+    <string name="title_reregister">Tidak Terdaftar</string>
+
+    <string name="prompt_date_service">Tanggal Layanan</string>
+    <string name="prompt_cust_address">Pilih Alamat Rumah</string>
+    <string name="prompt_problem_ac">Permasalahan</string>
+    <string name="prompt_search">Cari...</string>
+    <string name="prompt_vendor">Mitra</string>
+    <string name="prompt_name">Nama</string>
+    <string name="prompt_drag_pinpoint">Geser Pin...</string>
+    <string name="prompt_ac_count">Jumlah AC</string>
+    <string name="prompt_ac_serviceType">Jenis Servis</string>
+    <string name="prompt_hello">Halo %1s,</string>
+    <string name="prompt_choose_address">Pilih Alamat Terdaftar</string>
+    <string name="prompt_schedule">Jadwal</string>
+    <string name="prompt_phone">Phone</string>
+
+    <string name="error_menu_not_ready">Maaf, menu %1s belum tersedia saat ini.</string>
+    <string name="error_user_not_found">Anda tidak terdaftar. Silakan DAFTAR BARU.</string>
+    <string name="error_email_required">Isi Email dengan benar</string>
+    <string name="error_field_required">Isian ini tidak boleh kosong</string>
+    <string name="error_field_too_short">Panjang karakter terlalu pendek</string>
+    <string name="error_online_required">Pastikan Internet dalam keadaan ON</string>
+    <string name="error_order_not_finished">Masih ada Pesanan belum selesai. Mohon check status.</string>
+    <string name="error_technician_otw">Maaf tidak dapat dibatalkan, Teknisi sudah ditugaskan dan sedang dalam perjalanan.</string>
+    <string name="error_register">Registrasi gagal</string>
+    <string name="error_label_conflict">Label sudah ada. Mohon gunakan lainnya.</string>
+    <string name="error_mitra_not_available">Maaf,%1s belum menerima layanan</string>
+
+    <string name="label_hour">Jam</string>
+    <string name="label_when">Kapan</string>
+    <string name="label_or">Atau</string>
+    <string name="label_today">Hari Ini</string>
+    <string name="label_tomorrow">Besok</string>
+    <string name="label_estimate_price">Estimasi Biaya</string>
+    <string name="label_status_order">Layanan No: %1s</string>
+    <string name="label_address">Alamat</string>
+
+    <string name="msg_signin">Mohon Login</string>
+    <string name="please_register">Belum punya Akun ?</string>
+    <string name="please_signin">Sudah punya Akun ?</string>
+    <string name="hint_label_address">Alamat Jelas</string>
+    <string name="warning_field_required">Isian ini lebih baik tidak kosong</string>
+    <string name="warning_extracharge1">Layanan Hari Ini dikenakan extra charge 25000</string>
+    <string name="summary_ac_problem">%1d buah AC mengalami masalah seperti %2s.</string>
+    <string name="row_label_ac_service">Service %1d buah AC</string>
+    <string name="row_order_mitra">Dilayani oleh %1s</string>
+    <string name="cancel_service">Batal Service</string>
+
+    <string name="message_please_wait">Mohon Tunggu...</string>
+    <string name="message_your_order">Informasi Pesanan Anda</string>
+    <string name="message_reschedule_order_confirmation">Yakin Jadwal ulang pesanan Anda ?</string>
+    <string name="message_profile_updated">Profil Terbarui</string>
+    <string name="message_blank_order_detail">Pilih layanan yang telah Anda buat via Pesanan atau buat Layanan baru.</string>
+    <string name="message_cancel_order_confirmation_for_date">Yakin batalkan layanan untuk tanggal %1s ?</string>
+    <string name="message_order_cancelled">%1s No:%2s berhasil dibatalkan.</string>
+    <string name="message_order_rescheduled">%1s No:%2s berhasil dijadwal ulang.</string>
+    <string name="message_order_created">Terima Kasih, Pesanan Anda sudah kami terima dan sedang kami proses.</string>
+    <string name="message_reregister">Maaf, Akun anda tidak terdaftar di sistem kami.\nSilakan hubungi Call Center.</string>
+    <string name="message_cancel_order_confirmation">Yakin Batalkan pesanan Anda ?</string>
+    <string name="message_technician_sent_to_address">Teknisi akan mampir ke alamat %1s.</string>
+
+    <string name="status_created">Saat ini Mitra sedang mencarikan spesialis untuk membantu Anda.</string>
+    <string name="status_assigned">Mitra sudah mendapatkan Teknisi yang tepat untuk membantu Anda.</string>
+    <string name="status_otw">Teknisi sedang dalam perjalanan menuju alamat Anda.</string>
+    <string name="status_cancelled_by_customer">Anda membatalkan pesanan.</string>
+    <string name="status_rescheduled">Anda melakukan penjadwalan ulang pesanan.</string>
+    <string name="status_working">Teknisi sedang mengerjakan Pesanan Anda.</string>
+    <string name="status_payment">Mohon segera lakukan proses pembayaran kepada Teknisi.\nTerima Kasih :)</string>
+    <string name="status_cancelled_by_server">Mohon maaf, Server telah membatalkan pesanan Anda.</string>
+    <string name="status_cancelled_by_timeout">Mohon maaf, Pesanan Anda telah dibatalkan karena tidak ada tanggapan dari Mitra pilihan Anda.</string>
+    <string name="status_paid">Layanan sudah selesai dan dibayar.</string>
+    <string name="error_address_required">Mohon sertakan data Alamat Rumah.</string>
+    <string name="message_review_given">Terima Kasih sudah menggunakan jasa kami. Masukan Anda sangat berarti bagi kami.</string>
+    <string name="warning_you_pick_mitra">Anda memilih %1s</string>
+    <string name="message_review_not_given">Silakan beri Rating untuk Layanan ini :)</string>
+
+
+</resources>

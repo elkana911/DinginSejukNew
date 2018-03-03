@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/DinginSejukNew.iml" filepath="$PROJECT_DIR$/DinginSejukNew.iml" />
+      <module fileurl="file://C:\android-studio-workspace\DinginSejukNew\custteknisi\app.iml" filepath="C:\android-studio-workspace\DinginSejukNew\custteknisi\app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/customer/customer.iml" filepath="$PROJECT_DIR$/customer/customer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/custteknisi/custteknisi.iml" filepath="$PROJECT_DIR$/custteknisi/custteknisi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/libdinginsejuk/libdinginsejuk.iml" filepath="$PROJECT_DIR$/libdinginsejuk/libdinginsejuk.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mitra/mitra.iml" filepath="$PROJECT_DIR$/mitra/mitra.iml" />
+      <module fileurl="file://$PROJECT_DIR$/teknisi/teknisi.iml" filepath="$PROJECT_DIR$/teknisi/teknisi.iml" />
+    </modules>
+  </component>
+</project>

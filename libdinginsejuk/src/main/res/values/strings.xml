@@ -1,0 +1,133 @@
+<resources>
+    <string name="app_name">DSLibrary</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="action_signin">Sign in</string>
+    <string name="action_signup">Sign up</string>
+    <string name="action_signout">Sign Out</string>
+    <string name="action_next">Next</string>
+    <string name="action_register">Register</string>
+    <string name="action_signinfacebook">Connect with Facebook</string>
+    <string name="action_pick_address">Pick Current Location</string>
+    <string name="action_add_address">Add</string>
+    <string name="action_update">Update</string>
+    <string name="action_check_technician_gps">Check Technician Location</string>
+    <string name="action_payment">Payment</string>
+    <string name="action_call_vendor">Call Vendor</string>
+    <string name="action_copy_clipboard">Copy To Clipboard</string>
+    <string name="action_edit_profile">Edit Profile</string>
+
+    <string name="cancel_service">Cancel Service</string>
+
+    <string name="error_menu_not_ready">Sorry, %1s is not ready yet. Stay tune.</string>
+    <string name="error_user_not_found">User not found. Please Register.</string>
+    <string name="error_email_required">This Email value is invalid</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="error_field_too_short">This field is too short</string>
+    <string name="error_register">Registration Failed</string>
+    <string name="error_label_conflict">Label Conflict. Please choose another.</string>
+    <string name="error_mitra_not_available">Sorry,%1s is not open for service</string>
+    <string name="error_online_required">Make sure Internet is online</string>
+    <string name="error_order_not_finished">Unfinished Order. Please check order status.</string>
+    <string name="error_technician_otw">Sorry, Technician is already assigned or on the way. Unable to cancel order.</string>
+    <string name="error_gps">Failed to get location.</string>
+
+    <string name="label_hour">Hour</string>
+    <string name="label_when">When</string>
+    <string name="label_or">OR</string>
+    <string name="label_today">Today</string>
+    <string name="label_tomorrow">Tomorrow</string>
+    <string name="label_address">Address</string>
+    <string name="label_status_order">No. Service: %1s</string>
+
+    <string name="msg_hello_user">Hello %1s</string>
+
+    <string name="message_please_wait">Please Wait...</string>
+
+    <string name="message_your_order">Your Order Information</string>
+    <string name="message_technician_sent_to_address">Technician will going to your address at %1s.</string>
+    <string name="message_cancel_order_confirmation">Are you sure to cancel your order ?</string>
+    <string name="message_reschedule_order_confirmation">Are you sure to reschedule your order ?</string>
+    <string name="message_profile_updated">Profile Updated</string>
+    <string name="message_blank_order_detail">Choose existing Sevice or create New Service.</string>
+    <string name="message_cancel_order_confirmation_for_date">Are you sure to cancel service at %1s ?</string>
+    <string name="message_order_cancelled">%1s No:%2s successfully cancelled.</string>
+    <string name="message_order_rescheduled">%1s No:%2s successfully rescheduled.</string>
+    <string name="message_order_created">Thank you, we receive your request and we\'ll update shortly.</string>
+    <string name="message_reregister">Sorry, Your account is not registered.\nPlease contact Call Center.</string>
+    <string name="msg_signin">Please Sign In</string>
+
+    <string name="prompt_drag_pinpoint">Drag the Pin...</string>
+    <string name="prompt_ac_count">AC Amount</string>
+    <string name="prompt_ac_serviceType">Service Type</string>
+    <string name="prompt_date_service">Date of Service</string>
+    <string name="prompt_cust_address">Home Address</string>
+    <string name="prompt_problem_ac">Problems</string>
+    <string name="prompt_search">Search...</string>
+    <string name="prompt_vendor">Vendor</string>
+    <string name="prompt_phone">Phone</string>
+    <string name="prompt_hello">Hello %1s,</string>
+    <string name="prompt_choose_address">Choose Your Address</string>
+    <string name="prompt_schedule">Schedule</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="prompt_name">Name</string>
+
+    <string name="please_register">Don\'t have an account ?</string>
+    <string name="please_signin">Already have an account ?</string>
+
+    <string name="row_label_ac_service">%1d AC Service</string>
+    <string name="row_order_mitra">Support by %1s</string>
+
+    <string name="service_status_changed">Status Changed</string>
+    <string name="service_finished">Service Finished</string>
+
+    <string name="status_created">Vendor will looking specialist for You.</string>
+    <string name="status_assigned">Vendor has found a Technician to help you.</string>
+    <string name="status_otw">The Technician is already on the way.</string>
+    <string name="status_cancelled_by_customer">You cancel the order</string>
+    <string name="status_rescheduled">You reschedule the order</string>
+    <string name="status_paid">Thank you for using our service.\nPlease give Rating for this Service :)</string>
+    <string name="status_working">Technician is working your Order</string>
+    <string name="status_payment">Please proceed with Payment</string>
+    <string name="status_cancelled_by_server">Sorry, Server has refused your request</string>
+    <string name="status_cancelled_by_timeout">Sorry, Your order has been cancelled due to no respond from selected Vendor</string>
+    <string name="summary_ac_problem">%1d Air Conditioners having problem with %2s.</string>
+
+    <string name="title_activity_maps">Map</string>
+    <string name="title_home">Home</string>
+    <string name="title_status">Status</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_history">History</string>
+    <string name="title_complaint">Complaints</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_activity_ac_quickservice">Quick Service</string>
+    <string name="title_cancel_order">Cancel Order</string>
+    <string name="title_reschedule_order">Reschedule Order</string>
+    <string name="title_activity_ac_schedservice">Schedule Service</string>
+    <string name="title_service_ac">AC Service</string>
+    <string name="title_add_service">Add Service</string>
+    <string name="title_orders">Orders</string>
+    <string name="title_reregister">Please Register</string>
+    <string name="title_pick_mitra">Pick Vendor</string>
+    <string name="title_schedule">Schedule</string>
+    <string name="title_add_address">Add Address</string>
+    <string name="title_delete_address">Delete Address</string>
+    <string name="title_pick_address">Pick Address</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hint_label_address">Complete Address</string>
+
+    <string name="label_estimate_price">Price Estimation</string>
+
+    <string name="warning_extracharge1">Layanan Hari Ini dikenakan extra charge 25000</string>
+    <string name="warning_field_required">This field is better not empty</string>
+    <string name="action_submit">Submit</string>
+    <string name="message_review_given">Thank you for given Review. Your feedback is the most valuable for us.</string>
+    <string name="title_activity_tech_otw_map">Technician Position</string>
+    <string name="warning_you_pick_mitra">You select %1s</string>
+    <string name="prompt_quantity_ac">Quantity</string>
+    <string name="action_history_order">History</string>
+    <string name="title_activity_achistory">History</string>
+
+</resources>

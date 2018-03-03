@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">Teknisi</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_reset">Reset</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_checkout">CHECK OUT</string>
+    <string name="action_start_service">Mulai Layanan</string>
+    <string name="action_start_working">Mulai Bekerja</string>
+    <string name="action_lunas">LUNAS</string>
+
+    <string name="label_quantity">Quantity : %1d</string>
+    <string name="label_serviceDate">Jadwal Layanan :</string>
+    <string name="label_mitra">Rekanan : %1s</string>
+
+    <string name="confirm_no_charge">Yakin tidak ada yang perlu dibayar ?</string>
+    <string name="confirm_start_payment">Pastikan data sudah diisi lengkap.\nLanjut ke Menu Pembayaran ?</string>
+    <string name="confirm_start_working">Apakah Anda sudah tiba di alamat tujuan ?</string>
+    <string name="confirm_start_otw">Klik YES untuk menginformasikan ke pelanggan Anda dalam perjalanan.</string>
+
+    <string name="prompt_service_type">Tipe Layanan</string>
+    <string name="prompt_promo_code">Kode Promo</string>
+    <string name="prompt_quantity_ac">Quantity</string>
+    <string name="prompt_search_mitra">Cari Mitra...</string>
+    <string name="prompt_note">Notes</string>
+    <string name="prompt_tipe_ac">Type</string>
+    <string name="prompt_apply_mitra">Lamar Mitra</string>
+
+    <string name="title_activity_data_ac">ActivityDataAC</string>
+    <string name="title_activity_register">Register</string>
+    <string name="title_start_working">Mulai Bekerja</string>
+    <string name="title_activity_servicedtl">Service Detail</string>
+    <string name="title_activity_maps_demo">Map</string>
+    <string name="title_activity_profile">Ubah Profil</string>
+    <string name="title_activity_mitra_list">Daftar Mitra</string>
+    <string name="title_activity_payment">Payment</string>
+
+</resources>

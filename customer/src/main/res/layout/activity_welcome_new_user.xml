@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.elkana.customer.screen.register.ActivityWelcomeNewUser">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:gravity="center"
+        android:text="Selamat Anda Sudah Terdaftar"
+        android:textSize="24sp"
+        android:typeface="monospace" />
+
+    <LinearLayout
+        android:id="@+id/llStep"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pesan Secara Online"
+            tools:layout_editor_absoluteX="148dp"
+            tools:layout_editor_absoluteY="165dp" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Teknisi Bersertifikasi"
+            tools:layout_editor_absoluteX="148dp"
+            tools:layout_editor_absoluteY="246dp" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Service Berkualitas"
+            tools:layout_editor_absoluteX="148dp"
+            tools:layout_editor_absoluteY="295dp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnProceed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/llStep"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="Langsung Pesan Sekarang" />
+
+</RelativeLayout>
+

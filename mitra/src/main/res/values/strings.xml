@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">MitraApp</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="prompt_company_name">Company Name</string>
+    <string name="prompt_phone_office">Work Phone</string>
+    <string name="title_activity_maps_demo">Map</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_tech_otw_maps">Technician Position</string>
+    <string name="title_activity_login">Login</string>
+    <string name="title_activity_register">Register</string>
+
+    <string name="title_orders">ORDERS</string>
+    <string name="title_status">STATUS</string>
+    <string name="title_activity_scrolling_assign_tech">Assignment</string>
+
+</resources>
