@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import com.elkana.customer.R;
 import com.elkana.customer.util.DataUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.pojo.Movement;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;

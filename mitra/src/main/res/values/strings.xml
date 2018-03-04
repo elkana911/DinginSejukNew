@@ -1,18 +1,31 @@
 <resources>
     <string name="app_name">MitraApp</string>
 
+    <string name="label_address">Alamat Pemesan : %1s</string>
+    <string name="label_order_date">Order Date : %1s</string>
+    <string name="label_order_today_count">Layanan Hari Ini : %1d</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
 
+    <string name="error_add_tech">Gagal Registrasi Teknisi</string>
+    <string name="error_technician_not_found">Teknisi tidak terdaftar. Pastikan yang bersangkutan sudah Registrasi via aplikasi Teknisi.</string>
+    <string name="error_technician_not_available">Teknisi tidak tersedia</string>
+
+    <string name="message_no_order">No Order for Today. We\'ll inform you later.</string>
+
     <string name="prompt_company_name">Company Name</string>
     <string name="prompt_phone_office">Work Phone</string>
+    <string name="prompt_search_technician">Cari Nama Teknisi...</string>
+
     <string name="title_activity_maps_demo">Map</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_tech_otw_maps">Technician Position</string>
     <string name="title_activity_login">Login</string>
     <string name="title_activity_register">Register</string>
+    <string name="title_activity_register_technician">Tambah Teknisi</string>
 
     <string name="title_orders">ORDERS</string>
     <string name="title_status">STATUS</string>

@@ -1,4 +1,4 @@
-package com.elkana.teknisi.pojo;
+package com.elkana.dslibrary.pojo;
 
 /**
  * Created by Eric on 09-Dec-17.

@@ -19,12 +19,12 @@ import io.realm.Realm;
  * Created by Eric on 14-Dec-17.
  */
 // Due to Searching capability, dont use firebasedatabase, use local Realm DB only.
-public class RVAdapterMitra extends RealmSearchAdapter<Mitra, RVAdapterMitra.MyViewHolder> {
+public class RSVAdapterMitra extends RealmSearchAdapter<Mitra, RSVAdapterMitra.MyViewHolder> {
 
     private Context ctx;
     private ListenerMitraList listener;
 
-    public RVAdapterMitra(@NonNull Context context, @NonNull Realm realm, @NonNull String filterKey, ListenerMitraList listener) {
+    public RSVAdapterMitra(@NonNull Context context, @NonNull Realm realm, @NonNull String filterKey, ListenerMitraList listener) {
         super(context, realm, filterKey);
         this.ctx = context;
         this.listener = listener;

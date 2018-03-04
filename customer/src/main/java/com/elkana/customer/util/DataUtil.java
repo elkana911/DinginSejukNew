@@ -11,6 +11,8 @@ import com.elkana.dslibrary.listener.ListenerSync;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.mitra.TmpMitra;
+import com.elkana.dslibrary.pojo.user.BasicInfo;
+import com.elkana.dslibrary.pojo.user.UserAddress;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
@@ -18,6 +20,8 @@ import com.elkana.dslibrary.util.NetUtil;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -361,6 +365,89 @@ udah di taruh di lib
         });
 
     }
+
+    public static void syncUserInformation(Realm realm){
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        if (currentUser == null) {
+            Log.e(TAG, "Please login to synchronize User Information");
+            return;
+        }
+
+        BasicInfo basicInfo = realm.where(BasicInfo.class)
+                .equalTo("uid", currentUser.getUid())
+                .findFirst();
+
+        if (basicInfo == null) {
+            database.getReference("users/" + currentUser.getUid()).child("basicInfo")
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (!dataSnapshot.exists()) {
+                                return;
+                            }
+
+                            final BasicInfo _obj = dataSnapshot.getValue(BasicInfo.class);
+
+                            Realm r = Realm.getDefaultInstance();
+                            try{
+                                r.beginTransaction();
+                                r.copyToRealmOrUpdate(_obj);
+                                r.commitTransaction();
+
+                            }finally {
+                                r.close();
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                        }
+                    });
+        }
+
+//        if (realm.where(UserAddress.class)
+//                .count() < 1) {
+        database.getReference("users/" + currentUser.getUid()).child("address")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            return;
+                        }
+
+                        Realm r = Realm.getDefaultInstance();
+                        try {
+                            r.beginTransaction();
+                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                UserAddress _obj = postSnapshot.getValue(UserAddress.class);
+
+                                r.copyToRealmOrUpdate(_obj);
+                                Log.e(TAG, _obj.toString());
+                            }
+
+                            r.commitTransaction();
+                        }finally {
+                            r.close();
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                    }
+                });
+//        }
+
+        //tokens ga boleh menyimpan token dari device lain. token secara default diperoleh di MyFirebaseInstanceIDService
+
+    }
+
 
     /*
     public void moveFirebaseRecord(Firebase fromPath, final Firebase toPath)

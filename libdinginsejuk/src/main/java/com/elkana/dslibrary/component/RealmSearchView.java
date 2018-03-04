@@ -1,4 +1,4 @@
-package com.elkana.teknisi.component;
+package com.elkana.dslibrary.component;
 
 import android.content.Context;
 import android.content.res.TypedArray;

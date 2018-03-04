@@ -2,11 +2,17 @@ package com.elkana.dslibrary.firebase;
 
 import android.support.annotation.NonNull;
 
+import com.elkana.dslibrary.exception.OrderAlreadyFinished;
+import com.elkana.dslibrary.exception.OrderExpired;
 import com.elkana.dslibrary.listener.ListenerGetAllData;
+import com.elkana.dslibrary.listener.ListenerGetOrder;
 import com.elkana.dslibrary.listener.ListenerModifyData;
+import com.elkana.dslibrary.pojo.OrderHeader;
+import com.elkana.dslibrary.pojo.mitra.Assignment;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.technician.ServiceItem;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
+import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -67,6 +73,107 @@ public class FBUtil {
         });
 
     };
+
+    public static void Assignment_create(final String technicianId, final String custId, final String orderId, final ListenerModifyData listener) {
+        //1. get orderHeader
+        Orders_getPendingCustomerRef(custId, orderId, new ListenerGetOrder() {
+            @Override
+            public void onGetData(OrderHeader obj) {
+                // cannot assign finished status
+                if (EOrderStatus.isFinished(obj)) {
+                    if (listener != null)
+                        listener.onError(new OrderAlreadyFinished());
+
+                    return;
+                }
+
+//                please put this validation outside
+//                if (DataUtil.isExpiredOrder(obj)) {
+//                    if (listener != null)
+//                        listener.onError(new OrderExpired());
+//
+//                    return;
+//                }
+
+                FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
+
+                DatabaseReference refAssignment = _firebaseDatabase.getReference(REF_ASSIGNMENTS_PENDING)
+                        .child(technicianId)
+                        .push();
+
+                final Assignment assignment = new Assignment();
+
+                assignment.setUid(refAssignment.getKey());
+
+                assignment.setTechnicianId(technicianId);
+                assignment.setDateOfService(obj.getDateOfService());
+                assignment.setTimeOfService(obj.getTimeOfService());
+                assignment.setStatusDetailId(EOrderDetailStatus.ASSIGNED.name());
+                assignment.setUpdatedTimestamp(new Date().getTime());
+                assignment.setCreatedDate(new Date().getTime());
+                assignment.setCustomerAddress(obj.getAddressByGoogle());
+                assignment.setCustomerId(obj.getCustomerId());
+                assignment.setCustomerName(obj.getCustomerName());
+                assignment.setLatitude(obj.getLatitude());
+                assignment.setLongitude(obj.getLongitude());
+                assignment.setOrderId(obj.getUid());
+                assignment.setMitraId(obj.getPartyId());
+                assignment.setMitraName(obj.getPartyName());
+
+                EOrderDetailStatus newStatus = EOrderDetailStatus.convertValue(assignment.getStatusDetailId());
+                String customerId = obj.getCustomerId();
+
+                final Map<String, Object> keyValOrder = new HashMap<>();
+                /*
+                    customer node
+                    orders/ac/pending/customer/<customerId>/<orderId>/statusDetailId
+                 */
+                String _root_node = REF_ORDERS_CUSTOMER_AC_PENDING + "/" + customerId + "/" + orderId;
+                keyValOrder.put(_root_node + "/technicianId", technicianId);
+                keyValOrder.put(_root_node + "/statusDetailId", newStatus.name());
+                keyValOrder.put(_root_node + "/updatedTimestamp", new Date().getTime());
+
+                /*
+                    mitra node
+                    orders/ac/pending/mitra/<mitraId>/<orderId>/statusDetailId
+                 */
+                _root_node = REF_ORDERS_MITRA_AC_PENDING + "/" + obj.getPartyId() + "/" + orderId;
+                keyValOrder.put(_root_node + "/statusDetailId" , newStatus.name());
+                keyValOrder.put(_root_node + "/updatedTimestamp", new Date().getTime());
+
+                /*
+                    assignment node
+                    assignments/ac/pending/<technicianId>/<assignmentId>/assign/statusDetailId
+                 */
+                _root_node = REF_ASSIGNMENTS_PENDING + "/" + technicianId + "/" + assignment.getUid();
+                keyValOrder.put(_root_node + "/assign", assignment);
+
+                _firebaseDatabase.getReference().updateChildren(keyValOrder)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                if (listener == null)
+                                    return;
+
+                                if (task.isSuccessful())
+                                    listener.onSuccess();
+                                else
+                                    listener.onError(task.getException());
+                            }
+                        });
+
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (listener != null)
+                    listener.onError(e);
+            }
+        });
+    }
+
 
     public static void Assignment_SetStatus(final String mitraId, String technicianId, final String assignmentId, final String customerId, final String orderId, final EOrderDetailStatus newStatus, final ListenerModifyData listener) {
         Date today = new Date();
@@ -184,6 +291,36 @@ public class FBUtil {
         return FirebaseDatabase.getInstance().getReference(REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(customerId)
                 .child(orderId);
+
+    }
+
+    public static void Orders_getPendingCustomerRef(String customerId, String orderId, final ListenerGetOrder listener) {
+
+            Orders_getPendingCustomerRef(customerId, orderId)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    if (listener != null)
+                        listener.onError(new RuntimeException("Node not found"));
+
+                    return;
+                }
+
+                OrderHeader orderHeader = dataSnapshot.getValue(OrderHeader.class);
+
+                if (listener != null) {
+                    listener.onGetData(orderHeader);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                if (listener != null)
+                    listener.onError(databaseError.toException());
+            }
+        });
 
     }
 

@@ -54,6 +54,7 @@ public class ActivityLogin extends FirebaseActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+
         if (Util.TESTING_MODE) {
             mEmailView.setText("eric.elkana@ppu.co.id");
             mPassword.setText("eric.elkana");
@@ -245,7 +246,9 @@ public class ActivityLogin extends FirebaseActivity {
 //                loginFacebook.setEnabled(true);
 
                 if (!task.isSuccessful()) {
-                    final Snackbar snackbar = Snackbar.make(coordinatorLayout, getString(R.string.error_user_not_found), Snackbar.LENGTH_LONG);
+                    Log.e(TAG, "Auth failed\n" + task.getException().getMessage(), task.getException());
+
+                    final Snackbar snackbar = Snackbar.make(coordinatorLayout, task.getException().getMessage(), Snackbar.LENGTH_LONG);
                     snackbar.setAction(getString(R.string.action_register), new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

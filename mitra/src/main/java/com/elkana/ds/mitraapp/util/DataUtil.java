@@ -2,23 +2,34 @@ package com.elkana.ds.mitraapp.util;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.MobileSetup;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.technician.Technician;
+import com.elkana.dslibrary.pojo.user.BasicInfo;
+import com.elkana.dslibrary.pojo.user.FirebaseToken;
+import com.elkana.dslibrary.pojo.user.UserAddress;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
@@ -219,6 +230,138 @@ lihat versi lib
 
     public static boolean isExpiredOrder(OrderHeader order) {
         return Util.isExpiredOrder(order.getTimestamp(), getMobileSetup().getLastOrderMinutes());
+    }
+
+    public static void syncUserInformation() {
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        // get user info
+        DatabaseReference refUser = database.getReference(DataUtil.REF_MITRA_AC).child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        refUser.child("basicInfo")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+//                            logout();
+
+                            return;
+                        }
+
+                        final BasicInfo basicInfo = dataSnapshot.getValue(BasicInfo.class);
+
+                        Realm r = Realm.getDefaultInstance();
+                        try {
+                            r.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    realm.copyToRealmOrUpdate(basicInfo);
+                                }
+                            });
+                        } finally {
+                            r.close();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                    }
+                });
+
+        refUser.child("address")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            return;
+                        }
+
+                        final List<UserAddress> list = new ArrayList<>();
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            list.add(postSnapshot.getValue(UserAddress.class));
+                        }
+
+                        Realm r = Realm.getDefaultInstance();
+                        try{
+                            r.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    realm.copyToRealmOrUpdate(list);
+                                }
+                            });
+                        }finally {
+                            r.close();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                    }
+                });
+
+        refUser.child("firebaseToken")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            return;
+                        }
+
+                        final List<FirebaseToken> list = new ArrayList<>();
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            String ss = postSnapshot.getValue(String.class);
+                            FirebaseToken ft = new FirebaseToken();
+                            ft.setToken(ss);
+                            list.add(ft);
+                        }
+                        Realm r = Realm.getDefaultInstance();
+                        try{
+                            r.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    realm.copyToRealmOrUpdate(list);
+                                }
+                            });
+                        }finally {
+                            r.close();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                    }
+                });
+
+
+        database.getReference(DataUtil.REF_MASTER_SETUP)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final MobileSetup mobileSetup = dataSnapshot.getValue(MobileSetup.class);
+
+                        Realm r = Realm.getDefaultInstance();
+                        try{
+                            r.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    realm.copyToRealmOrUpdate(mobileSetup);
+                                }
+                            });
+
+                        }finally {
+                            r.close();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                    }
+                });
+
     }
 
 }

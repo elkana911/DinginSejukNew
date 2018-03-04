@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPaperBack">#e9e9e9</color>
-
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
@@ -9,9 +7,6 @@
     <color name="colorActionBar">#143664</color>
     <color name="colorActionBarAccent">#00f73e</color>
     <color name="colorActionBarInactive">#000000</color>
-    <color name="cardColor">#FFFFFF</color>
-    <color name="cardTextColor">#454545</color>
-    <color name="cardTextColorDisabled">#bfbfbf</color>
 
     <color name="colorMapRadius">#454d1cff</color>
 

@@ -30,8 +30,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 
 public class ActivityLogin extends FirebaseActivity {
-    private static final String TAG = "Login";
-    private static final int MY_PERMISSIONS_REQUEST_CALL_LOCATION_PHONE = 411;
+    private static final String TAG = ActivityLogin.class.getSimpleName();
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA = 413;
 
     AutoCompleteTextView mEmailView;
     EditText mPassword;
@@ -41,7 +41,11 @@ public class ActivityLogin extends FirebaseActivity {
     public void onPostCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
         super.onPostCreate(savedInstanceState, persistentState);
 
-        promptAllPermission();
+        ActivityCompat.requestPermissions(this, new String[]{
+                        android.Manifest.permission.ACCESS_FINE_LOCATION
+                        ,android.Manifest.permission.CALL_PHONE
+                        , Manifest.permission.CAMERA},
+                MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA);
     }
 
     @Override
@@ -90,7 +94,7 @@ public class ActivityLogin extends FirebaseActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_CALL_LOCATION_PHONE:
+            case MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA:
                 if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED
                         && grantResults[2] == PackageManager.PERMISSION_GRANTED
@@ -115,30 +119,30 @@ public class ActivityLogin extends FirebaseActivity {
         startActivity(new Intent(this, MainActivity.class));
     }
 
-    private void promptAllPermission() {
-        if (!mayRequestPermissions())
-            return;
+    /*
+        private void promptAllPermission() {
+            if (!mayRequestPermissions())
+                return;
 
-        Log.i(TAG, "All permission granted !");
-    }
-
-    private boolean mayRequestPermissions() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
+            Log.i(TAG, "All permission granted !");
         }
+        private boolean mayRequestPermissions() {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                return true;
+            }
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+
+            ActivityCompat.requestPermissions(this, new String[]{
+                            Manifest.permission.CALL_PHONE
+                            , Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CALL_PHONE},
+                    MY_PERMISSIONS_REQUEST_CALL_LOCATION_PHONE);
             return false;
         }
-
-        ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.CALL_PHONE
-                        , Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.CALL_PHONE},
-                MY_PERMISSIONS_REQUEST_CALL_LOCATION_PHONE);
-        return false;
-    }
-
+    */
     private void attemptLogin(){
         boolean cancel = false;
         View focusView = null;
@@ -194,7 +198,8 @@ public class ActivityLogin extends FirebaseActivity {
 
                 if (!task.isSuccessful()) {
                     Log.e(TAG, task.getException().getMessage(), task.getException());
-                    Util.showErrorDialog(ActivityLogin.this, null, getString(R.string.error_user_not_found));
+
+                    Util.showErrorDialog(ActivityLogin.this, null, task.getException().getMessage());
 //                    final Snackbar snackbar = Snackbar.make(coordinatorLayout, , Snackbar.LENGTH_LONG);
 //                    snackbar.setAction(getString(R.string.action_register), new View.OnClickListener() {
 //                        @Override

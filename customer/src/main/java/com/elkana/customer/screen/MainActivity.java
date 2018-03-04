@@ -315,7 +315,7 @@ public class MainActivity extends FirebaseActivity
 //        dont put any view logic here krn bisa dipanggil sebelum activity ready after login. let oncreate handle this
         final AlertDialog dialog = Util.showProgressDialog(this, "Loading user information...");
 
-        syncUserInformation();
+        DataUtil.syncUserInformation(this.realm);
 
         DataUtil.syncMitra(this, new ListenerSync() {
             @Override

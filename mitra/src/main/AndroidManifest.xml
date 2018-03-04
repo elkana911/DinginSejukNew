@@ -42,6 +42,16 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".screen.profile.ActivityProfile"
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".screen.register.technician.ActivityRegisterTechnician"
+            android:label="@string/title_activity_register_technician"
+            android:screenOrientation="portrait"/>
+
+        <activity
             android:name=".screen.register.ActivityMapsUserAddress"
             android:label="@string/title_activity_register"
             android:windowSoftInputMode="stateHidden"
@@ -58,6 +68,7 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
+
 
     </application>
 

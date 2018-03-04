@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.elkana.dslibrary.map.Location;
+import com.elkana.dslibrary.pojo.Movement;
 import com.elkana.dslibrary.util.NetUtil;
 import com.elkana.teknisi.pojo.MobileSetup;
-import com.elkana.teknisi.pojo.Movement;
 import com.elkana.teknisi.util.DataUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

@@ -11,13 +11,13 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.component.RealmSearchView;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetAllData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
-import com.elkana.teknisi.component.RealmSearchView;
 import com.elkana.teknisi.pojo.UserMitra;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -29,7 +29,7 @@ public class ActivityMitraList extends FirebaseActivity {
 
     private static final String TAG = ActivityMitraList.class.getSimpleName();
 
-    private RVAdapterMitra mAdapter;
+    private RSVAdapterMitra mAdapter;
     RealmSearchView search_view;
 
     @Override
@@ -98,7 +98,7 @@ public class ActivityMitraList extends FirebaseActivity {
 
         }
 
-        mAdapter = new RVAdapterMitra(this, realm, "name", new ListenerMitraList() {
+        mAdapter = new RSVAdapterMitra(this, realm, "name", new ListenerMitraList() {
             @Override
             public void onAddMitra() {
 

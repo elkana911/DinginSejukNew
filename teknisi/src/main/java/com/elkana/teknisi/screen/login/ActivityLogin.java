@@ -56,7 +56,7 @@ public class ActivityLogin extends FirebaseActivity {
 
         ActivityCompat.requestPermissions(this, new String[]{
                         android.Manifest.permission.ACCESS_FINE_LOCATION
-                        , android.Manifest.permission.READ_PHONE_STATE, android.Manifest.permission.CALL_PHONE
+                        , android.Manifest.permission.CALL_PHONE
                         , Manifest.permission.CAMERA},
                 MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA);
 
@@ -169,7 +169,6 @@ public class ActivityLogin extends FirebaseActivity {
                 if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED
                         && grantResults[2] == PackageManager.PERMISSION_GRANTED
-                        && grantResults[3] == PackageManager.PERMISSION_GRANTED
                         ) {
 //                    signIn();
                 } else {
