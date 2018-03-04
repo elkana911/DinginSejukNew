@@ -122,7 +122,7 @@ public class FragmentOrderList extends Fragment {
             mListener = (OnFragmentOrderListInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentOrderListInteractionListener");
+                    + " must implement " + OnFragmentOrderListInteractionListener.class.getSimpleName());
         }
     }
 

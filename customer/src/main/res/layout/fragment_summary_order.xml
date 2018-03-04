@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:paddingEnd="@dimen/activity_horizontal_margin"
     android:paddingStart="@dimen/activity_horizontal_margin"
-    tools:context="com.elkana.customer.screen.order.FragmentSummaryOrder">
+    >
 
     <LinearLayout
         android:id="@+id/llBlank"
@@ -27,7 +27,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:gravity="center"
-            android:textColor="#e6ffffff"
             android:text="@string/message_blank_order_detail" />
 
     </LinearLayout>
@@ -45,7 +44,7 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColorHint="#f3ffffff">
+                >
 
                 <AutoCompleteTextView
                     android:id="@+id/etStatus"
@@ -53,8 +52,6 @@
                     android:layout_height="wrap_content"
                     android:clickable="false"
                     android:focusable="false"
-                    android:textColor="#f3ffffff"
-                    android:textColorHint="#f3ffffff"
                     android:maxLines="1" />
 
             </android.support.design.widget.TextInputLayout>
@@ -94,7 +91,6 @@
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColorHint="#f3ffffff"
                 >
 
                 <AutoCompleteTextView
@@ -102,7 +98,6 @@
                     android:layout_height="wrap_content"
                     android:clickable="false"
                     android:focusable="false"
-                    android:textColor="#f3ffffff"
                     android:hint="@string/message_your_order"
                     android:maxLines="1" />
 

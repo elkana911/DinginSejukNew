@@ -40,6 +40,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:11.8.0'
     implementation 'com.google.firebase:firebase-auth:11.8.0'
     implementation 'com.google.firebase:firebase-database:11.8.0'
+    implementation 'com.github.thorbenprimke:realm-searchview:0.9.6'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'com.aurelhubert:ahbottomnavigation:2.1.0'
     implementation('com.github.ganfra:material-spinner:2.0.0') {

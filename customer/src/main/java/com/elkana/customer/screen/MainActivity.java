@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.elkana.customer.R;
+import com.elkana.customer.screen.order.FragmentMitraListInRange;
 import com.elkana.customer.screen.order.FragmentOrderAC;
 import com.elkana.customer.screen.order.FragmentOrderList;
 import com.elkana.customer.screen.order.FragmentSummaryOrder;
@@ -55,7 +57,8 @@ public class MainActivity extends FirebaseActivity
         implements NavigationView.OnNavigationItemSelectedListener
         , FragmentOrderList.OnFragmentOrderListInteractionListener
         , FragmentOrderAC.OnFragmentOrderACInteractionListener
-        , FragmentSummaryOrder.OnFragmentSOInteractionListener {
+        , FragmentSummaryOrder.OnFragmentSOInteractionListener
+        , FragmentMitraListInRange.OnFragmentMitraListInRangeInteractionListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static final String ORDER_NEW_ID = "order.new.id";
@@ -546,6 +549,25 @@ public class MainActivity extends FirebaseActivity
 
     @Override
     public void onClickSelectMitra(List<TmpMitra> mitraInRange) {
+        Realm r = Realm.getDefaultInstance();
+        try {
+            r.beginTransaction();
+            r.where(TmpMitra.class)
+                    .findAll().deleteAllFromRealm();
+
+            r.copyToRealmOrUpdate(mitraInRange);
+            r.commitTransaction();
+        } finally {
+            r.close();
+        }
+
+        DialogFragment d = new FragmentMitraListInRange();
+        Bundle bundle = new Bundle();
+//        bundle.putString(FragmentMitraList.ARG_PARAM1, this.collectorId);
+//        bundle.putString(FragmentMitraList.PARAM_LDV_NO, this.ldvNo);
+        d.setArguments(bundle);
+
+        d.show(getSupportFragmentManager(), "dialog");
 
     }
 
@@ -572,6 +594,17 @@ public class MainActivity extends FirebaseActivity
         onGoToScreen(PAGE_ORDER_DETAIL, true, true);
 
         Util.showDialog(this, null, getString(R.string.message_order_created));
+
+    }
+
+    @Override
+    public void onMitraSelected(TmpMitra mitra) {
+        Log.e(TAG, "You select " + mitra.toString());
+        Fragment fragment = pageAdapter.getItem(viewPager.getCurrentItem());
+
+        if (fragment instanceof FragmentOrderAC) {
+            ((FragmentOrderAC) fragment).etSelectMitra.setText(mitra.getName());
+        }
 
     }
 }

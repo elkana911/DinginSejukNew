@@ -12,7 +12,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.elkana.customer.R;
+import com.elkana.customer.util.DataUtil;
 import com.elkana.dslibrary.pojo.OrderHeader;
+import com.elkana.dslibrary.pojo.mitra.Mitra;
+import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.Util;
 import com.google.firebase.database.DataSnapshot;
@@ -156,8 +159,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ((MyViewHolder) holder).tvLabel.setText(ctx.getString(R.string.row_label_ac_service, obj.getJumlahAC()));
             ((MyViewHolder) holder).tvAddress.setText(obj.getAddressId());
             ((MyViewHolder) holder).tvDateOfService.setText(ctx.getString(R.string.prompt_schedule) + ": " + Util.prettyTimestamp(ctx, obj.getTimestamp()));
-/*
-disable krn lupa
+
             Realm r = Realm.getDefaultInstance();
             try{
 
@@ -176,7 +178,6 @@ disable krn lupa
             }finally {
                 r.close();
             }
-*/
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -31,6 +31,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.elkana.customer.R;
+import com.elkana.customer.exception.OrderAlreadyExists;
 import com.elkana.customer.screen.register.SimpleAdapterUserAddress;
 import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.util.DataUtil;
@@ -38,6 +39,7 @@ import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.mitra.TmpMitra;
+import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.UserAddress;
 import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
@@ -113,29 +115,6 @@ public class FragmentOrderAC extends Fragment {
     public EditText etSelectMitra;
 
     TextView tvExtraCharge;
-
-    /*
-    @BindView(R.id.spAddress)
-    MaterialSpinner spAddress;
-
-    @BindView(R.id.etDate)
-    EditText etDate;
-
-    @BindView(R.id.etTime)
-    EditText etTime;
-
-    @BindView(R.id.tvExtraCharge)
-    TextView tvExtraCharge;
-
-    @BindView(R.id.etServiceProblem)
-    EditText etProblem;
-
-    @BindView(R.id.etCounter)
-    EditText etCounter;
-
-    @BindView(R.id.etSelectMitra)
-    public EditText etSelectMitra;
-    */
 
     private String sRefOrderPendingHeaderRef;
 
@@ -217,7 +196,7 @@ public class FragmentOrderAC extends Fragment {
         View v = inflater.inflate(R.layout.fragment_order_ac, container, false);
 
         etDate = v.findViewById(R.id.etDate);
-        etTime = v.findViewById(R.id.etDate);
+        etTime = v.findViewById(R.id.etTime);
         tvExtraCharge = v.findViewById(R.id.tvExtraCharge);
         etProblem = v.findViewById(R.id.etServiceProblem);
         etCounter = v.findViewById(R.id.etCounter);
@@ -614,7 +593,6 @@ public class FragmentOrderAC extends Fragment {
         orderHeader.setRescheduleCounter(0);
         orderHeader.setUpdatedTimestamp(new Date().getTime());
 
-        /* disable krn butuh penyesuaian apa perlu mitra
         Realm realm = Realm.getDefaultInstance();
         try {
             Mitra mitraObj = DataUtil.lookUpMitra(realm, mitra);
@@ -644,12 +622,12 @@ public class FragmentOrderAC extends Fragment {
                     .findFirst();
 
             orderHeader.setCustomerName(basicInfo.getName());
-            orderHeader.setPhone(basicInfo.getPhoneNumber());
+            orderHeader.setPhone(basicInfo.getPhone1());
 
 
         } finally {
             realm.close();
-        }*/
+        }
 
         return orderHeader;
 

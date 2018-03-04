@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
@@ -24,7 +25,9 @@ import com.elkana.customer.R;
 import com.elkana.customer.util.DataUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
+import com.elkana.dslibrary.listener.ListenerSync;
 import com.elkana.dslibrary.pojo.OrderHeader;
+import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
@@ -257,7 +260,6 @@ public class FragmentSummaryOrder extends Fragment {
 
             tvAddress.setText(getString(R.string.prompt_cust_address) + ": " + orderHeader.getAddressId());
 
-            /* disable krn butuh penyesuaian maunya gmn
             DataUtil.syncMitra(getContext(), new ListenerSync() {
                 @Override
                 public void onPostSync(Exception e) {
@@ -270,7 +272,6 @@ public class FragmentSummaryOrder extends Fragment {
 
                 }
             });
-            */
 
             StringBuffer problem = new StringBuffer();
             problem.append(getString(R.string.summary_ac_problem, orderHeader.getJumlahAC(), orderHeader.getProblem()));
@@ -510,28 +511,27 @@ public class FragmentSummaryOrder extends Fragment {
         btnCallMitra.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // pending dulu
-//                final Realm realm = Realm.getDefaultInstance();
-//                try {
-//                    final OrderHeader orderHeader = realm.where(OrderHeader.class)
-//                            .equalTo("customerId", mSelectedUserId)
-//                            .equalTo("uid", mSelectedOrderId)
-//                            .findFirst();
-//
-//                    if (orderHeader == null)
-//                        return;
-//
-//                    Mitra mitra = DataUtil.lookUpMitraById(realm, orderHeader.getPartyId());
-//
-//                    String availPhone = mitra.getPhone1() == null ? mitra.getPhone2() : mitra.getPhone1();
-//
-//                    Intent callIntent = new Intent(Intent.ACTION_CALL);
-//                    callIntent.setData(Uri.parse("tel:" + availPhone));
-//                    startActivity(callIntent);
-//
-//                } finally {
-//                    realm.close();
-//                }
+                final Realm realm = Realm.getDefaultInstance();
+                try {
+                    final OrderHeader orderHeader = realm.where(OrderHeader.class)
+                            .equalTo("customerId", mSelectedUserId)
+                            .equalTo("uid", mSelectedOrderId)
+                            .findFirst();
+
+                    if (orderHeader == null)
+                        return;
+
+                    Mitra mitra = DataUtil.lookUpMitraById(realm, orderHeader.getPartyId());
+
+                    String availPhone = mitra.getPhone1() == null ? mitra.getPhone2() : mitra.getPhone1();
+
+                    Intent callIntent = new Intent(Intent.ACTION_CALL);
+                    callIntent.setData(Uri.parse("tel:" + availPhone));
+                    startActivity(callIntent);
+
+                } finally {
+                    realm.close();
+                }
 
             }
         });
