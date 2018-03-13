@@ -26,7 +26,7 @@
     <string name="prompt_search_mitra">Cari Mitra...</string>
     <string name="prompt_note">Notes</string>
     <string name="prompt_tipe_ac">Type</string>
-    <string name="prompt_apply_mitra">Lamar Mitra</string>
+    <string name="prompt_apply_mitra">Kirim CV ke Mitra</string>
 
     <string name="title_activity_data_ac">ActivityDataAC</string>
     <string name="title_activity_register">Register</string>

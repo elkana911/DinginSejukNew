@@ -102,7 +102,7 @@ public class ActivityRegister extends FirebaseActivity {
 //            getSupportActionBar().setSubtitle(userFullName);
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(TAG);
+//            getSupportActionBar().setTitle(TAG);
 
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
 
@@ -118,10 +118,10 @@ public class ActivityRegister extends FirebaseActivity {
 //        getSupportActionBar().setCustomView(R.layout.actionbar);
 
         // Set up the login form.
-//        mNama.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_person_outline_black_24dp, android.R.color.white), null, null, null);
-//        mPassword.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_lock_outline_black_24dp, android.R.color.white), null, null, null);
-//        mEmailView.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_mail_outline_black_24dp, android.R.color.white), null, null, null);
-//        etPhone.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_phone_black_24dp, android.R.color.white), null, null, null);
+        mNama.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_person_outline_black_24dp, android.R.color.darker_gray), null, null, null);
+        mPassword.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_lock_outline_black_24dp, android.R.color.darker_gray), null, null, null);
+        mEmailView.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_mail_outline_black_24dp, android.R.color.darker_gray), null, null, null);
+        etPhone.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_phone_black_24dp, android.R.color.darker_gray), null, null, null);
 
 //        mPasswordView = (EditText) findViewById(R.id.password);
 //        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -229,7 +229,7 @@ public class ActivityRegister extends FirebaseActivity {
                             registerUser(nama, phone);
                             finish();
                         } else {
-                            Snackbar.make(coordinatorLayout, getString(R.string.error_register), Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(coordinatorLayout, getString(R.string.error_register) + "\n" + task.getException().getMessage(), Snackbar.LENGTH_SHORT).show();
                             Log.e(TAG, "Register failed.\n" + task.getException().getMessage());
                         }
                     }

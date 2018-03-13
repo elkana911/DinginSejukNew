@@ -1,4 +1,4 @@
-package com.elkana.ds.mitraapp.pojo;
+package com.elkana.dslibrary.pojo.mitra;
 
 import com.google.firebase.database.Exclude;
 
@@ -19,7 +19,7 @@ public class TechnicianReg extends RealmObject implements Serializable {
     private long joinDate;
     private String name;
     private boolean suspend;    // if absen, berlaku sehari ?
-    private int orderTodayCount;
+    private int orderTodayCount;    // unused ?
 
     public TechnicianReg() {
     }

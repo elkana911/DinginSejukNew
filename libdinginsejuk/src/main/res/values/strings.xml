@@ -83,6 +83,7 @@
     <string name="service_finished">Service Finished</string>
 
     <string name="status_created">Vendor will looking specialist for You.</string>
+    <string name="status_unhandled">Vendor will looking specialist for You.</string>
     <string name="status_assigned">Vendor has found a Technician to help you.</string>
     <string name="status_otw">The Technician is already on the way.</string>
     <string name="status_cancelled_by_customer">You cancel the order</string>

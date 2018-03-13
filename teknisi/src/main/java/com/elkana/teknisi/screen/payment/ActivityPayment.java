@@ -12,12 +12,14 @@ import android.widget.TextView;
 import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
+import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
+import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 import com.google.firebase.auth.FirebaseUser;
 
-public class ActivityPayment extends FirebaseActivity {
+public class ActivityPayment extends AFirebaseTeknisiActivity {
 
     public static final String PARAM_ASSIGNMENT_ID = "assignment.id";
     public static final String PARAM_TECHNICIAN_ID = "tech.id";
@@ -58,29 +60,40 @@ public class ActivityPayment extends FirebaseActivity {
         }
 
         tvTotalFare = findViewById(R.id.tvTotalFare);
-        Button btnAction = findViewById(R.id.btnLunas);
-        btnAction.setOnClickListener(new View.OnClickListener() {
+
+        Button btnLunas = findViewById(R.id.btnLunas);
+        btnLunas.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final AlertDialog dialog = Util.showProgressDialog(ActivityPayment.this);
 
-                final EOrderDetailStatus newStatus = EOrderDetailStatus.PAID;
-                FBUtil.Assignment_SetStatus(mMitraId, mTechnicianId, mAssignmentId, mCustomerId, mOrderId, newStatus, new ListenerModifyData() {
+                Util.showDialogConfirmation(ActivityPayment.this, "Konfirmasi Lunas", "Transaksi selesai ?", new ListenerPositiveConfirmation() {
                     @Override
-                    public void onSuccess() {
-                        dialog.dismiss();
+                    public void onPositive() {
 
-                        Intent data = new Intent();
-                        data.putExtra("statusDetailId", newStatus.name());
-                        setResult(RESULT_OK, data);
-                        finish();
-                    }
+                        final AlertDialog dialog = Util.showProgressDialog(ActivityPayment.this);
 
-                    @Override
-                    public void onError(Exception e) {
-                        dialog.dismiss();
+                        final EOrderDetailStatus newStatus = EOrderDetailStatus.PAID;
+
+                        Assignment_setStatus(mMitraId, mTechnicianId, mAssignmentId, mCustomerId, mOrderId, newStatus, new ListenerModifyData() {
+                            @Override
+                            public void onSuccess() {
+                                dialog.dismiss();
+
+                                Intent data = new Intent();
+                                data.putExtra("statusDetailId", newStatus.name());
+                                setResult(RESULT_OK, data);
+                                finish();
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                dialog.dismiss();
+                            }
+                        });
+
                     }
                 });
+
             }
         });
 
@@ -97,13 +110,4 @@ public class ActivityPayment extends FirebaseActivity {
 
     }
 
-    @Override
-    protected void onLoggedOff() {
-
-    }
-
-    @Override
-    protected void onLoggedOn(FirebaseUser user) {
-
-    }
 }

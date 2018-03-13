@@ -1,4 +1,4 @@
-package com.elkana.ds.mitraapp;
+package com.elkana.ds.mitraapp.screen;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -21,6 +21,8 @@ import android.widget.TextView;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
+import com.elkana.ds.mitraapp.AFirebaseMitraActivity;
+import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.screen.assign.FragmentTechnicianList;
 import com.elkana.ds.mitraapp.screen.login.ActivityLogin;
 import com.elkana.ds.mitraapp.screen.order.FragmentOrderList;
@@ -28,9 +30,17 @@ import com.elkana.ds.mitraapp.screen.profile.ActivityProfile;
 import com.elkana.ds.mitraapp.screen.register.technician.ActivityRegisterTechnician;
 import com.elkana.ds.mitraapp.util.DataUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.listener.ListenerModifyData;
+import com.elkana.dslibrary.pojo.FightInfo;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends FirebaseActivity
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
+public class MainActivity extends AFirebaseMitraActivity
         implements NavigationView.OnNavigationItemSelectedListener
         ,FragmentOrderList.OnFragmentOrderListInteractionListener
         ,FragmentTechnicianList.OnFragmentTechnicianListInteractionListener{
@@ -46,6 +56,7 @@ public class MainActivity extends FirebaseActivity
     DrawerLayout drawer;
     MenuItem menuLogout, menuEditProfile;
     CoordinatorLayout coordinatorLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,9 +133,11 @@ public class MainActivity extends FirebaseActivity
 
     @Override
     protected void onLoggedOff() {
+        super.onLoggedOff();
+
         refreshToolbar();
 
-//        DataUtil.cleanTransactionData();
+        DataUtil.cleanTransactionData();
 
         startActivityForResult(new Intent(this, ActivityLogin.class), REQUESTCODE_LOGIN);
         finish();
@@ -132,6 +145,9 @@ public class MainActivity extends FirebaseActivity
 
     @Override
     protected void onLoggedOn(FirebaseUser user) {
+
+        super.onLoggedOn(user);
+
         displayView(R.id.nav_order_new);
 
         refreshToolbar();
@@ -144,6 +160,7 @@ public class MainActivity extends FirebaseActivity
         tvProfileEmail.setText(user.getEmail());
 
         DataUtil.syncUserInformation();
+        DataUtil.syncTechnicianReg();
     }
 
     @Override
@@ -354,7 +371,20 @@ public class MainActivity extends FirebaseActivity
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void onCreateAssignment(final FightInfo fightInfo) {
+        Assignment_create(fightInfo.getTechId(), fightInfo.getTechName(), fightInfo.getCustId(), fightInfo.getOrderId(), new ListenerModifyData() {
+            @Override
+            public void onSuccess() {
+                // delete fight
+                FBUtil.Assignment_deleteFight(fightInfo.getOrderId(), null);
+            }
+
+            @Override
+            public void onError(Exception e) {
+//                            dialog.dismiss();
+            }
+        });
+
 
     }
 }

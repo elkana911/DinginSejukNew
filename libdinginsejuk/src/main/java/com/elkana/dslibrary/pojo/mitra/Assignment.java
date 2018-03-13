@@ -15,6 +15,7 @@ public class Assignment extends RealmObject implements Serializable {
     private String uid;
     private String orderId;         //orderHeader.uid
     private String technicianId;
+    private String technicianName;
     private String customerId;      //orderHeader.customerId
     private String customerName;    //orderHeader.customerName
     private String customerAddress; //orderHeader.addressId
@@ -30,6 +31,7 @@ public class Assignment extends RealmObject implements Serializable {
     private String mitraName;
     private String statusDetailId;  //should synchron 1 way with orderHeader.statusDetailId
     private long updatedTimestamp;
+    private String updatedBy;
 
     public String getUid() {
         return uid;
@@ -53,6 +55,14 @@ public class Assignment extends RealmObject implements Serializable {
 
     public void setTechnicianId(String technicianId) {
         this.technicianId = technicianId;
+    }
+
+    public String getTechnicianName() {
+        return technicianName;
+    }
+
+    public void setTechnicianName(String technicianName) {
+        this.technicianName = technicianName;
     }
 
     public String getCustomerId() {
@@ -167,12 +177,21 @@ public class Assignment extends RealmObject implements Serializable {
         this.updatedTimestamp = updatedTimestamp;
     }
 
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
     @Override
     public String toString() {
         return "Assignment{" +
                 "uid='" + uid + '\'' +
                 ", orderId='" + orderId + '\'' +
                 ", technicianId='" + technicianId + '\'' +
+                ", technicianName='" + technicianName + '\'' +
                 ", customerId='" + customerId + '\'' +
                 ", customerName='" + customerName + '\'' +
                 ", customerAddress='" + customerAddress + '\'' +
@@ -187,6 +206,7 @@ public class Assignment extends RealmObject implements Serializable {
                 ", mitraName='" + mitraName + '\'' +
                 ", statusDetailId='" + statusDetailId + '\'' +
                 ", updatedTimestamp=" + updatedTimestamp +
+                ", updatedBy='" + updatedBy + '\'' +
                 '}';
     }
 }

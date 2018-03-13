@@ -24,6 +24,7 @@ import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.MobileSetup;
 import com.elkana.ds.mitraapp.util.DataUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.map.Location;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.UserAddress;
@@ -125,10 +126,10 @@ public class ActivityRegister extends FirebaseActivity {
 //        getSupportActionBar().setCustomView(R.layout.actionbar);
 
         // Set up the login form.
-//        mNama.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_person_outline_black_24dp, android.R.color.white), null, null, null);
-//        mPassword.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_lock_outline_black_24dp, android.R.color.white), null, null, null);
-//        mEmailView.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_mail_outline_black_24dp, android.R.color.white), null, null, null);
-//        etPhone.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_phone_black_24dp, android.R.color.white), null, null, null);
+        mNama.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_person_outline_black_24dp, android.R.color.darker_gray), null, null, null);
+        mPassword.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_lock_outline_black_24dp, android.R.color.darker_gray), null, null, null);
+        mEmailView.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_mail_outline_black_24dp, android.R.color.darker_gray), null, null, null);
+        etPhone.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_phone_black_24dp, android.R.color.darker_gray), null, null, null);
 
 //        mPasswordView = (EditText) findViewById(R.id.password);
 //        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -313,7 +314,7 @@ public class ActivityRegister extends FirebaseActivity {
 
     public void registerUser(final String nama, final String phone, final UserAddress address) {
         final FirebaseUser currentUser = mAuth.getCurrentUser();
-        DatabaseReference ref = database.getReference(DataUtil.REF_MITRA_AC);
+        DatabaseReference ref = database.getReference(FBUtil.REF_MITRA_AC);
 
         final DatabaseReference userIdRef = ref.child(currentUser.getUid());
 

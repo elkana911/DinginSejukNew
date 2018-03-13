@@ -31,9 +31,9 @@ import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.Util;
+import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.pojo.MobileSetup;
-import com.elkana.teknisi.util.DataUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -54,7 +54,7 @@ import java.util.Map;
 
 import io.realm.Realm;
 
-public class MapsActivity extends FirebaseActivity implements OnMapReadyCallback {
+public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReadyCallback {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
 
@@ -65,14 +65,14 @@ public class MapsActivity extends FirebaseActivity implements OnMapReadyCallback
     public static final String PARAM_LATITUDE_ID = "customer.latitude";
     public static final String PARAM_LONGITUDE_ID = "customer.longitude";
     public static final String PARAM_ADDRESS_ID = "customer.address";
-    public static final String PARAM_PARTY_ID = "party.id";
+    public static final String PARAM_MITRA_ID = "mitra.id";
 
     // The minimum distance to change Updates in meters
     private static final long MIN_UPDATE_DISTANCE = 100; // 100 meters utk pergerakan driver
     // The minimum time between updates in milliseconds
     private static final long MIN_UPDATE_TIME = 1000 * 12;  // 12 seconds
     private static final float MAP_ZOOM_DEFAULT = 13;
-    private String mTechnicianId, mAssignmentId, mOrderId, mCustomerId, mCustomerAddress, mCustomerPhone, mLatitude, mLongitude, mPartyId;
+    private String mTechnicianId, mAssignmentId, mOrderId, mCustomerId, mCustomerAddress, mCustomerPhone, mLatitude, mLongitude, mMitraId;
 
     private OrderHeader orderInfo;
 
@@ -184,7 +184,7 @@ public class MapsActivity extends FirebaseActivity implements OnMapReadyCallback
         mCustomerId = getIntent().getStringExtra(PARAM_CUSTOMER_ID);
         mCustomerAddress = getIntent().getStringExtra(PARAM_ADDRESS_ID);
         mOrderId = getIntent().getStringExtra(PARAM_ORDER_ID);
-        mPartyId = getIntent().getStringExtra(PARAM_PARTY_ID);
+        mMitraId = getIntent().getStringExtra(PARAM_MITRA_ID);
 
         if (Util.TESTING_MODE && mTechnicianId == null) {
             mCustomerId = "2Chlu5e44Ig95SkjQxVgGbVvysk2";
@@ -194,7 +194,7 @@ public class MapsActivity extends FirebaseActivity implements OnMapReadyCallback
             mLongitude = "106.65709599852562";
             mCustomerAddress = "gii bsg isuzu";
             mOrderId = "-Kyhkq-AC9RrqNQAi4vb";
-            mPartyId = "3";
+            mMitraId = "3";
         }
 
         TextView tvVerticalDots = findViewById(R.id.tvVerticalDots);
@@ -256,7 +256,7 @@ public class MapsActivity extends FirebaseActivity implements OnMapReadyCallback
 
                                 //2. update status
 //                                also update orderbucket,FIELD APANYA YG DIUPDATE KAMPRETTTTTT !! BIKIN SUSAH GW DI MASA DEPAN SAJA !!!!!!!!!!!!!!!!!!!!!!
-                                FBUtil.Assignment_SetStatus(mPartyId, mTechnicianId, mAssignmentId, mCustomerId, mOrderId, EOrderDetailStatus.OTW, new ListenerModifyData() {
+                                Assignment_setStatus(mMitraId, mTechnicianId, mAssignmentId, mCustomerId, mOrderId, EOrderDetailStatus.OTW, new ListenerModifyData() {
                                     @Override
                                     public void onSuccess() {
                                         btnStartOtw.setVisibility(View.GONE);
@@ -326,11 +326,10 @@ public class MapsActivity extends FirebaseActivity implements OnMapReadyCallback
 
                         final AlertDialog dialog =  Util.showProgressDialog(MapsActivity.this);
 
-                        FBUtil.Assignment_SetStatus(mPartyId, mTechnicianId, mAssignmentId, mCustomerId, mOrderId, EOrderDetailStatus.WORKING, new ListenerModifyData() {
+                        Assignment_setStatus(mMitraId, mTechnicianId, mAssignmentId, mCustomerId, mOrderId, EOrderDetailStatus.WORKING, new ListenerModifyData() {
                                 @Override
                             public void onSuccess() {
                                 dialog.dismiss();
-
                                 long time = new Date().getTime();
 
                                 Map<String, Object> keyValAssignment = new HashMap<>();
@@ -348,7 +347,7 @@ public class MapsActivity extends FirebaseActivity implements OnMapReadyCallback
                                         data.putExtra(PARAM_CUSTOMER_ID, mCustomerId);
                                         data.putExtra(PARAM_ORDER_ID, mOrderId);
                                         data.putExtra(PARAM_TECHNICIAN_ID, mTechnicianId);
-                                        data.putExtra(PARAM_PARTY_ID, mPartyId);
+                                        data.putExtra(PARAM_MITRA_ID, mMitraId);
                                         setResult(RESULT_OK, data);
                                         finish();
                                     }
@@ -372,16 +371,6 @@ public class MapsActivity extends FirebaseActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-    }
-
-    @Override
-    protected void onLoggedOff() {
-
-    }
-
-    @Override
-    protected void onLoggedOn(FirebaseUser user) {
 
     }
 
@@ -551,7 +540,8 @@ public class MapsActivity extends FirebaseActivity implements OnMapReadyCallback
                         btnStartWorking.setVisibility(View.VISIBLE);
                         break;
                     default:
-                        finish();
+                        // bahaya finish disini, krn bisa saja ada proses lain blm selesai
+//                        finish();
                 }
 
                 mCustomerPhone = obj.getPhone();

@@ -15,6 +15,7 @@ import com.elkana.ds.mitraapp.screen.register.ListenerAddressList;
 import com.elkana.ds.mitraapp.screen.register.RVAdapterUserAddress;
 import com.elkana.ds.mitraapp.util.DataUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.UserAddress;
 import com.elkana.dslibrary.util.Util;
@@ -69,7 +70,7 @@ public class ActivityProfile extends FirebaseActivity {
 //        final AlertDialog dialog = new SpotsDialog(this);
 //        dialog.show();
                 btnUpdate.setEnabled(false);
-                DatabaseReference usersRef = database.getReference(DataUtil.REF_MITRA_AC).child(mAuth.getCurrentUser().getUid()).child("address");
+                DatabaseReference usersRef = database.getReference(FBUtil.REF_MITRA_AC).child(mAuth.getCurrentUser().getUid()).child("address");
 
                 // alamat boleh dihapus meski pernah order krn sudah distore di OrderHeader
                 usersRef.setValue(null);

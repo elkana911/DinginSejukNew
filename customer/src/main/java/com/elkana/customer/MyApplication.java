@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.elkana.customer.util.DataUtil;
 import com.elkana.dslibrary.MyLibraryModule;
+import com.google.firebase.database.FirebaseDatabase;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -16,6 +17,9 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        //enable offline: disable krn bahaya
+//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         Realm.init(this);
         /*

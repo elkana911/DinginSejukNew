@@ -36,7 +36,7 @@
     <string name="title_reregister">Tidak Terdaftar</string>
 
     <string name="prompt_date_service">Tanggal Layanan</string>
-    <string name="prompt_cust_address">Pilih Alamat Rumah</string>
+    <string name="prompt_cust_address">Alamat Rumah</string>
     <string name="prompt_problem_ac">Permasalahan</string>
     <string name="prompt_search">Cari...</string>
     <string name="prompt_vendor">Mitra</string>
@@ -95,6 +95,7 @@
     <string name="message_technician_sent_to_address">Teknisi akan mampir ke alamat %1s.</string>
 
     <string name="status_created">Saat ini Mitra sedang mencarikan spesialis untuk membantu Anda.</string>
+    <string name="status_unhandled">Saat ini Mitra sedang mencarikan spesialis untuk membantu Anda.</string>
     <string name="status_assigned">Mitra sudah mendapatkan Teknisi yang tepat untuk membantu Anda.</string>
     <string name="status_otw">Teknisi sedang dalam perjalanan menuju alamat Anda.</string>
     <string name="status_cancelled_by_customer">Anda membatalkan pesanan.</string>

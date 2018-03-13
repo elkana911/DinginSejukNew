@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.elkana.ds.mitraapp.util.DataUtil;
 import com.elkana.dslibrary.MyLibraryModule;
+import com.google.firebase.database.FirebaseDatabase;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -16,6 +17,9 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        //enable offline: tp bahaya ternyata, node yg harusnya ga ada malah msh dianggap ada. kejadian di multiple device
+//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         Realm.init(this);
         /*

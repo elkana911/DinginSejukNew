@@ -3,7 +3,6 @@ package com.elkana.teknisi.screen.profile;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -15,10 +14,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.util.Util;
@@ -56,7 +55,7 @@ public class ActivityProfile extends FirebaseActivity {
     private Button btnUpdate;
 
     private List<UserMitra> mList = new ArrayList<>();
-    private RVAdapterUserMitra mAdapter;
+    private RVAdapterLamarMitra mAdapter;
 
     private RecyclerView rvMitra;
 
@@ -64,9 +63,8 @@ public class ActivityProfile extends FirebaseActivity {
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        database.getReference(DataUtil.REF_TECHNICIAN_AC)
-                .child(mAuth.getCurrentUser().getUid())
-                .child("mitra").addListenerForSingleValueEvent(new ValueEventListener() {
+        FBUtil.Technician_GetMitraRef(mAuth.getCurrentUser().getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -106,7 +104,7 @@ public class ActivityProfile extends FirebaseActivity {
 //            getSupportActionBar().setSubtitle(userFullName);
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(TAG);
+//            getSupportActionBar().setTitle(TAG);
         }
 
         final BasicInfo basicInfo = this.realm.where(BasicInfo.class).findFirst();
@@ -199,7 +197,7 @@ public class ActivityProfile extends FirebaseActivity {
                 .findAll();
         mList.addAll(this.realm.copyFromRealm(addresses));
 
-        mAdapter = new RVAdapterUserMitra(this, mList, new ListenerMitraList(){
+        mAdapter = new RVAdapterLamarMitra(this, mList, new ListenerMitraList(){
 
             @Override
             public void onAddMitra() {
@@ -213,7 +211,7 @@ public class ActivityProfile extends FirebaseActivity {
             }
 
         });
-
+// sementara pendaftaran teknisi dilakukan  di mitra
         rvMitra = findViewById(R.id.rvMitra);
         rvMitra.setAdapter(mAdapter);
         rvMitra.setLayoutManager(new LinearLayoutManager(this));

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.pojo.technician.ServiceItem;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
@@ -37,8 +38,6 @@ public class RVAdapterPayment extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private ListenerPaymentList mListener;
 
-    private DatabaseReference itemsRef;
-
     public RVAdapterPayment(Context context, String technicianId, String assignmentId, ListenerPaymentList listener) {
         mContext = context;
 
@@ -49,16 +48,16 @@ public class RVAdapterPayment extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         final AlertDialog dialog = Util.showProgressDialog(mContext, "Saving Items");
 
-        itemsRef = FirebaseDatabase.getInstance().getReference(DataUtil.REF_ASSIGNMENTS_PENDING)
-                .child(technicianId)
-                .child(assignmentId)
-                .child("svcItems");
-        itemsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        FBUtil.Assignment_getServiceItemsRef(technicianId,assignmentId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 dialog.dismiss();
 
+                // bisa saja kosong karena ga ada yg diservice.konfirmasi ke bisnis gmn maunya apa perlu kena charge ?
                 if (!dataSnapshot.exists()) {
+                    if (mListener != null)
+                        mListener.onCalculateTotalFare(0L);
                     return;
                 }
 

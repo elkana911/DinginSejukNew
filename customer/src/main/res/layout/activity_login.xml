@@ -27,7 +27,9 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            >
 
             <Button
                 android:id="@+id/btnLogin"
@@ -41,7 +43,7 @@
                 android:id="@+id/email_login_form"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_toLeftOf="@id/btnLogin"
+                android:layout_toStartOf="@id/btnLogin"
                 android:orientation="vertical">
 
                 <android.support.design.widget.TextInputLayout
@@ -54,6 +56,7 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_email"
                         android:inputType="textEmailAddress"
+                        android:drawablePadding="20dp"
                         android:maxLines="1"
                         android:singleLine="true" />
 
@@ -68,6 +71,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_password"
+                        android:drawablePadding="20dp"
                         android:imeActionId="6"
                         android:imeActionLabel="@string/action_sign_in_short"
                         android:imeOptions="actionUnspecified"

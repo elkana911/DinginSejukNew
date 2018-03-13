@@ -9,8 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.elkana.ds.mitraapp.R;
-import com.elkana.ds.mitraapp.pojo.TechnicianReg;
 import com.elkana.dslibrary.component.RealmSearchView;
+import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 
 import io.realm.Realm;
 
@@ -127,8 +127,6 @@ public class FragmentTechnicianList extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentTechnicianListInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 
 

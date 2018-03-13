@@ -20,7 +20,7 @@ import io.realm.Realm;
 /**
  * Created by Eric on 12-Sep-16.
  */
-public class SyncJob extends BroadcastReceiver {
+public class SyncMovementJob extends BroadcastReceiver {
 
     public static void sync_Location(Context context, String technicianId, String orderId, Movement movement, boolean offline) {
 

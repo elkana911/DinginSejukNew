@@ -24,6 +24,8 @@ import android.view.View;
 import com.elkana.dslibrary.BuildConfig;
 import com.elkana.dslibrary.R;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
+import com.elkana.dslibrary.pojo.OrderBucket;
+import com.elkana.dslibrary.pojo.OrderHeader;
 
 import java.io.File;
 import java.io.IOException;
@@ -400,12 +402,12 @@ public class Util {
     /**
      * 1 hour(60 minutes) from now
      *
-     * @param timeToCheck
+     * @param timeMillisToCheck
      * @param lastMinutes if 30, 30 minutes from now is expired
      * @return
      */
-    public static boolean isExpiredOrder(long timeToCheck, int lastMinutes) {
-        Date date = new Date(timeToCheck);
+    public static boolean isExpiredTime(long timeMillisToCheck, int lastMinutes) {
+        Date date = new Date(timeMillisToCheck);
         // 2017-12-13 07:22
 
         Calendar c = Calendar.getInstance();
@@ -447,5 +449,42 @@ public class Util {
         );
 
         return image;
+    }
+
+    public static String joinStrings(String[] list, String delimiter){
+        return TextUtils.join(delimiter, list);
+    }
+
+    public static boolean isPhoneValid(String phone) {
+        return !TextUtils.isEmpty(phone) && phone.length() > 4;
+    }
+
+    public static boolean isExpiredOrder(OrderHeader orderHeader) {
+        EOrderDetailStatus status = EOrderDetailStatus.convertValue(orderHeader.getStatusDetailId());
+        if (status == EOrderDetailStatus.CREATED
+                || status == EOrderDetailStatus.ASSIGNED
+                || status == EOrderDetailStatus.UNHANDLED
+                || status == EOrderDetailStatus.RESCHEDULED
+                || status == EOrderDetailStatus.UNKNOWN
+                ) {
+            return isExpiredTime(orderHeader.getTimestamp(), 0);
+
+        } else
+            return false;
+    }
+
+    public static boolean isExpiredOrder(OrderBucket orderBucket) {
+        EOrderDetailStatus status = EOrderDetailStatus.convertValue(orderBucket.getStatusDetailId());
+
+        if (status == EOrderDetailStatus.CREATED
+                || status == EOrderDetailStatus.ASSIGNED
+                || status == EOrderDetailStatus.UNHANDLED
+                || status == EOrderDetailStatus.RESCHEDULED
+                || status == EOrderDetailStatus.UNKNOWN
+                ) {
+            return isExpiredTime(orderBucket.getOrderTimestamp(), 0);
+
+        } else
+            return false;
     }
 }

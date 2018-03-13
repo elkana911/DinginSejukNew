@@ -5,28 +5,30 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.util.Log;
-import android.view.View;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.pojo.mitra.NotifyNewOrderItem;
 import com.elkana.dslibrary.pojo.mitra.SubServiceType;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.FirebaseToken;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.teknisi.R;
-import com.elkana.teknisi.job.SyncJob;
+import com.elkana.teknisi.job.SyncMovementJob;
+import com.elkana.teknisi.pojo.MitraReg;
 import com.elkana.teknisi.screen.login.ActivityLogin;
+import com.elkana.teknisi.screen.order.ActivityNewOrder;
 import com.elkana.teknisi.screen.profile.ActivityProfile;
 import com.elkana.teknisi.util.DataUtil;
 import com.google.firebase.auth.FirebaseAuth;
@@ -41,6 +43,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class MainActivity extends FirebaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -48,6 +51,7 @@ public class MainActivity extends FirebaseActivity
 {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int REQUESTCODE_NEW_ORDER = 23;
     private View coordinatorLayout;
     TextView tvFullName;
 
@@ -55,7 +59,20 @@ public class MainActivity extends FirebaseActivity
     private MenuItem menuEditProfile;
     private MenuItem menuLogout;
 
+//    private List<String> mitraIds = new ArrayList<>();
+
     private PendingIntent pendingIntent;
+
+    // sementara hny listen dr 1 mitra dulu, ben ga pusing
+    private DatabaseReference mNotifyNewOrderRef;
+    private ValueEventListener mNotifyNewOrderListener;
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +82,7 @@ public class MainActivity extends FirebaseActivity
         coordinatorLayout = findViewById(R.id.coordinatorLayout);
         tvFullName = findViewById(R.id.tvFullName);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -90,6 +107,46 @@ public class MainActivity extends FirebaseActivity
         if (currentFragment instanceof MainActivityFragment) {
             ((MainActivityFragment) currentFragment).reInitiate(mAuth.getCurrentUser().getUid());
         }
+
+        mNotifyNewOrderListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+
+                }
+
+                // TODO: sementara handle satu order dulu
+                String orderId = null;
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    NotifyNewOrderItem value = postSnapshot.getValue(NotifyNewOrderItem.class);
+                    orderId = value.getOrderId();
+                    break;
+                }
+
+                String mitraId = null;
+                Realm r = Realm.getDefaultInstance();
+                try{
+                    RealmResults<MitraReg> all = r.where(MitraReg.class).findAll();
+                    mitraId = all.get(0).getMitraId();
+                }finally {
+                    r.close();
+                }
+
+                if (TextUtils.isEmpty(mitraId) || TextUtils.isEmpty(orderId))
+                    return;
+
+                Intent i = new Intent(MainActivity.this, ActivityNewOrder.class);
+                i.putExtra(ActivityNewOrder.PARAM_MITRA_ID, mitraId);
+                i.putExtra(ActivityNewOrder.PARAM_ORDER_ID, orderId);
+                startActivityForResult(i, REQUESTCODE_NEW_ORDER);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+            }
+        };
+
     }
 
     @Override
@@ -97,6 +154,10 @@ public class MainActivity extends FirebaseActivity
         super.onDestroy();
 
         stopJob();
+
+        if (mNotifyNewOrderRef != null)
+            mNotifyNewOrderRef.removeEventListener(mNotifyNewOrderListener);
+
     }
 
     @Override
@@ -195,6 +256,43 @@ public class MainActivity extends FirebaseActivity
                 Log.e(TAG, databaseError.getMessage(), databaseError.toException());
             }
         });
+
+        userRef.child("mitra").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    return;
+                }
+                Realm r = Realm.getDefaultInstance();
+
+                try {
+                    r.beginTransaction();
+
+                    for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                        MitraReg _obj = postSnapshot.getValue(MitraReg.class);
+//                            Log.e(TAG, _obj.toString());
+
+                        r.copyToRealmOrUpdate(_obj);
+
+                        // to make sure cuma listen 1 mitra dulu
+                        if (mNotifyNewOrderRef == null) {
+                            mNotifyNewOrderRef = FBUtil.TechnicianReg_getNotifyNewOrderRef(_obj.getMitraId(), mAuth.getCurrentUser().getUid());
+                            mNotifyNewOrderRef.addValueEventListener(mNotifyNewOrderListener);
+                        }
+                    }
+
+                    r.commitTransaction();
+                } finally{
+                    r.close();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+            }
+        });
+//        mNotifyNewOrderRef = FBUtil.TechnicianReg_getNotifyNewOrder( mAuth.getCurrentUser().getUid());
 
         // download master data
         downloadMasterData();
@@ -304,7 +402,7 @@ public class MainActivity extends FirebaseActivity
     public void startJob() {
         stopJob();
 
-        Intent intentAlarm = new Intent(this, SyncJob.class);
+        Intent intentAlarm = new Intent(this, SyncMovementJob.class);
 
         if (pendingIntent == null) {
             pendingIntent = PendingIntent.getBroadcast(this, 0, intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -349,7 +447,7 @@ public class MainActivity extends FirebaseActivity
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-//                        dialog.dismiss();
+
                         if (!dataSnapshot.exists())
                             return;
 

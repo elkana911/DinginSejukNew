@@ -3,7 +3,6 @@ package com.elkana.ds.mitraapp.screen.register.technician;
 import android.app.AlertDialog;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -14,19 +13,18 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.elkana.ds.mitraapp.R;
-import com.elkana.ds.mitraapp.pojo.TechnicianReg;
-import com.elkana.ds.mitraapp.util.DataUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.listener.ListenerGetBasicInfo;
+import com.elkana.dslibrary.listener.ListenerModifyData;
+import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
+import com.elkana.dslibrary.pojo.user.FirebaseToken;
 import com.elkana.dslibrary.util.Util;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.Date;
+import java.util.List;
 
 public class ActivityRegisterTechnician extends FirebaseActivity {
     private final String TAG = ActivityRegisterTechnician.class.getSimpleName();
@@ -43,7 +41,7 @@ public class ActivityRegisterTechnician extends FirebaseActivity {
 //            getSupportActionBar().setSubtitle(userFullName);
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(TAG);
+//            getSupportActionBar().setTitle(TAG);
 //            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -84,13 +82,13 @@ public class ActivityRegisterTechnician extends FirebaseActivity {
         final String email = etEmail.getText().toString();
         String phone = etPhone.getText().toString();
 
-        if (!isEmailValid(email)) {
+        if (!Util.isEmailValid(email)) {
             etEmail.setError(getString(R.string.error_email_required));
             focusView = etEmail;
             cancel = true;
         }
 
-        if (!isPhoneValid(phone)) {
+        if (!Util.isPhoneValid(phone)) {
             etPhone.setError(getString(R.string.error_field_required));
             focusView = etPhone;
             cancel = true;
@@ -105,65 +103,47 @@ public class ActivityRegisterTechnician extends FirebaseActivity {
 
         final AlertDialog dialog = Util.showProgressDialog(this, "Checking " + email);
 
-        // technican was registered ?
-        database.getReference(DataUtil.REF_TECHNICIAN_AC).orderByChild("email").equalTo(email).limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
+        FBUtil.Technician_findByEmail(email, new ListenerGetBasicInfo() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onFound(BasicInfo basicInfo, List<FirebaseToken> list) {
                 dialog.dismiss();
-                if (!dataSnapshot.exists()) {
-                    Toast.makeText(ActivityRegisterTechnician.this, getString(R.string.error_technician_not_found), Toast.LENGTH_SHORT).show();
-                    return;
-                }
 
-//                Map<String,Object> keyVal = (Map<String, Object>) dataSnapshot.getChildren().iterator().next().getValue();
-//                BasicInfo basicInfo = (BasicInfo) keyVal.get("basicInfo");
-
-                BasicInfo basicInfo = dataSnapshot.getChildren().iterator().next().getChildren().iterator().next().getValue(BasicInfo.class);
-//                BasicInfo basicInfo = (BasicInfo) dataSnapshot.getChildren().iterator().next().child("basicInfo").getValue();
                 String techUid = basicInfo.getUid();
 
-                TechnicianReg techReg = new TechnicianReg();
+                final TechnicianReg techReg = new TechnicianReg();
                 techReg.setTechId(techUid);
                 techReg.setJoinDate(new Date().getTime());
                 techReg.setSuspend(false);
                 techReg.setOrderTodayCount(0);
                 techReg.setName(basicInfo.getName());
 
-                database.getReference(DataUtil.REF_MITRA_AC)
-                        .child(mAuth.getUid())
-                        .child("technicians")
-                        .child(techUid)
-                        .setValue(techReg).addOnCompleteListener(new OnCompleteListener<Void>() {
+                // register
+                final AlertDialog _dialog = Util.showProgressDialog(ActivityRegisterTechnician.this, "Registering " + email);
+
+                FBUtil.Mitra_registerTech(mAuth.getCurrentUser().getUid(), techReg, new ListenerModifyData(){
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            finish();
-                        } else {
-                            Toast.makeText(ActivityRegisterTechnician.this, getString(R.string.error_add_tech), Toast.LENGTH_SHORT).show();
-                        }
+                    public void onSuccess() {
+                        _dialog.dismiss();
+                        // send  notification to technicians
+                        Util.showDialog(ActivityRegisterTechnician.this, "Register Teknisi","Register "+ techReg.getName() + " sukses.");
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e(TAG, e.getMessage(),e);
+                        _dialog.dismiss();
+                        Util.showErrorDialog(ActivityRegisterTechnician.this, "Register Gagal", e.getMessage());
                     }
                 });
-//                Map<String,Object> keyVal = (Map<String, Object>) dataSnapshot.getChildren().iterator().next().getValue();
-//                keyVal.get("basicInfo")
-//                dialog.dismiss();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onError(Exception e) {
+                Log.e(TAG, e.getMessage(),e);
                 dialog.dismiss();
-                Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                Toast.makeText(ActivityRegisterTechnician.this, e.getMessage(),  Toast.LENGTH_SHORT).show();
             }
         });
-
-
-    }
-
-    private boolean isEmailValid(String email) {
-        return !TextUtils.isEmpty(email) && email.contains("@") && email.length() > 4;
-    }
-
-    private boolean isPhoneValid(String phone) {
-        return !TextUtils.isEmpty(phone) && phone.length() > 4;
     }
 
     @Override

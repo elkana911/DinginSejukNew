@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Created by Eric on 14-Dec-17.
  */
-public class RVAdapterUserMitra extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class RVAdapterLamarMitra extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_CELL = 1;
     private final int VIEW_TYPE_FOOTER = 2;
@@ -28,7 +28,7 @@ public class RVAdapterUserMitra extends RecyclerView.Adapter<RecyclerView.ViewHo
     private List<UserMitra> mList;
     private ListenerMitraList mListener;
 
-    public RVAdapterUserMitra(Context context, List<UserMitra> list, ListenerMitraList listener) {
+    public RVAdapterLamarMitra(Context context, List<UserMitra> list, ListenerMitraList listener) {
         this.ctx = context;
         this.mList = list;
         this.mListener = listener;
@@ -45,7 +45,7 @@ public class RVAdapterUserMitra extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.row_usermitra_add, parent, false);
-            return new MyAddAddressHolder(itemView);
+            return new MyAddMitraHolder(itemView);
         }
 
     }
@@ -53,8 +53,10 @@ public class RVAdapterUserMitra extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         if (position == mList.size()) {
+            // 12 mar 18 sementara disable dulu, daftar mitra harus via mitra app
+            ((MyAddMitraHolder) holder).btnAddMitra.setVisibility(View.INVISIBLE);
             // enable kalau dilimit cukup 1 saja
-//            ((MyAddAddressHolder) holder).btnAddAddress.setVisibility(mList.size() > 0 ? View.INVISIBLE : View.VISIBLE);
+//            ((MyAddMitraHolder) holder).btnAddMitra.setVisibility(mList.size() > 0 ? View.INVISIBLE : View.VISIBLE);
         } else {
 
             final UserMitra obj = mList.get(position);
@@ -98,22 +100,36 @@ public class RVAdapterUserMitra extends RecyclerView.Adapter<RecyclerView.ViewHo
             btnStatus.setColorFilter(Color.parseColor("#FFFFFF"));
 
         }
+
+        public void setData(UserMitra obj) {
+            tvLabelName.setHint(obj.getName());
+            tvLabelAddress.setText(obj.getAddress());
+
+            btnStatus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Util.showDialog(ctx, "Apply Status", "Menunggu Konfirmasi dari Mitra");
+                }
+            });
+
+        }
+
     }
 
-    class MyAddAddressHolder extends RecyclerView.ViewHolder {
-        public Button btnAddAddress;
+    class MyAddMitraHolder extends RecyclerView.ViewHolder {
+        public Button btnAddMitra;
 
 
-        public MyAddAddressHolder(View itemView) {
+        public MyAddMitraHolder(View itemView) {
             super(itemView);
 
-            btnAddAddress = itemView.findViewById(R.id.btnAddAddress);
-            btnAddAddress.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(ctx, R.drawable.ic_add_black_24dp, android.R.color.white), null, null, null);
+            btnAddMitra = itemView.findViewById(R.id.btnAddAddress);
+            btnAddMitra.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(ctx, R.drawable.ic_add_black_24dp, android.R.color.black), null, null, null);
 
 
-            //            btnAddAddress.setImageResource(R.drawable.ic_add_black_24dp);
-//            btnAddAddress.setColorFilter(Color.parseColor("#FFFFFF"));
-            btnAddAddress.setOnClickListener(new View.OnClickListener() {
+            //            btnAddMitra.setImageResource(R.drawable.ic_add_black_24dp);
+//            btnAddMitra.setColorFilter(Color.parseColor("#FFFFFF"));
+            btnAddMitra.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (mListener != null) {
@@ -125,6 +141,7 @@ public class RVAdapterUserMitra extends RecyclerView.Adapter<RecyclerView.ViewHo
             });
 
         }
+
     }
 
 }

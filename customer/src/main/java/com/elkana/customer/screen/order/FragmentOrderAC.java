@@ -41,6 +41,7 @@ import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.mitra.TmpMitra;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.UserAddress;
+import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
@@ -592,6 +593,7 @@ public class FragmentOrderAC extends Fragment {
         orderHeader.setProblem(problem);
         orderHeader.setRescheduleCounter(0);
         orderHeader.setUpdatedTimestamp(new Date().getTime());
+        orderHeader.setUpdatedBy(String.valueOf(Const.USER_AS_COSTUMER));
 
         Realm realm = Realm.getDefaultInstance();
         try {
@@ -700,14 +702,18 @@ public class FragmentOrderAC extends Fragment {
         // fill uid
         orderHeader.setUid(orderKey);
 
-        final OrderBucket orderInfo4Mitra = new OrderBucket();
-        orderInfo4Mitra.setUid(orderKey);
-        orderInfo4Mitra.setCustomerId(orderHeader.getCustomerId());
-        orderInfo4Mitra.setCustomerName(orderHeader.getCustomerName());
-        orderInfo4Mitra.setAddressByGoogle(orderHeader.getAddressByGoogle());
-        orderInfo4Mitra.setStatusDetailId(orderHeader.getStatusDetailId()); // duh males lg nambah node yg ini
-        orderInfo4Mitra.setTechnicianName(orderHeader.getTechnicianId());
-        orderInfo4Mitra.setTimestamp(orderHeader.getTimestamp());
+        final OrderBucket orderBucket = new OrderBucket();
+        orderBucket.setUid(orderKey);
+        orderBucket.setAcCount(orderHeader.getJumlahAC());
+        orderBucket.setCustomerId(orderHeader.getCustomerId());
+        orderBucket.setCustomerName(orderHeader.getCustomerName());
+        orderBucket.setAddressByGoogle(orderHeader.getAddressByGoogle());
+        orderBucket.setStatusDetailId(orderHeader.getStatusDetailId()); // duh males lg nambah node yg ini
+        orderBucket.setTechnicianId(orderHeader.getTechnicianId());
+//        orderBucket.setTechnicianName(orderHeader.getTechnicianId());
+        orderBucket.setOrderTimestamp(orderHeader.getTimestamp());
+        orderBucket.setUpdatedTimestamp(new Date().getTime());
+        orderBucket.setUpdatedBy(String.valueOf(Const.USER_AS_COSTUMER));
 
         orderPendingCustomerRef.setValue(orderHeader).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -722,7 +728,7 @@ public class FragmentOrderAC extends Fragment {
                 DatabaseReference orderPendingMitraRef = database.getReference(DataUtil.REF_ORDERS_MITRA_AC_PENDING)
                         .child(orderHeader.getPartyId())
                         .child(orderKey);
-                orderPendingMitraRef.setValue(orderInfo4Mitra).addOnCompleteListener(new OnCompleteListener<Void>() {
+                orderPendingMitraRef.setValue(orderBucket).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         dialog.dismiss();
@@ -737,7 +743,7 @@ public class FragmentOrderAC extends Fragment {
                                 @Override
                                 public void execute(Realm realm) {
                                     realm.copyToRealmOrUpdate(orderHeader);
-                                    realm.copyToRealmOrUpdate(orderInfo4Mitra);
+                                    realm.copyToRealmOrUpdate(orderBucket);
                                 }
                             });
 

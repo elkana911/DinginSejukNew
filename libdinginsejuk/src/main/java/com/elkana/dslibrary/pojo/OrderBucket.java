@@ -15,9 +15,13 @@ public class OrderBucket extends RealmObject implements Serializable {
     private String customerId;
     private String customerName;
     private String addressByGoogle;
+    private String technicianId;
     private String technicianName;
     private String statusDetailId;
-    private long timestamp;
+    private int acCount;
+    private long orderTimestamp;
+    private long updatedTimestamp;  // the time when server received order. bisa dipakai utk start timeout
+    private String updatedBy;
 
     public String getUid() {
         return uid;
@@ -51,6 +55,14 @@ public class OrderBucket extends RealmObject implements Serializable {
         this.addressByGoogle = addressByGoogle;
     }
 
+    public String getTechnicianId() {
+        return technicianId;
+    }
+
+    public void setTechnicianId(String technicianId) {
+        this.technicianId = technicianId;
+    }
+
     public String getTechnicianName() {
         return technicianName;
     }
@@ -67,12 +79,36 @@ public class OrderBucket extends RealmObject implements Serializable {
         this.statusDetailId = statusDetailId;
     }
 
-    public long getTimestamp() {
-        return timestamp;
+    public long getOrderTimestamp() {
+        return orderTimestamp;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public void setOrderTimestamp(long orderTimestamp) {
+        this.orderTimestamp = orderTimestamp;
+    }
+
+    public int getAcCount() {
+        return acCount;
+    }
+
+    public void setAcCount(int acCount) {
+        this.acCount = acCount;
+    }
+
+    public long getUpdatedTimestamp() {
+        return updatedTimestamp;
+    }
+
+    public void setUpdatedTimestamp(long updatedTimestamp) {
+        this.updatedTimestamp = updatedTimestamp;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 
     @Override
@@ -82,9 +118,13 @@ public class OrderBucket extends RealmObject implements Serializable {
                 ", customerId='" + customerId + '\'' +
                 ", customerName='" + customerName + '\'' +
                 ", addressByGoogle='" + addressByGoogle + '\'' +
+                ", technicianId='" + technicianId + '\'' +
                 ", technicianName='" + technicianName + '\'' +
                 ", statusDetailId='" + statusDetailId + '\'' +
-                ", timestamp=" + timestamp +
+                ", acCount=" + acCount +
+                ", orderTimestamp=" + orderTimestamp +
+                ", updatedTimestamp=" + updatedTimestamp +
+                ", updatedBy='" + updatedBy + '\'' +
                 '}';
     }
 }

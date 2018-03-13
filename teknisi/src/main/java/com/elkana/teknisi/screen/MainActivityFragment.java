@@ -97,23 +97,30 @@ public class MainActivityFragment extends Fragment {
 
         switch (requestCode) {
             case REQUESTCODE_MAP:
+//                if (orderDetailStatus == EOrderDetailStatus.OTW) {
                 if (orderDetailStatus == EOrderDetailStatus.WORKING) {
                     Intent i = new Intent(getActivity(), ActivityServiceDetail.class);
                     i.putExtra(ActivityServiceDetail.PARAM_ASSIGNMENT_ID, data.getStringExtra(MapsActivity.PARAM_ASSIGNMENT_ID));
                     i.putExtra(ActivityServiceDetail.PARAM_TECHNICIAN_ID, data.getStringExtra(MapsActivity.PARAM_TECHNICIAN_ID));
-                    i.putExtra(ActivityServiceDetail.PARAM_PARTY_ID, data.getStringExtra(MapsActivity.PARAM_PARTY_ID));
+                    i.putExtra(ActivityServiceDetail.PARAM_MITRA_ID, data.getStringExtra(MapsActivity.PARAM_MITRA_ID));
 //                    i.putExtra(ActivityServiceDetail.PARAM_CUSTOMER_ID, data.getStringExtra(MapsActivity.PARAM_CUSTOMER_ID));
 //                    i.putExtra(ActivityServiceDetail.PARAM_ORDER_ID, data.getStringExtra(MapsActivity.PARAM_ORDER_ID));
 
-                    startActivity(i);
+                    startActivityForResult(i, REQUESTCODE_SERVICE_DTL);
+//                    startActivity(i);
                 }
                 break;
             case REQUESTCODE_SERVICE_DTL:
                 if (orderDetailStatus == EOrderDetailStatus.PAYMENT) {
                     Intent i = new Intent(getActivity(), ActivityPayment.class);
-                    i.putExtra(ActivityPayment.PARAM_ASSIGNMENT_ID, data.getStringExtra(ActivityPayment.PARAM_ASSIGNMENT_ID));
-                    i.putExtra(ActivityPayment.PARAM_TECHNICIAN_ID, data.getStringExtra(ActivityPayment.PARAM_TECHNICIAN_ID));
-                    startActivity(i);
+
+                    i.putExtra(ActivityPayment.PARAM_ASSIGNMENT_ID, data.getStringExtra(ActivityServiceDetail.PARAM_ASSIGNMENT_ID));
+                    i.putExtra(ActivityPayment.PARAM_TECHNICIAN_ID, data.getStringExtra(ActivityServiceDetail.PARAM_TECHNICIAN_ID));
+                    i.putExtra(ActivityPayment.PARAM_CUSTOMER_ID, data.getStringExtra(ActivityServiceDetail.PARAM_CUSTOMER_ID));
+                    i.putExtra(ActivityPayment.PARAM_MITRA_ID, data.getStringExtra(ActivityServiceDetail.PARAM_MITRA_ID));
+                    i.putExtra(ActivityPayment.PARAM_ORDER_ID, data.getStringExtra(ActivityServiceDetail.PARAM_ORDER_ID));
+                    startActivityForResult(i, REQUESTCODE_SERVICE_PAYMENT);
+
                 }
                 break;
             case REQUESTCODE_SERVICE_PAYMENT:
@@ -170,7 +177,7 @@ public class MainActivityFragment extends Fragment {
                                 i.putExtra(MapsActivity.PARAM_CUSTOMER_ID, obj.getCustomerId());
                                 i.putExtra(MapsActivity.PARAM_ADDRESS_ID, obj.getAddressId());
                                 i.putExtra(MapsActivity.PARAM_ORDER_ID, obj.getUid());
-                                i.putExtra(MapsActivity.PARAM_PARTY_ID, obj.getPartyId());
+                                i.putExtra(MapsActivity.PARAM_MITRA_ID, obj.getPartyId());
 
                                 startActivityForResult(i, REQUESTCODE_MAP);
                                 break;
@@ -179,9 +186,9 @@ public class MainActivityFragment extends Fragment {
 
                                 i.putExtra(ActivityServiceDetail.PARAM_ASSIGNMENT_ID, assignment.getUid());
                                 i.putExtra(ActivityServiceDetail.PARAM_TECHNICIAN_ID, technicianId);
-                                i.putExtra(ActivityServiceDetail.PARAM_PARTY_ID, obj.getPartyId());
-//                                i.putExtra(ActivityServiceDetail.PARAM_CUSTOMER_ID, obj.getCustomerId());
-//                                i.putExtra(ActivityServiceDetail.PARAM_ORDER_ID, obj.getUid());
+                                i.putExtra(ActivityServiceDetail.PARAM_MITRA_ID, obj.getPartyId());
+                                i.putExtra(ActivityServiceDetail.PARAM_CUSTOMER_ID, obj.getCustomerId());
+                                i.putExtra(ActivityServiceDetail.PARAM_ORDER_ID, obj.getUid());
 //                                i.putExtra(ActivityServiceDetail.PARAM_CUSTOMER_NAME, obj.getCustomerName());
 //                                i.putExtra(ActivityServiceDetail.PARAM_CUSTOMER_ADDRESS, obj.getAddressId());
 
@@ -293,7 +300,7 @@ public class MainActivityFragment extends Fragment {
             mListener = (OnFragmentAssignmentistInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentMitraListInRangeInteractionListener");
+                    + " must implement " + OnFragmentAssignmentistInteractionListener.class.getSimpleName());
         }
     }
 

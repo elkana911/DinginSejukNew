@@ -38,14 +38,14 @@ public class ActivityLogin extends FirebaseActivity {
     Button btnLogin, btnRegister, btnForgotPwd;
 
     @Override
-    public void onPostCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-        super.onPostCreate(savedInstanceState, persistentState);
-
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
         ActivityCompat.requestPermissions(this, new String[]{
                         android.Manifest.permission.ACCESS_FINE_LOCATION
                         ,android.Manifest.permission.CALL_PHONE
                         , Manifest.permission.CAMERA},
                 MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA);
+
     }
 
     @Override
@@ -79,6 +79,9 @@ public class ActivityLogin extends FirebaseActivity {
                 attemptLogin();
             }
         });
+
+        mEmailView.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_mail_outline_black_24dp, android.R.color.darker_gray), null, null, null);
+        mPassword.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_lock_outline_black_24dp, android.R.color.darker_gray), null, null, null);
 
         boolean firstTime = false;
         if (firstTime)

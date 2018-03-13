@@ -1,7 +1,11 @@
 package com.elkana.dslibrary.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Eric on 11-Nov-17.
@@ -119,5 +123,32 @@ public class DateUtil {
     }
     public static boolean isToday(long timestamp) {
         return isSameDay(new Date(), new Date(timestamp));
+    }
+
+    public static String formatDateToSimple(long timestamp) {
+        return Util.convertDateToString(new Date(timestamp), "dd MMM yyyy HH:mm:ss");
+    }
+
+    public static String formatMillisToMinutesSeconds(long millis) {
+        return String.format("%02d min, %02d sec",
+                TimeUnit.MILLISECONDS.toMinutes(millis),
+                TimeUnit.MILLISECONDS.toSeconds(millis) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
+        );
+    }
+
+    public static String displayTimeInJakarta(long timestamp, String pattern) {
+//        SimpleDateFormat formatIncoming =
+//                new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+        SimpleDateFormat formatOutgoing = new SimpleDateFormat(pattern);
+        TimeZone tz = TimeZone.getTimeZone("Asia/Jakarta");
+//        System.out.println(tz.getDisplayName(false, TimeZone.SHORT, Locale.ENGLISH)); // WIB
+
+        formatOutgoing.setTimeZone(tz);
+        String ss = formatOutgoing.format(new Date(timestamp));
+
+        return ss;
+//        String ss = formatOutgoing.format(formatIncoming.parse("Tue Mar 03 00:00:00 WIB 2015"));
+
     }
 }

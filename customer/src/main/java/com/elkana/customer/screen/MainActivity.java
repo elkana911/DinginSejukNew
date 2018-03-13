@@ -23,8 +23,10 @@ import android.widget.Toast;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.elkana.customer.R;
+import com.elkana.customer.screen.login.ActivityLogin;
 import com.elkana.customer.screen.order.FragmentMitraListInRange;
 import com.elkana.customer.screen.order.FragmentOrderAC;
+import com.elkana.customer.screen.order.FragmentOrderACNew;
 import com.elkana.customer.screen.order.FragmentOrderList;
 import com.elkana.customer.screen.order.FragmentSummaryOrder;
 import com.elkana.customer.screen.profile.ActivityProfile;
@@ -57,6 +59,7 @@ public class MainActivity extends FirebaseActivity
         implements NavigationView.OnNavigationItemSelectedListener
         , FragmentOrderList.OnFragmentOrderListInteractionListener
         , FragmentOrderAC.OnFragmentOrderACInteractionListener
+        , FragmentOrderACNew.OnFragmentOrderACInteractionListener
         , FragmentSummaryOrder.OnFragmentSOInteractionListener
         , FragmentMitraListInRange.OnFragmentMitraListInRangeInteractionListener {
 
@@ -121,7 +124,7 @@ public class MainActivity extends FirebaseActivity
         // PAGE_ORDER_DETAIL
         fList.add(FragmentSummaryOrder.newInstance());
         // PAGE_SERVER_CHOICE
-        fList.add(FragmentOrderAC.newInstance(currentUser == null ? null : currentUser.getUid(), null));
+        fList.add(FragmentOrderACNew.newInstance(currentUser == null ? null : currentUser.getUid(), null));
 //        fList.add(FragmentSvcChoice.newInstance(currentUser == null ? null : currentUser.getUid(), null));
 
         pageAdapter = new AdapterFragments(getSupportFragmentManager(), fList);
@@ -378,6 +381,7 @@ public class MainActivity extends FirebaseActivity
         } else if (id == R.id.action_logout) {
             logout();
 
+            startActivity(new Intent(this, ActivityLogin.class));
             finish();
 
             return true;
@@ -467,9 +471,9 @@ public class MainActivity extends FirebaseActivity
                 }
 
             } else if (pageIndex == PAGE_SERVICE_CHOICE) {
-                if (_fragment instanceof FragmentOrderAC) {
+                if (_fragment instanceof FragmentOrderACNew) {
                     if (mAuth != null && mAuth.getCurrentUser() != null)
-                        ((FragmentOrderAC) _fragment).reInitiate(mAuth.getCurrentUser().getUid(), null);
+                        ((FragmentOrderACNew) _fragment).reInitiate(mAuth.getCurrentUser().getUid(), null);
                 }
             }
 
@@ -602,8 +606,8 @@ public class MainActivity extends FirebaseActivity
         Log.e(TAG, "You select " + mitra.toString());
         Fragment fragment = pageAdapter.getItem(viewPager.getCurrentItem());
 
-        if (fragment instanceof FragmentOrderAC) {
-            ((FragmentOrderAC) fragment).etSelectMitra.setText(mitra.getName());
+        if (fragment instanceof FragmentOrderACNew) {
+            ((FragmentOrderACNew) fragment).etSelectMitra.setText(mitra.getName());
         }
 
     }

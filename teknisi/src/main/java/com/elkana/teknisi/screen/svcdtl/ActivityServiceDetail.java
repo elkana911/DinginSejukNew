@@ -19,10 +19,12 @@ import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.mitra.Assignment;
 import com.elkana.dslibrary.pojo.technician.ServiceItem;
+import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.screen.dataac.ActivityDataAC;
+import com.elkana.teknisi.screen.payment.ActivityPayment;
 import com.elkana.teknisi.util.DataUtil;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -37,12 +39,12 @@ public class ActivityServiceDetail extends FirebaseActivity {
 
     public static final String PARAM_ASSIGNMENT_ID = "assignment.id";
     public static final String PARAM_TECHNICIAN_ID = "tech.id";
-//    public static final String PARAM_CUSTOMER_ID = "customer.id";
+    public static final String PARAM_CUSTOMER_ID = "customer.id";
 //    public static final String PARAM_CUSTOMER_NAME = "customer.name";
 //    public static final String PARAM_CUSTOMER_ADDRESS = "customer.address";
 //    public static final String PARAM_STARTSERVICE_TIME = "dateOfService";
-    public static final String PARAM_PARTY_ID = "party.id";
-//    public static final String PARAM_ORDER_ID = "order.id";
+    public static final String PARAM_MITRA_ID = "mitra.id";
+    public static final String PARAM_ORDER_ID = "order.id";
 
 //    public static final String PARAM_LATITUDE_ID = "customer.latitude";
 //    public static final String PARAM_LONGITUDE_ID = "customer.longitude";
@@ -62,7 +64,7 @@ public class ActivityServiceDetail extends FirebaseActivity {
     Button btnGo2Payment;
     TextView tvTotalFare, tvCustomerName, tvCustomerAddress, tvStartTime;
 
-    private String mTechnicianId, mAssignmentId, mOrderId, mCustomerId, mPartyId, mCustomerAddress, mCustomerName, mStartTime;//, mLatitude, mLongitude;
+    private String mTechnicianId, mAssignmentId, mOrderId, mCustomerId, mCustomerAddress, mCustomerName, mMitraId, mStartTime;//, mLatitude, mLongitude;
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -71,6 +73,7 @@ public class ActivityServiceDetail extends FirebaseActivity {
         // next coba pindah ke onStart
         final AlertDialog dialog = Util.showProgressDialog(this, "Check Orders...");
 
+        // 13 mar 18 lupa knp utk ngisi mOrderId dll ga based on param di oncreate aja ? soalnya sempet forceclose wkt activity ini dipanggil
         database.getReference(DataUtil.REF_ASSIGNMENTS_PENDING)
                 .child(mTechnicianId)
                 .child(mAssignmentId)
@@ -131,7 +134,8 @@ public class ActivityServiceDetail extends FirebaseActivity {
 
         mAssignmentId = getIntent().getStringExtra(PARAM_ASSIGNMENT_ID);
         mTechnicianId = getIntent().getStringExtra(PARAM_TECHNICIAN_ID);
-        mPartyId = getIntent().getStringExtra(PARAM_PARTY_ID);
+//        mPartyId = getIntent().getStringExtra(PARAM_MITRA_ID);
+        mMitraId = getIntent().getStringExtra(PARAM_MITRA_ID);
 
 //        mCustomerId = getIntent().getStringExtra(PARAM_CUSTOMER_ID);
 //        mOrderId = getIntent().getStringExtra(PARAM_ORDER_ID);
@@ -142,9 +146,9 @@ public class ActivityServiceDetail extends FirebaseActivity {
         if (Util.TESTING_MODE && mTechnicianId == null) {
             mTechnicianId = "YFh65qe1BSPMJyhS8KkIrtPUYR32";
             mAssignmentId = "assignmentIdAbc123";
-            mPartyId = "3";
+//            mPartyId = "3";
 //            mCustomerId = "2Chlu5e44Ig95SkjQxVgGbVvysk2";
-//            mOrderId = "-Kyhkq-AC9RrqNQAi4vb";
+            mMitraId = "-Kyhkq-AC9RrqNQAi4vb";
 //            mCustomerName = "Eric Elkana Tarigan";
 //            mCustomerAddress = "gii bsd Isuzu";
 //            mStartTime = "27 Nov 2017 12:30";
@@ -179,7 +183,7 @@ public class ActivityServiceDetail extends FirebaseActivity {
             public void onClick(View v) {
 
                 final List<ServiceItem> list = mAdapter.getList();
-/*
+                /*
                 if (list.size() < 1) {
                     Util.showDialogConfirmation(ActivityServiceDetail.this, null, getString(R.string.confirm_no_charge), new ListenerPositiveConfirmation() {
                         @Override
@@ -204,15 +208,21 @@ public class ActivityServiceDetail extends FirebaseActivity {
                         FBUtil.Assignment_addServiceItems(mTechnicianId, mAssignmentId, list, new ListenerModifyData(){
                             @Override
                             public void onSuccess() {
-                                FBUtil.Order_SetStatus(mPartyId, mCustomerId, mOrderId, mAssignmentId, EOrderDetailStatus.PAYMENT, new ListenerModifyData() {
+                                FBUtil.Order_SetStatus(mMitraId, mCustomerId, mOrderId, mAssignmentId, EOrderDetailStatus.PAYMENT, String.valueOf(Const.USER_AS_TECHNICIAN), new ListenerModifyData() {
                                     @Override
                                     public void onSuccess() {
                                         dialog.dismiss();
 
+                                        // berhubung akan pindah layar payment, pls see params within ActivityPayment
                                         Intent data = new Intent();
                                         data.putExtra("statusDetailId", EOrderDetailStatus.PAYMENT.name());
-                                        data.putExtra(PARAM_ASSIGNMENT_ID, EOrderDetailStatus.PAYMENT.name());
-                                        data.putExtra(PARAM_TECHNICIAN_ID, EOrderDetailStatus.PAYMENT.name());
+                                        data.putExtra(PARAM_ASSIGNMENT_ID, mAssignmentId);
+                                        data.putExtra(PARAM_TECHNICIAN_ID, mTechnicianId);
+                                        data.putExtra(PARAM_CUSTOMER_ID, mCustomerId);
+                                        data.putExtra(PARAM_MITRA_ID, mMitraId);
+                                        data.putExtra(PARAM_ORDER_ID, mOrderId);
+//                                        data.putExtra(PARAM_ASSIGNMENT_ID, EOrderDetailStatus.PAYMENT.name());
+//                                        data.putExtra(PARAM_TECHNICIAN_ID, EOrderDetailStatus.PAYMENT.name());
                                         setResult(RESULT_OK, data);
                                         finish();
                                     }
@@ -251,7 +261,7 @@ public class ActivityServiceDetail extends FirebaseActivity {
 //            public void onDeleteItem(ServiceItem obj, int position) {
 //            }
 //        });
-        mAdapter = new RVAdapterServiceDetail(this, mAssignmentId, mPartyId, new ListenerServiceDetail() {
+        mAdapter = new RVAdapterServiceDetail(this, mAssignmentId, mMitraId, new ListenerServiceDetail() {
             @Override
             public void onAddServiceDetail() {
                 ServiceItem item = new ServiceItem();

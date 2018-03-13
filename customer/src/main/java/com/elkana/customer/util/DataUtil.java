@@ -123,6 +123,7 @@ udah di taruh di lib
 
         switch (status) {
             case CREATED:
+            case UNHANDLED:
                 return ctx.getString(R.string.status_created);
             case ASSIGNED:
                 return ctx.getString(R.string.status_assigned);
@@ -527,8 +528,8 @@ udah di taruh di lib
         }
     }
 
-    public static boolean isExpiredOrder(OrderHeader order) {
-        return Util.isExpiredOrder(order.getTimestamp(), getMobileSetup().getLastOrderMinutes());
-    }
+//    public static boolean isExpiredOrder(OrderHeader order) {
+//        return Util.isExpiredOrder(order.getTimestamp(), getMobileSetup().getLastOrderMinutes());
+//    }
 
 }

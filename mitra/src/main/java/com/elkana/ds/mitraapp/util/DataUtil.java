@@ -6,8 +6,11 @@ import android.util.Log;
 
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.MobileSetup;
+import com.elkana.ds.mitraapp.pojo.NotifyTechnician;
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.OrderHeader;
+import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 import com.elkana.dslibrary.pojo.technician.Technician;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.FirebaseToken;
@@ -48,7 +51,7 @@ public class DataUtil {
     public static final String REF_ORDERS_AC_FINISHED = "orders/ac/finished";
 
     public static final String REF_ASSIGNMENTS = "assignments/ac";
-    public static final String REF_MITRA_AC = "mitra/ac";
+//    public static final String REF_MITRA_AC = "mitra/ac";
 
     public static final String REF_SUBSERVICEAC = "master/serviceType/airConditioner/subService";   // biasanya dipakai di HQ utk available service for all mitra. tp tetep diunduh ke teknisi karena akan dimapping dengan serviceToParty
     public static final String REF_VENDOR_AC_SERVICES = "serviceToParty/ac";
@@ -64,25 +67,23 @@ public class DataUtil {
     public static void getOnlineDataToOffline() {
 
     }
-/*
-lihat versi lib
+
     public static void cleanTransactionData() {
         Realm realm = Realm.getDefaultInstance();
         try {
             realm.beginTransaction();
 
-            realm.where(Technician.class).findAll().deleteAllFromRealm();
-            realm.where(TechnicianReg.class).findAll().deleteAllFromRealm();
-            realm.where(OrderHeader.class).findAll().deleteAllFromRealm();
-            realm.where(OrderBucket.class).findAll().deleteAllFromRealm();
-            realm.where(Assignment.class).findAll().deleteAllFromRealm();
+            realm.where(NotifyTechnician.class).findAll().deleteAllFromRealm();
+//            realm.where(TechnicianReg.class).findAll().deleteAllFromRealm();
+//            realm.where(OrderHeader.class).findAll().deleteAllFromRealm();
+//            realm.where(OrderBucket.class).findAll().deleteAllFromRealm();
+//            realm.where(Assignment.class).findAll().deleteAllFromRealm();
 //            realm.deleteAll(); bahaya krn mainmenu jg ikut kehapus
             realm.commitTransaction();
         } finally {
             realm.close();
         }
     }
-*/
 
     public static void initiateOfflineData() {
 
@@ -119,6 +120,7 @@ lihat versi lib
 
         switch (status) {
             case CREATED:
+            case UNHANDLED:
                 return ctx.getString(R.string.status_created);
             case ASSIGNED:
                 return ctx.getString(R.string.status_assigned);
@@ -228,8 +230,52 @@ lihat versi lib
 
     }
 
+    /*
     public static boolean isExpiredOrder(OrderHeader order) {
-        return Util.isExpiredOrder(order.getTimestamp(), getMobileSetup().getLastOrderMinutes());
+        return isExpiredOrder(order.getTimestamp());
+    }
+
+    public static boolean isExpiredOrder(long timestamp) {
+        return Util.isExpiredOrder(timestamp, getMobileSetup().getLastOrderMinutes());
+    }
+*/
+    public static void syncTechnicianReg(){
+        String mitraId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        FirebaseDatabase.getInstance().getReference(FBUtil.REF_MITRA_AC)
+                .child(mitraId)
+                .child("technicians")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            return;
+                        }
+
+                        final List<TechnicianReg> list = new ArrayList<>();
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            list.add(postSnapshot.getValue(TechnicianReg.class));
+                        }
+
+                        Realm r = Realm.getDefaultInstance();
+                        try{
+                            r.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    realm.copyToRealmOrUpdate(list);
+                                }
+                            });
+                        }finally {
+                            r.close();
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                    }
+                });
     }
 
     public static void syncUserInformation() {
@@ -237,7 +283,7 @@ lihat versi lib
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         // get user info
-        DatabaseReference refUser = database.getReference(DataUtil.REF_MITRA_AC).child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        DatabaseReference refUser = database.getReference(FBUtil.REF_MITRA_AC).child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         refUser.child("basicInfo")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override

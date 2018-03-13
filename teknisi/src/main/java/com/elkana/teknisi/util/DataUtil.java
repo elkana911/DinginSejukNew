@@ -123,6 +123,7 @@ public class DataUtil {
 
         switch (status) {
             case CREATED:
+            case UNHANDLED:
                 return ctx.getString(R.string.status_created);
             case ASSIGNED:
                 return ctx.getString(R.string.status_assigned);

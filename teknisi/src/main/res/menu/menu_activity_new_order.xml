@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.elkana.teknisi.screen.order.ActivityNewOrder">
+    <item
+        android:id="@+id/action_close"
+        android:orderInCategory="100"
+        android:title="Close"
+        android:icon="@drawable/ic_clear_black_24dp"
+        app:showAsAction="always" />
+</menu>

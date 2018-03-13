@@ -14,8 +14,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.elkana.ds.mitraapp.AFirebaseMitraActivity;
 import com.elkana.ds.mitraapp.R;
-import com.elkana.ds.mitraapp.pojo.TechnicianReg;
 import com.elkana.ds.mitraapp.util.DataUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.component.RealmSearchView;
@@ -24,6 +24,7 @@ import com.elkana.dslibrary.listener.ListenerGetOrder;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.OrderHeader;
+import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 import com.elkana.dslibrary.util.Util;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,7 +36,7 @@ import java.util.Date;
 
 import io.realm.Realm;
 
-public class ActivityScrollingAssignment extends FirebaseActivity {
+public class ActivityScrollingAssignment extends AFirebaseMitraActivity{
 
     private static final String TAG = "Assignment";
 
@@ -60,10 +61,10 @@ public class ActivityScrollingAssignment extends FirebaseActivity {
             @Override
             public void onGetData(OrderHeader obj) {
                 dialog.dismiss();
-                tvCustomerAddress.setText(getString(R.string.label_address, obj.getAddressByGoogle()));
+                tvCustomerAddress.setText(getString(R.string.label_customer_address, obj.getAddressByGoogle()));
                 tvCustomerName.setText(obj.getCustomerName());
                 tvOrderDate.setText(getString(R.string.label_order_date, Util.convertDateToString(new Date(obj.getTimestamp()), "dd MMM yyyy HH:mm"))
-                        + (DataUtil.isExpiredOrder(obj) ? " (EXPIRED)" : "")
+                        + (Util.isExpiredOrder(obj) ? " (EXPIRED)" : "")
                 );
             }
 
@@ -146,7 +147,7 @@ public class ActivityScrollingAssignment extends FirebaseActivity {
 
                         //TODO: should check DataUtil.isExpiredOrder(obj)
                         // build assignment here
-                        FBUtil.Assignment_create(obj.getTechId(), mCustomerId, mOrderId, new ListenerModifyData() {
+                        Assignment_create(obj.getTechId(), obj.getName(), mCustomerId, mOrderId, new ListenerModifyData() {
                             @Override
                             public void onSuccess() {
                                 dialog.dismiss();
@@ -181,7 +182,7 @@ public class ActivityScrollingAssignment extends FirebaseActivity {
         final AlertDialog dialog = Util.showProgressDialog(this, "Getting Technicians");
 
         // get all registered technicians
-        DatabaseReference ref = database.getReference(DataUtil.REF_MITRA_AC)
+        DatabaseReference ref = database.getReference(FBUtil.REF_MITRA_AC)
                 .child(mMitraId)
                 .child("technicians");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -228,16 +229,6 @@ public class ActivityScrollingAssignment extends FirebaseActivity {
             }
         });
 
-
-    }
-
-    @Override
-    protected void onLoggedOff() {
-//        finish(); nanti enable aja kalo udah beres di design
-    }
-
-    @Override
-    protected void onLoggedOn(FirebaseUser user) {
 
     }
 

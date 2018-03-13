@@ -565,7 +565,7 @@ public class FragmentSummaryOrder extends Fragment {
             mListener = (OnFragmentSOInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentSOInteractionListener");
+                    + " must implement " + OnFragmentSOInteractionListener.class.getSimpleName());
         }
     }
 
@@ -673,7 +673,7 @@ public class FragmentSummaryOrder extends Fragment {
         orderHeaderPendingRef.addValueEventListener(mValueEventListener);
 
         // update kalo udah expired
-        if (!DataUtil.isExpiredOrder(orderHeader))
+        if (!Util.isExpiredOrder(orderHeader))
             return;
 
         // TODO: due to timeline, just update the status. when time is available, please handle by moving node to "finished"
@@ -714,6 +714,19 @@ public class FragmentSummaryOrder extends Fragment {
 //                    orderHeaderPendingRef.setValue(orderHeader);
 //                }
 */
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (orderHeaderPendingRef != null)
+            orderHeaderPendingRef.removeEventListener(mValueEventListener);
     }
 
     public void reInitiate(OrderHeader order) {

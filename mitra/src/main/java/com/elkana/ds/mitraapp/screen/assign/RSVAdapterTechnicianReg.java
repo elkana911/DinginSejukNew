@@ -10,7 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.elkana.ds.mitraapp.R;
-import com.elkana.ds.mitraapp.pojo.TechnicianReg;
+import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 
 import co.moonmonkeylabs.realmsearchview.RealmSearchAdapter;
 import co.moonmonkeylabs.realmsearchview.RealmSearchViewHolder;

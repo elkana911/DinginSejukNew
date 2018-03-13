@@ -37,6 +37,7 @@ public class OrderHeader extends RealmObject implements Serializable {
     private long timestamp; // gabungan dateOfService & timeOfService
 //    private long estimatePrice;
     private long updatedTimestamp;
+    private String updatedBy;
 
     public String getUid() {
         return uid;
@@ -230,6 +231,14 @@ public class OrderHeader extends RealmObject implements Serializable {
         this.partyName = partyName;
     }
 
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
     @Override
     public String toString() {
         return "OrderHeader{" +
@@ -257,6 +266,7 @@ public class OrderHeader extends RealmObject implements Serializable {
                 ", rescheduleCounter=" + rescheduleCounter +
                 ", timestamp=" + timestamp +
                 ", updatedTimestamp=" + updatedTimestamp +
+                ", updatedBy='" + updatedBy + '\'' +
                 '}';
     }
 }
