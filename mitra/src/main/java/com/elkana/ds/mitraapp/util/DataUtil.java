@@ -10,7 +10,10 @@ import com.elkana.ds.mitraapp.pojo.NotifyTechnician;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.OrderHeader;
+import com.elkana.dslibrary.pojo.mitra.Assignment;
+import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
+import com.elkana.dslibrary.pojo.mitra.TmpMitra;
 import com.elkana.dslibrary.pojo.technician.Technician;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.FirebaseToken;
@@ -74,10 +77,10 @@ public class DataUtil {
             realm.beginTransaction();
 
             realm.where(NotifyTechnician.class).findAll().deleteAllFromRealm();
-//            realm.where(TechnicianReg.class).findAll().deleteAllFromRealm();
-//            realm.where(OrderHeader.class).findAll().deleteAllFromRealm();
-//            realm.where(OrderBucket.class).findAll().deleteAllFromRealm();
-//            realm.where(Assignment.class).findAll().deleteAllFromRealm();
+            realm.where(TechnicianReg.class).findAll().deleteAllFromRealm();
+            realm.where(Mitra.class).findAll().deleteAllFromRealm();
+//            realm.where(TmpMitra.class).findAll().deleteAllFromRealm();
+            realm.where(Assignment.class).findAll().deleteAllFromRealm();
 //            realm.deleteAll(); bahaya krn mainmenu jg ikut kehapus
             realm.commitTransaction();
         } finally {

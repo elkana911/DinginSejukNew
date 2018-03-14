@@ -178,6 +178,8 @@ public class MainActivity extends FirebaseActivity
             ((MainActivityFragment) currentFragment).cleanUpListener();
         }
 
+        DataUtil.cleanTransactionData();
+
         startActivity(new Intent(this, ActivityLogin.class));
 //        startActivityForResult(new Intent(this, ActivityLogin.class), REQUESTCODE_LOGIN);
         finish();
@@ -274,10 +276,16 @@ public class MainActivity extends FirebaseActivity
 
                         r.copyToRealmOrUpdate(_obj);
 
-                        // to make sure cuma listen 1 mitra dulu
-                        if (mNotifyNewOrderRef == null) {
-                            mNotifyNewOrderRef = FBUtil.TechnicianReg_getNotifyNewOrderRef(_obj.getMitraId(), mAuth.getCurrentUser().getUid());
-                            mNotifyNewOrderRef.addValueEventListener(mNotifyNewOrderListener);
+                        try {
+                            String teknisiId = mAuth.getCurrentUser().getUid();
+
+                            // to make sure cuma listen 1 mitra dulu
+                            if (mNotifyNewOrderRef == null) {
+                                mNotifyNewOrderRef = FBUtil.TechnicianReg_getNotifyNewOrderRef(_obj.getMitraId(), teknisiId);
+                                mNotifyNewOrderRef.addValueEventListener(mNotifyNewOrderListener);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
 

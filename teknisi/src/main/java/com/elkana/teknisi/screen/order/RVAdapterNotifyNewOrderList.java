@@ -318,7 +318,8 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                 return;
 
             // harusnya dari sisi teknisi dikurangi 1 menit
-            final long expirationMillis = (obj.getMitraTimestamp() - new Date().getTime()) + Const.TIME_TEN_MINUTE_MILLIS;
+            long selisih = (obj.getMitraTimestamp() - new Date().getTime());
+            final long expirationMillis = selisih + Const.TIME_TEN_MINUTE_MILLIS;
 //            final long expirationMillis = (obj.getTimestamp() - new Date().getTime()) + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
 
 //            final long expirationMillis = (new Date().getTime() - obj.getTimestamp());

@@ -154,7 +154,8 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                                 __item.setMitraId(mMitraId);
                                 __item.setOrderId(_obj.getUid());
                                 __item.setOrderTimestamp(_obj.getOrderTimestamp());
-                                __item.setMitraTimestamp(_obj.getUpdatedTimestamp());
+                                __item.setMitraTimestamp(new Date().getTime());
+//                                __item.setMitraTimestamp(_obj.getUpdatedTimestamp());
                                 __item.setTechId(techId);
 
                                 // harusnya terkirim k teknisi terdaftar kalo blm ada di table notifytechnician

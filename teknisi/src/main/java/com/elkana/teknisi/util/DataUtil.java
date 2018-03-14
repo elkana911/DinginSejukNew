@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.technician.ServiceItem;
+import com.elkana.dslibrary.pojo.technician.Technician;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
@@ -58,7 +59,7 @@ public class DataUtil {
 
             realm.where(ServiceItem.class).findAll().deleteAllFromRealm();
 
-//            realm.where(TmpMitra.class).findAll().deleteAllFromRealm();
+            realm.where(Technician.class).findAll().deleteAllFromRealm();
 //            realm.where(Mitra.class).findAll().deleteAllFromRealm();
 //            realm.where(OrderDetail.class).findAll().deleteAllFromRealm();
 //            realm.where(OrderHeader.class).findAll().deleteAllFromRealm();

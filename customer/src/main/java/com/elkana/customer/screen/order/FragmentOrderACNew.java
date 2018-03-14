@@ -35,6 +35,7 @@ import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.screen.register.SimpleAdapterUserAddress;
 import com.elkana.customer.util.DataUtil;
 import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
@@ -253,7 +254,7 @@ public class FragmentOrderACNew extends Fragment {
         btnSubmitOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                submitOrder();
+                trySubmitOrder();
             }
         });
 
@@ -724,13 +725,23 @@ public class FragmentOrderACNew extends Fragment {
         selectAddressDefault();
     }
 
-    private void submitOrder() {
+    private void trySubmitOrder() {
         final OrderHeader orderHeader = tryToBuildOrder();
 
         if (orderHeader == null) {
             return;
         }
 
+        Util.showDialogConfirmation(getActivity(), "Submit Order", "Booking Layanan sekarang ?", new ListenerPositiveConfirmation() {
+            @Override
+            public void onPositive() {
+                submitOrder(orderHeader);
+            }
+        });
+
+    }
+
+    private void submitOrder(final OrderHeader orderHeader) {
         final AlertDialog dialog = Util.showProgressDialog(getContext(), "Submit Order...");
 
         DatabaseReference orderPendingCustomerRef = database.getReference(DataUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
@@ -767,7 +778,7 @@ public class FragmentOrderACNew extends Fragment {
 
                 // MUST USE DIFFERENCE REFERENCE TO AVOID REPLACED VALUE !!
                 FBUtil.Orders_getPendingMitraRef(orderHeader.getPartyId(), orderKey)
-                    .setValue(orderBucket).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        .setValue(orderBucket).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         dialog.dismiss();
@@ -801,8 +812,6 @@ public class FragmentOrderACNew extends Fragment {
 
             }
         });
-
-
     }
 
     /**

@@ -381,7 +381,7 @@ public class FragmentSummaryOrder extends Fragment {
 
 
                 Util.showDialogConfirmation(getContext(), getString(R.string.title_reschedule_order)
-                        , getString(R.string.message_reschedule_order_confirmation)
+                        , "Silakan isi jadwal yang baru..."
                         , view
                         , new ListenerPositiveConfirmation() {
                             @Override
@@ -658,10 +658,10 @@ public class FragmentSummaryOrder extends Fragment {
             if (orderHeader.getStatusDetailId().equals(EOrderDetailStatus.CREATED.name())
                     || orderHeader.getStatusDetailId().equals(EOrderDetailStatus.ASSIGNED.name())
                     ) {
-            } else {
                 if (mListener != null)
-                    mListener.onError(new RuntimeException(getString(R.string.error_technician_otw)));
+                    mListener.onError(new RuntimeException("Tidak dapat reschedule di status saat ini"));
                 return;
+            } else {
             }
 
             final OrderHeader orderHeaderCopy = realm.copyFromRealm(orderHeader);
@@ -682,6 +682,7 @@ public class FragmentSummaryOrder extends Fragment {
                                     try {
                                         _r.beginTransaction();
                                         _r.copyToRealmOrUpdate(orderHeaderCopy);
+                                        _r.copyToRealmOrUpdate(orderBucketCopy);
                                         _r.commitTransaction();
 
                                         if (mListener != null) {
