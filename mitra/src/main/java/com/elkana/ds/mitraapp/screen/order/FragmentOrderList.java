@@ -113,7 +113,10 @@ public class FragmentOrderList extends Fragment {
                         Toast.makeText(getActivity(), "Waiting for confirmation from Technician", Toast.LENGTH_SHORT).show();
                         break;
                     case CANCELLED_BY_TIMEOUT:
-                        Toast.makeText(getActivity(), "This order is expired", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.status_expired), Toast.LENGTH_SHORT).show();
+                        break;
+                    case CANCELLED_BY_CUSTOMER:
+                        Toast.makeText(getActivity(), getString(R.string.status_cancelled_by_customer), Toast.LENGTH_SHORT).show();
                         break;
                     case OTW:
                         intent = new Intent(getActivity(), ActivityTechOtwMap.class);

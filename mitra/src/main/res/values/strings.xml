@@ -31,4 +31,6 @@
     <string name="title_status">STATUS</string>
     <string name="title_activity_scrolling_assign_tech">Assignment</string>
 
+    <string name="status_cancelled_by_customer">Sorry, Customer has cancel the order</string>
+
 </resources>

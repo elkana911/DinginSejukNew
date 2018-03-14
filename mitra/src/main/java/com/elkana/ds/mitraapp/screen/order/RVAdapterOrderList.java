@@ -436,10 +436,10 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                     if (lastStatus != EOrderDetailStatus.CREATED )
                         return;
 
-                    tvOrderRemaining.setText("ExpiredByTimer!!");
+                    tvOrderRemaining.setText("No Technicians accept the offer.");
 
                     //bahaya, infinite loop
-                    FBUtil.Order_SetStatus(mMitraId, obj.getCustomerId(), obj.getUid(), null, EOrderDetailStatus.UNHANDLED, String.valueOf(Const.USER_AS_MITRA), null);
+                    FBUtil.Order_SetStatus(mMitraId, obj.getCustomerId(), obj.getUid(), null, null, EOrderDetailStatus.UNHANDLED, String.valueOf(Const.USER_AS_MITRA), null);
                 }
             }.start();
 

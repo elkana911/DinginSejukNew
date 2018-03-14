@@ -442,7 +442,7 @@ public class MainActivity extends FirebaseActivity
         } else {
             onGoToScreen(PAGE_ORDER_LIST, forceRefresh, false);
         }
-        bottomNavigation.setVisibility(orderCount > 0 ? View.VISIBLE : View.GONE);
+//        bottomNavigation.setVisibility(orderCount > 0 ? View.VISIBLE : View.GONE);
 
     }
 
@@ -482,7 +482,7 @@ public class MainActivity extends FirebaseActivity
 //                .equalTo("customerId", customerId)
                     .equalTo("statusId", EOrderStatus.PENDING.name())
                     .count();
-            bottomNavigation.setVisibility(orderCount > 0 ? View.VISIBLE : View.GONE);
+//            bottomNavigation.setVisibility(orderCount > 0 ? View.VISIBLE : View.GONE);
         }
 
     }

@@ -1,5 +1,6 @@
 package com.elkana.customer.screen.order;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -23,12 +24,16 @@ import android.widget.Toast;
 
 import com.elkana.customer.R;
 import com.elkana.customer.util.DataUtil;
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.listener.ListenerSync;
+import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
+import com.elkana.dslibrary.util.Const;
+import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.NetUtil;
@@ -74,7 +79,7 @@ public class FragmentSummaryOrder extends Fragment {
 
     private OnFragmentSOInteractionListener mListener;
 
-    private ValueEventListener mValueEventListener;
+    private ValueEventListener mOrderHeaderPendingListener;
 
     View llBlank, llNonBlank;
 
@@ -159,7 +164,7 @@ public class FragmentSummaryOrder extends Fragment {
             }
         };
 
-        mValueEventListener = valueEventListener;
+        mOrderHeaderPendingListener = valueEventListener;
 
     }
 
@@ -217,6 +222,11 @@ public class FragmentSummaryOrder extends Fragment {
             btnReschedule.setVisibility(View.INVISIBLE);
             switch (orderDetailStatus) {
                 case CREATED:
+                    //berhubung msh ada timer maka tidak bisa dicancel/reschedule
+//                    btnCancelOrder.setVisibility(View.VISIBLE);
+//                    btnReschedule.setVisibility(View.VISIBLE);
+                    break;
+                case UNHANDLED:
                     btnCancelOrder.setVisibility(View.VISIBLE);
                     btnReschedule.setVisibility(View.VISIBLE);
                     break;
@@ -225,6 +235,7 @@ public class FragmentSummaryOrder extends Fragment {
                     btnReschedule.setVisibility(View.VISIBLE);
                     break;
                 case OTW:
+                    // TODO: mungkin msh boleh dibatalkan ? tp kena charge atau gmn
                     btnCheckTechnicianGps.setVisibility(View.VISIBLE);
                     break;
                 case WORKING:
@@ -248,8 +259,8 @@ public class FragmentSummaryOrder extends Fragment {
                     break;
                 case CANCELLED_BY_TIMEOUT:
                     break;
-                case RESCHEDULED:
-                    break;
+//                case RESCHEDULED:
+//                    break;
             }
 
             tvStatusDetil.setText(sb.toString());
@@ -409,8 +420,11 @@ public class FragmentSummaryOrder extends Fragment {
                     if (orderHeader == null)
                         return;
 
-                    if (orderHeader.getStatusDetailId().equals(EOrderDetailStatus.CREATED.name())
-                            || orderHeader.getStatusDetailId().equals(EOrderDetailStatus.ASSIGNED.name())
+                    final EOrderDetailStatus orderStatus = EOrderDetailStatus.convertValue(orderHeader.getStatusDetailId());
+
+                    if (orderStatus == EOrderDetailStatus.CREATED
+                            || orderStatus == EOrderDetailStatus.ASSIGNED
+                            || orderStatus == EOrderDetailStatus.UNHANDLED
                             ) {
                     } else {
                         Util.showDialog(getContext(), null, getString(R.string.error_technician_otw));
@@ -428,6 +442,41 @@ public class FragmentSummaryOrder extends Fragment {
                             , new ListenerPositiveConfirmation() {
                                 @Override
                                 public void onPositive() {
+                                    final AlertDialog alertDialog = Util.showProgressDialog(getActivity(), "Proses pembatalan order...");
+
+                                    FBUtil.Orders_cancel(orderHeaderCopy, EOrderDetailStatus.CANCELLED_BY_CUSTOMER, new ListenerModifyData() {
+                                        @Override
+                                        public void onSuccess() {
+                                            if (!getActivity().isDestroyed())
+                                                alertDialog.dismiss();
+
+                                            Realm _r = Realm.getDefaultInstance();
+                                            try {
+                                                _r.beginTransaction();
+                                                _r.copyToRealmOrUpdate(orderHeaderCopy);
+                                                _r.commitTransaction();
+
+                                                if (mListener != null) {
+                                                    mListener.onOrderCancelled(orderHeaderCopy.getServiceType(), orderHeaderCopy.getInvoiceNo());
+                                                }
+
+                                            } finally {
+                                                _r.close();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onError(Exception e) {
+                                            if (!getActivity().isDestroyed())
+                                                alertDialog.dismiss();
+
+                                            if (getContext() != null)
+                                                Util.showErrorDialog(getContext(), "Cancel Order Error", "Sorry, Batal Order tidak dapat dilakukan.\n" + e.getMessage());
+
+                                        }
+                                    });
+
+                                    /*
                                     orderHeaderPendingRef.setValue(orderHeaderCopy).addOnSuccessListener(getActivity(), new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
@@ -445,7 +494,7 @@ public class FragmentSummaryOrder extends Fragment {
                                                 _r.close();
                                             }
                                         }
-                                    });
+                                    });*/
                                 }
                             });
 
@@ -575,7 +624,7 @@ public class FragmentSummaryOrder extends Fragment {
         mListener = null;
     }
 
-    public void rescheduleOrder(Date newDate) {
+    public void rescheduleOrder(final Date newDate) {
         if (!NetUtil.isConnected(getContext())) {
             Toast.makeText(getContext(), "Not Connected", Toast.LENGTH_SHORT).show();
             return;
@@ -595,8 +644,16 @@ public class FragmentSummaryOrder extends Fragment {
                     .equalTo("uid", mSelectedOrderId)
                     .findFirst();
 
-            if (orderHeader == null)
+            final OrderBucket orderBucket = realm.where(OrderBucket.class)
+                    .equalTo("customerId", mSelectedUserId)
+                    .equalTo("uid", mSelectedOrderId)
+                    .findFirst();
+
+            if (orderHeader == null || orderBucket == null) {
+                Toast.makeText(getActivity(), "Missing link data. Unable to Reschedule Order", Toast.LENGTH_SHORT).show();
+
                 return;
+            }
 
             if (orderHeader.getStatusDetailId().equals(EOrderDetailStatus.CREATED.name())
                     || orderHeader.getStatusDetailId().equals(EOrderDetailStatus.ASSIGNED.name())
@@ -608,10 +665,8 @@ public class FragmentSummaryOrder extends Fragment {
             }
 
             final OrderHeader orderHeaderCopy = realm.copyFromRealm(orderHeader);
-            orderHeaderCopy.setRescheduleCounter(orderHeader.getRescheduleCounter() + 1);
-            orderHeaderCopy.setStatusDetailId(EOrderDetailStatus.RESCHEDULED.name());
-            orderHeaderCopy.setTimestamp(newDate.getTime());
-            orderHeaderCopy.setUpdatedTimestamp(new Date().getTime());
+
+            final OrderBucket orderBucketCopy = realm.copyFromRealm(orderBucket);
 
             Util.showDialogConfirmation(getContext()
                     , getString(R.string.title_cancel_order)
@@ -619,9 +674,10 @@ public class FragmentSummaryOrder extends Fragment {
                     , new ListenerPositiveConfirmation() {
                         @Override
                         public void onPositive() {
-                            orderHeaderPendingRef.setValue(orderHeaderCopy).addOnSuccessListener(getActivity(), new OnSuccessListener<Void>() {
+
+                            FBUtil.Orders_reschedule(orderHeaderCopy, orderBucketCopy, newDate, new ListenerModifyData() {
                                 @Override
-                                public void onSuccess(Void aVoid) {
+                                public void onSuccess() {
                                     Realm _r = Realm.getDefaultInstance();
                                     try {
                                         _r.beginTransaction();
@@ -635,8 +691,34 @@ public class FragmentSummaryOrder extends Fragment {
                                     } finally {
                                         _r.close();
                                     }
+
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+
                                 }
                             });
+
+//                            FBUtil.Order_SetStatus(orderHeaderCopy.getPartyId(), orderHeaderCopy.getCustomerId(), orderHeaderCopy.getUid(), null, EOrderDetailStatus.CREATED, String.valueOf(Const.USER_AS_COSTUMER), new ListenerModifyData() {
+//                                @Override
+//                                public void onSuccess() {
+//                                }
+//
+//                                @Override
+//                                public void onError(Exception e) {
+//                                    if (getContext() != null)
+//                                        Util.showErrorDialog(getContext(), "Reschedule Order Error", "Sorry, Jadwal ulang Order tidak dapat dilakukan.\n" + e.getMessage());
+//                                }
+//                            });
+
+//                            orderHeaderPendingRef
+//                                    .setValue(orderHeaderCopy)
+//                                    .addOnSuccessListener(getActivity(), new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void aVoid) {
+//                                }
+//                            });
                         }
                     });
 
@@ -658,19 +740,15 @@ public class FragmentSummaryOrder extends Fragment {
         OrderHeader orderHeader = displayOrder(userId, orderId);
 
         if (orderHeaderPendingRef != null)
-            orderHeaderPendingRef.removeEventListener(mValueEventListener);
+            orderHeaderPendingRef.removeEventListener(mOrderHeaderPendingListener);
 
         if (orderHeader == null)
             return;
 
-//            sRefOrderHeader = "orders/ac/orderHeader/" + userId + "/" + orderHeader.getUid();
-//            orderHeaderPendingRef = FirebaseDatabase.getInstance().getReference(sRefOrderHeader);
-        orderHeaderPendingRef = FirebaseDatabase.getInstance().getReference(DataUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
-                .child(userId)
-                .child(orderHeader.getUid());
+        orderHeaderPendingRef = FBUtil.Orders_getPendingCustomerRef(userId, orderHeader.getUid());
 
         // assign listener
-        orderHeaderPendingRef.addValueEventListener(mValueEventListener);
+        orderHeaderPendingRef.addValueEventListener(mOrderHeaderPendingListener);
 
         // update kalo udah expired
         if (!Util.isExpiredOrder(orderHeader))
@@ -726,7 +804,7 @@ public class FragmentSummaryOrder extends Fragment {
     public void onStop() {
         super.onStop();
         if (orderHeaderPendingRef != null)
-            orderHeaderPendingRef.removeEventListener(mValueEventListener);
+            orderHeaderPendingRef.removeEventListener(mOrderHeaderPendingListener);
     }
 
     public void reInitiate(OrderHeader order) {

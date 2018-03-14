@@ -1,29 +1,24 @@
 package com.elkana.dslibrary.firebase;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
-import com.elkana.dslibrary.exception.OrderAlreadyFinished;
-import com.elkana.dslibrary.exception.OrderExpired;
 import com.elkana.dslibrary.listener.ListenerGetAllData;
 import com.elkana.dslibrary.listener.ListenerGetBasicInfo;
 import com.elkana.dslibrary.listener.ListenerGetOrder;
 import com.elkana.dslibrary.listener.ListenerModifyData;
+import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
-import com.elkana.dslibrary.pojo.mitra.Assignment;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.mitra.NotifyNewOrderItem;
 import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 import com.elkana.dslibrary.pojo.technician.ServiceItem;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.FirebaseToken;
+import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
-import com.elkana.dslibrary.util.EOrderStatus;
-import com.elkana.dslibrary.util.Util;
+import com.elkana.dslibrary.util.OrderUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -130,6 +125,27 @@ public class FBUtil {
         });
     }
 
+    /*
+delete assignment node khususnya bagian assignmentId jika status PAID or CANCELLED or FINISHED.
+fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
+ */
+    public static void Assignment_delete(String technicianId, String assignmentId, final ListenerModifyData listener) {
+        FBUtil.Assignment_getPendingRef(technicianId, assignmentId)
+                .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (listener == null)
+                    return;
+
+                if (task.isSuccessful())
+                    listener.onSuccess();
+                else
+                    listener.onError(task.getException());
+            }
+        });
+    }
+
+
     public static DatabaseReference Assignment_getPendingRef(String technicianId, String assignmentId) {
         return FirebaseDatabase.getInstance().getReference(REF_ASSIGNMENTS_PENDING)
                 .child(technicianId)
@@ -162,7 +178,18 @@ public class FBUtil {
                 .child("svcItems");
     }
 
-    public static void Order_SetStatus(final String mitraId, final String customerId, final String orderId, final String assignmentId, EOrderDetailStatus newStatus, String updatedBy, final ListenerModifyData listener) {
+    /**
+     *
+     * @param mitraId
+     * @param customerId
+     * @param orderId
+     * @param assignmentId
+     * @param techId biasanya selalu ada kalau assignmentId != null
+     * @param newStatus
+     * @param updatedBy
+     * @param listener
+     */
+    public static void Order_SetStatus(final String mitraId, final String customerId, final String orderId, final String assignmentId, String techId, EOrderDetailStatus newStatus, String updatedBy, final ListenerModifyData listener) {
         final Map<String, Object> keyValOrder = new HashMap<>();
 //        keyValOrder.put("statusDetailId", newStatus.name());
 //        keyValOrder.put("updatedTimestamp", new Date().getTime());
@@ -183,10 +210,8 @@ public class FBUtil {
         keyValOrder.put(root + "/updatedTimestamp", time);
         keyValOrder.put(root + "/updatedBy", updatedBy);
 
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
         if (assignmentId != null) {
-            root = REF_ASSIGNMENTS_PENDING + "/" + currentUser.getUid() + "/" + assignmentId + "/assign";
+            root = REF_ASSIGNMENTS_PENDING + "/" + techId + "/" + assignmentId + "/assign";
             keyValOrder.put(root + "/statusDetailId", newStatus.name());
             keyValOrder.put(root + "/updatedTimestamp", time);
             keyValOrder.put(root + "/updatedBy", updatedBy);
@@ -315,6 +340,88 @@ public class FBUtil {
                             listener.onError(databaseError.toException());
                     }
                 });
+
+    }
+
+    public static void Orders_cancel(OrderHeader orderHeader, EOrderDetailStatus newStatus, final ListenerModifyData listener) {
+
+        if (newStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER
+                || newStatus == EOrderDetailStatus.CANCELLED_BY_SERVER) {
+        } else {
+
+            if (listener != null)
+                listener.onError(new RuntimeException("To cancel Order, status must either Cancel by Customer or Cancel by Server"));
+
+            return;
+        }
+
+        final EOrderDetailStatus orderStatus = EOrderDetailStatus.convertValue(orderHeader.getStatusDetailId());
+
+        // kalo status UNHANDLED brarti blm ada assignmentId,
+        // kalo status ASSIGNED brarti udah ada assignmentId. pls check about techreg jobs
+        final String assignmentId = orderStatus == EOrderDetailStatus.UNHANDLED ? null : orderHeader.getAssignmentId();
+        String techId = orderHeader.getTechnicianId();
+
+        String updatedBy = (newStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER) ? String.valueOf(Const.USER_AS_COSTUMER) : String.valueOf(Const.USER_AS_MITRA);
+
+        Order_SetStatus(orderHeader.getPartyId(), orderHeader.getCustomerId(), orderHeader.getUid(), assignmentId, techId, newStatus, updatedBy, new ListenerModifyData() {
+            @Override
+            public void onSuccess() {
+
+                if (assignmentId != null) {
+                    // TODO: delete assignment ? Harusnya jangan, nti teknisinya ga merasa dihargai. jd cukup CANCELLED_BY_CUSTOMER
+                }
+
+                if (listener != null)
+                    listener.onSuccess();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (listener != null)
+                    listener.onError(e);
+
+            }
+        });
+
+    }
+
+    public static void Orders_reschedule(final OrderHeader oldOrderHeader, final OrderBucket oldOrderBucket, final Date newDate, final ListenerModifyData listener) {
+        // utk saat ini hanya dipake oleh customer
+        final String updatedBy = String.valueOf(Const.USER_AS_COSTUMER);
+
+        OrderUtil.setRescheduleOrder(oldOrderHeader, oldOrderBucket, newDate, updatedBy);
+
+        // just replace, no push fb logic
+        Orders_getPendingCustomerRef(oldOrderHeader.getCustomerId(), oldOrderHeader.getUid())
+                .setValue(oldOrderHeader).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Orders_getPendingMitraRef(oldOrderHeader.getPartyId(), oldOrderHeader.getUid())
+                            .setValue(oldOrderBucket).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+
+                                // kalo ada assignment, Harusnya techId jg ada
+                                final String assignmentId = oldOrderHeader.getAssignmentId();
+                                final String techId = oldOrderHeader.getTechnicianId();
+
+                                if (assignmentId != null)
+                                    Assignment_delete(techId, assignmentId, null);
+
+                                listener.onSuccess();
+                            } else {
+                                listener.onError(task.getException());
+                            }
+                        }
+                    });
+                } else {
+                    listener.onError(task.getException());
+                }
+            }
+        });
 
     }
 

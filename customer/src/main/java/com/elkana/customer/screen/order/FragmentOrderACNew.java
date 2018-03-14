@@ -34,6 +34,7 @@ import com.elkana.customer.exception.OrderAlreadyExists;
 import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.screen.register.SimpleAdapterUserAddress;
 import com.elkana.customer.util.DataUtil;
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
@@ -757,21 +758,24 @@ public class FragmentOrderACNew extends Fragment {
             public void onComplete(@NonNull Task<Void> task) {
 
                 if (!task.isSuccessful()) {
+
                     dialog.dismiss();
+
+                    Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 // MUST USE DIFFERENCE REFERENCE TO AVOID REPLACED VALUE !!
-                DatabaseReference orderPendingMitraRef = database.getReference(DataUtil.REF_ORDERS_MITRA_AC_PENDING)
-                        .child(orderHeader.getPartyId())
-                        .child(orderKey);
-                orderPendingMitraRef.setValue(orderBucket).addOnCompleteListener(new OnCompleteListener<Void>() {
+                FBUtil.Orders_getPendingMitraRef(orderHeader.getPartyId(), orderKey)
+                    .setValue(orderBucket).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         dialog.dismiss();
 
-                        if (!task.isSuccessful())
+                        if (!task.isSuccessful()) {
+                            Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             return;
+                        }
 
                         Realm realm = Realm.getDefaultInstance();
                         try {

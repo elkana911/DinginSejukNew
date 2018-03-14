@@ -208,8 +208,11 @@ public class MainActivityFragment extends Fragment {
                                 i.putExtra(ActivityPayment.PARAM_ORDER_ID, obj.getUid());
                                 startActivityForResult(i, REQUESTCODE_SERVICE_PAYMENT);
                                 break;
-                            case RESCHEDULED:
+                            /*case RESCHEDULED:
                                 Util.showDialog(getActivity(), getString(R.string.service_status_changed), getString(R.string.status_rescheduled));
+                                break;*/
+                            case CANCELLED_BY_CUSTOMER:
+                                Util.showDialog(getActivity(), getString(R.string.status_cancelled_by_customer), getString(R.string.status_rescheduled));
                                 break;
                             case PAID:
                                 Util.showDialog(getActivity(), getString(R.string.service_finished), getString(R.string.status_paid));

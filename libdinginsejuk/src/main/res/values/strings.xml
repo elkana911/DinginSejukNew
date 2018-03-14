@@ -86,11 +86,12 @@
     <string name="status_unhandled">Vendor will looking specialist for You.</string>
     <string name="status_assigned">Vendor has found a Technician to help you.</string>
     <string name="status_otw">The Technician is already on the way.</string>
-    <string name="status_cancelled_by_customer">You cancel the order</string>
     <string name="status_rescheduled">You reschedule the order</string>
     <string name="status_paid">Thank you for using our service.\nPlease give Rating for this Service :)</string>
     <string name="status_working">Technician is working your Order</string>
     <string name="status_payment">Please proceed with Payment</string>
+    <string name="status_expired">Order is Expired</string>
+    <string name="status_cancelled_by_customer">Sorry, Customer has cancel the order</string>
     <string name="status_cancelled_by_server">Sorry, Server has refused your request</string>
     <string name="status_cancelled_by_timeout">Sorry, Your order has been cancelled due to no respond from selected Vendor</string>
     <string name="summary_ac_problem">%1d Air Conditioners having problem with %2s.</string>

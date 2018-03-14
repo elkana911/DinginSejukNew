@@ -64,6 +64,18 @@ public abstract class AFirebaseMitraActivity extends FirebaseActivity{
 
                 FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
 
+                DatabaseReference refAssignment = _firebaseDatabase.getReference(FBUtil.REF_ASSIGNMENTS_PENDING)
+                        .child(techId)
+                        .push();
+
+                /*
+                    assignment node
+                    assignments/ac/pending/<technicianId>/<assignmentId>/assign/statusDetailId
+                 */
+                final Assignment assignment = new Assignment();
+
+                assignment.setUid(refAssignment.getKey());
+
                 String customerId = obj.getCustomerId();
 
                 final Map<String, Object> keyValOrder = new HashMap<>();
@@ -72,8 +84,10 @@ public abstract class AFirebaseMitraActivity extends FirebaseActivity{
                     orders/ac/pending/customer/<customerId>/<orderId>/statusDetailId
                  */
                 String _root_node = FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING + "/" + customerId + "/" + orderId;
+                keyValOrder.put(_root_node + "/assignmentId", assignment.getUid());
                 keyValOrder.put(_root_node + "/technicianId", techId);
                 keyValOrder.put(_root_node + "/technicianName", techName);
+                keyValOrder.put(_root_node + "/assignmentId", refAssignment.getKey());
                 keyValOrder.put(_root_node + "/statusDetailId", _newStatus.name());
                 keyValOrder.put(_root_node + "/updatedTimestamp", ServerValue.TIMESTAMP);
                 keyValOrder.put(_root_node + "/updatedBy", String.valueOf(Const.USER_AS_MITRA));
@@ -83,23 +97,13 @@ public abstract class AFirebaseMitraActivity extends FirebaseActivity{
                     orders/ac/pending/mitra/<mitraId>/<orderId>/statusDetailId
                  */
                 _root_node = FBUtil.REF_ORDERS_MITRA_AC_PENDING + "/" + obj.getPartyId() + "/" + orderId;
+                keyValOrder.put(_root_node + "/assignmentId", assignment.getUid());
                 keyValOrder.put(_root_node + "/statusDetailId", _newStatus.name());
                 keyValOrder.put(_root_node + "/technicianId", techId);
                 keyValOrder.put(_root_node + "/technicianName", techName);
+                keyValOrder.put(_root_node + "/assignmentId", refAssignment.getKey());
                 keyValOrder.put(_root_node + "/updatedTimestamp", ServerValue.TIMESTAMP);
                 keyValOrder.put(_root_node + "/updatedBy", String.valueOf(Const.USER_AS_MITRA));
-
-                /*
-                    assignment node
-                    assignments/ac/pending/<technicianId>/<assignmentId>/assign/statusDetailId
-                 */
-                DatabaseReference refAssignment = _firebaseDatabase.getReference(FBUtil.REF_ASSIGNMENTS_PENDING)
-                        .child(techId)
-                        .push();
-
-                final Assignment assignment = new Assignment();
-
-                assignment.setUid(refAssignment.getKey());
 
                 assignment.setTechnicianId(techId);
                 assignment.setTechnicianName(techName);

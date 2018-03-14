@@ -24,6 +24,7 @@ public class OrderHeader extends RealmObject implements Serializable {
     private String technicianId;    // why string ? for future reference could be unique string
     private String addressId;
     private String addressByGoogle; // supaya kalo user delete tetep remain
+    private String assignmentId;
     private String latitude;
     private String longitude;
     private int jumlahAC;
@@ -109,6 +110,14 @@ public class OrderHeader extends RealmObject implements Serializable {
 
     public void setAddressId(String addressId) {
         this.addressId = addressId;
+    }
+
+    public String getAssignmentId() {
+        return assignmentId;
+    }
+
+    public void setAssignmentId(String assignmentId) {
+        this.assignmentId = assignmentId;
     }
 
     public int getJumlahAC() {
@@ -254,6 +263,7 @@ public class OrderHeader extends RealmObject implements Serializable {
                 ", technicianId='" + technicianId + '\'' +
                 ", addressId='" + addressId + '\'' +
                 ", addressByGoogle='" + addressByGoogle + '\'' +
+                ", assignmentId='" + assignmentId + '\'' +
                 ", latitude='" + latitude + '\'' +
                 ", longitude='" + longitude + '\'' +
                 ", jumlahAC=" + jumlahAC +

@@ -136,8 +136,8 @@ public class DataUtil {
                 return ctx.getString(R.string.status_cancelled_by_server);
             case CANCELLED_BY_TIMEOUT:
                 return ctx.getString(R.string.status_cancelled_by_timeout);
-            case RESCHEDULED:
-                return ctx.getString(R.string.status_rescheduled);
+            /*case RESCHEDULED:
+                return ctx.getString(R.string.status_rescheduled);*/
             default:
                 return "Unknown Status";
         }

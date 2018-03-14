@@ -464,7 +464,7 @@ public class Util {
         if (status == EOrderDetailStatus.CREATED
                 || status == EOrderDetailStatus.ASSIGNED
                 || status == EOrderDetailStatus.UNHANDLED
-                || status == EOrderDetailStatus.RESCHEDULED
+                /*|| status == EOrderDetailStatus.RESCHEDULED*/
                 || status == EOrderDetailStatus.UNKNOWN
                 ) {
             return isExpiredTime(orderHeader.getTimestamp(), 0);
@@ -479,7 +479,7 @@ public class Util {
         if (status == EOrderDetailStatus.CREATED
                 || status == EOrderDetailStatus.ASSIGNED
                 || status == EOrderDetailStatus.UNHANDLED
-                || status == EOrderDetailStatus.RESCHEDULED
+                /*|| status == EOrderDetailStatus.RESCHEDULED*/
                 || status == EOrderDetailStatus.UNKNOWN
                 ) {
             return isExpiredTime(orderBucket.getOrderTimestamp(), 0);

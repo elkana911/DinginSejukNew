@@ -88,4 +88,17 @@
         app:layout_anchorGravity="center_vertical|end"
         app:srcCompat="@drawable/ic_check_black_24dp" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btnCloseExpired"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tint="@android:color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        app:elevation="4dp"
+        app:fabSize="mini"
+        app:layout_anchorGravity="center_horizontal|bottom"
+        app:srcCompat="@drawable/ic_clear_black_24dp" />
+
 </RelativeLayout>

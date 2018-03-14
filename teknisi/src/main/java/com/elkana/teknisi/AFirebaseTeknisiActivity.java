@@ -63,7 +63,7 @@ called by teknisi only
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
 
                         // also update the main order
-                        FBUtil.Order_SetStatus(mitraId, customerId, orderId, assignmentId, newStatus, String.valueOf(Const.USER_AS_TECHNICIAN), new ListenerModifyData() {
+                        FBUtil.Order_SetStatus(mitraId, customerId, orderId, assignmentId, technicianId, newStatus, String.valueOf(Const.USER_AS_TECHNICIAN), new ListenerModifyData() {
                             @Override
                             public void onSuccess() {
 
@@ -71,8 +71,9 @@ called by teknisi only
                                         || newStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER
                                         || newStatus == EOrderDetailStatus.CANCELLED_BY_SERVER
                                         || newStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT
-                                        || newStatus == EOrderDetailStatus.RESCHEDULED) {
-                                    Assignment_delete(technicianId, assignmentId, null);
+                                        /*|| newStatus == EOrderDetailStatus.RESCHEDULED*/) {
+                                    // harusnya hanya delete assignment 1 atau 2 hr yg lalu
+//                                    Assignment_delete(technicianId, assignmentId, null);
                                 }
 
                                 // just force as success
@@ -91,23 +92,4 @@ called by teknisi only
 
     }
 
-    /*
-    delete assignment node khususnya bagian assignmentId jika status PAID or CANCELLED or FINISHED.
-    fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
-     */
-    private void Assignment_delete(String technicianId, String assignmentId, final ListenerModifyData listener) {
-        FBUtil.Assignment_getPendingRef(technicianId, assignmentId)
-                .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (listener == null)
-                    return;
-
-                if (task.isSuccessful())
-                    listener.onSuccess();
-                else
-                    listener.onError(task.getException());
-            }
-        });
-    }
 }

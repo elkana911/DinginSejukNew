@@ -208,7 +208,7 @@ public class ActivityServiceDetail extends FirebaseActivity {
                         FBUtil.Assignment_addServiceItems(mTechnicianId, mAssignmentId, list, new ListenerModifyData(){
                             @Override
                             public void onSuccess() {
-                                FBUtil.Order_SetStatus(mMitraId, mCustomerId, mOrderId, mAssignmentId, EOrderDetailStatus.PAYMENT, String.valueOf(Const.USER_AS_TECHNICIAN), new ListenerModifyData() {
+                                FBUtil.Order_SetStatus(mMitraId, mCustomerId, mOrderId, mAssignmentId,mTechnicianId, EOrderDetailStatus.PAYMENT, String.valueOf(Const.USER_AS_TECHNICIAN), new ListenerModifyData() {
                                     @Override
                                     public void onSuccess() {
                                         dialog.dismiss();

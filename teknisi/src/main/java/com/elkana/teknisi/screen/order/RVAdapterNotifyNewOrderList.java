@@ -170,7 +170,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
     class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView tvNewOrderMsg, tvCounter, tvPleaseAcceptNewOrder, tvOrderInfo;
         public View view;
-        public FloatingActionButton btnDenyOrder, btnTakeOrder;//, btnGiveUpOrDo ;
+        public FloatingActionButton btnDenyOrder, btnTakeOrder, btnCloseExpired;
 
         CountDownTimer timer;
 
@@ -188,6 +188,8 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
             btnDenyOrder = itemView.findViewById(R.id.btnDenyOrder);
 
             btnTakeOrder = itemView.findViewById(R.id.btnTakeOrder);
+
+            btnCloseExpired = itemView.findViewById(R.id.btnCloseExpired);
 
 //            btnGiveUpOrDo = itemView.findViewById(R.id.btnGiveUpOrDo);
 
@@ -207,6 +209,26 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
             sb.append("Nama : ").append(data.getCustomerName()).append("\n");
             tvOrderInfo.setText(sb.toString());
 
+            btnCloseExpired.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FBUtil.TechnicianReg_DeleteNotifyNewOrder(mMitraId, mTechId, data.getOrderId(), new ListenerModifyData() {
+                        @Override
+                        public void onSuccess() {
+                            if (mListener == null)
+                                return;
+
+                            mListener.onDeny(data);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+
             btnDenyOrder.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -215,21 +237,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                         public void onPositive() {
                             timer.cancel();
 
-                            FBUtil.TechnicianReg_DeleteNotifyNewOrder(mMitraId, mTechId, data.getOrderId(), new ListenerModifyData() {
-                                @Override
-                                public void onSuccess() {
-                                    if (mListener == null)
-                                        return;
-
-                                    mListener.onDeny(data);
-                                }
-
-                                @Override
-                                public void onError(Exception e) {
-                                    Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                            });
-
+                            btnCloseExpired.performClick();
                         }
                     });
                 }
@@ -331,6 +339,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                     tvCounter.setText("Expired!!");
                     btnDenyOrder.setVisibility(View.INVISIBLE);
                     btnTakeOrder.setVisibility(View.INVISIBLE);
+                    btnCloseExpired.setVisibility(View.VISIBLE);
                     // TODO: update firebase db
 
                 }
