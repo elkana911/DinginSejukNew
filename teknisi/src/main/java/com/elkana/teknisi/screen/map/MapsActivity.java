@@ -23,7 +23,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
@@ -42,7 +41,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -236,7 +234,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                         final AlertDialog dialog = Util.showProgressDialog(MapsActivity.this);
 
                         //1. cek dulu apa user cancel order ?
-                        final DatabaseReference orderRef = FBUtil.Orders_getPendingCustomerRef(mCustomerId, mOrderId);
+                        final DatabaseReference orderRef = FBUtil.Order_getPendingCustomerRef(mCustomerId, mOrderId);
 
                         orderRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -556,7 +554,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
         mValueEventListener = valueEventListener;
 
         // standalone monitor order
-        alwaysListenOrderRef = FBUtil.Orders_getPendingCustomerRef(mCustomerId, mOrderId);
+        alwaysListenOrderRef = FBUtil.Order_getPendingCustomerRef(mCustomerId, mOrderId);
 
         alwaysListenOrderRef.addValueEventListener(mValueEventListener);
     }

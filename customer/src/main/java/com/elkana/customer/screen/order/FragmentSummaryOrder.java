@@ -32,8 +32,6 @@ import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
-import com.elkana.dslibrary.util.Const;
-import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.NetUtil;
@@ -42,7 +40,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
@@ -220,6 +217,7 @@ public class FragmentSummaryOrder extends Fragment {
             btnPayment.setVisibility(View.GONE);
             btnCancelOrder.setVisibility(View.INVISIBLE);
             btnReschedule.setVisibility(View.INVISIBLE);
+            btnReschedule.setEnabled(true);
             switch (orderDetailStatus) {
                 case CREATED:
                     //berhubung msh ada timer maka tidak bisa dicancel/reschedule
@@ -233,6 +231,7 @@ public class FragmentSummaryOrder extends Fragment {
                 case ASSIGNED:
                     btnCancelOrder.setVisibility(View.VISIBLE);
                     btnReschedule.setVisibility(View.VISIBLE);
+                    btnReschedule.setEnabled(false);
                     break;
                 case OTW:
                     // TODO: mungkin msh boleh dibatalkan ? tp kena charge atau gmn
@@ -655,8 +654,13 @@ public class FragmentSummaryOrder extends Fragment {
                 return;
             }
 
+            if (orderHeader.getRescheduleCounter() > 0) {
+                Util.showErrorDialog(getActivity(), "Reschedule Limit", "Maaf, tidak diperkenankan Reschedule untukm booking yayang sama.");
+                return;
+            }
+
             if (orderHeader.getStatusDetailId().equals(EOrderDetailStatus.CREATED.name())
-                    || orderHeader.getStatusDetailId().equals(EOrderDetailStatus.ASSIGNED.name())
+//                    || orderHeader.getStatusDetailId().equals(EOrderDetailStatus.ASSIGNED.name())
                     ) {
                 if (mListener != null)
                     mListener.onError(new RuntimeException("Tidak dapat reschedule di status saat ini"));
@@ -664,16 +668,16 @@ public class FragmentSummaryOrder extends Fragment {
             } else {
             }
 
-            final OrderHeader orderHeaderCopy = realm.copyFromRealm(orderHeader);
-
-            final OrderBucket orderBucketCopy = realm.copyFromRealm(orderBucket);
-
             Util.showDialogConfirmation(getContext()
                     , getString(R.string.title_cancel_order)
                     , getString(R.string.message_cancel_order_confirmation_for_date, Util.prettyTimestamp(getContext(), orderHeader.getTimestamp()))
                     , new ListenerPositiveConfirmation() {
                         @Override
                         public void onPositive() {
+
+                            final OrderHeader orderHeaderCopy = realm.copyFromRealm(orderHeader);
+
+                            final OrderBucket orderBucketCopy = realm.copyFromRealm(orderBucket);
 
                             FBUtil.Orders_reschedule(orderHeaderCopy, orderBucketCopy, newDate, new ListenerModifyData() {
                                 @Override
@@ -746,7 +750,7 @@ public class FragmentSummaryOrder extends Fragment {
         if (orderHeader == null)
             return;
 
-        orderHeaderPendingRef = FBUtil.Orders_getPendingCustomerRef(userId, orderHeader.getUid());
+        orderHeaderPendingRef = FBUtil.Order_getPendingCustomerRef(userId, orderHeader.getUid());
 
         // assign listener
         orderHeaderPendingRef.addValueEventListener(mOrderHeaderPendingListener);

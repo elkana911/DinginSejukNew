@@ -23,6 +23,7 @@ import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetOrder;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
+import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 import com.elkana.dslibrary.util.Util;
@@ -57,14 +58,14 @@ public class ActivityScrollingAssignment extends AFirebaseMitraActivity{
 
         final AlertDialog dialog = Util.showProgressDialog(this);
 
-        FBUtil.Orders_getPendingCustomerRef(mCustomerId, mOrderId, new ListenerGetOrder() {
+        FBUtil.Order_getPending(mCustomerId, mOrderId, new ListenerGetOrder() {
             @Override
-            public void onGetData(OrderHeader obj) {
+            public void onGetData(OrderHeader orderHeader, OrderBucket orderBucket) {
                 dialog.dismiss();
-                tvCustomerAddress.setText(getString(R.string.label_customer_address, obj.getAddressByGoogle()));
-                tvCustomerName.setText(obj.getCustomerName());
-                tvOrderDate.setText(getString(R.string.label_order_date, Util.convertDateToString(new Date(obj.getTimestamp()), "dd MMM yyyy HH:mm"))
-                        + (Util.isExpiredOrder(obj) ? " (EXPIRED)" : "")
+                tvCustomerAddress.setText(getString(R.string.label_customer_address, orderHeader.getAddressByGoogle()));
+                tvCustomerName.setText(orderHeader.getCustomerName());
+                tvOrderDate.setText(getString(R.string.label_order_date, Util.convertDateToString(new Date(orderHeader.getTimestamp()), "dd MMM yyyy HH:mm"))
+                        + (Util.isExpiredOrder(orderHeader) ? " (EXPIRED)" : "")
                 );
             }
 

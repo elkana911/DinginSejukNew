@@ -1,5 +1,6 @@
 package com.elkana.dslibrary.listener;
 
+import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 
 /**
@@ -7,6 +8,6 @@ import com.elkana.dslibrary.pojo.OrderHeader;
  */
 
 public interface ListenerGetOrder {
-    void onGetData(OrderHeader obj);
+    void onGetData(OrderHeader orderHeader, OrderBucket orderBucket);
     void onError(Exception e);
 }

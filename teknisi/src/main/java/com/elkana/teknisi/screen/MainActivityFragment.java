@@ -212,7 +212,7 @@ public class MainActivityFragment extends Fragment {
                                 Util.showDialog(getActivity(), getString(R.string.service_status_changed), getString(R.string.status_rescheduled));
                                 break;*/
                             case CANCELLED_BY_CUSTOMER:
-                                Util.showDialog(getActivity(), getString(R.string.status_cancelled_by_customer), getString(R.string.status_rescheduled));
+                                Util.showDialog(getActivity(), "Service Cancelled", getString(R.string.status_cancelled_by_customer));
                                 break;
                             case PAID:
                                 Util.showDialog(getActivity(), getString(R.string.service_finished), getString(R.string.status_paid));

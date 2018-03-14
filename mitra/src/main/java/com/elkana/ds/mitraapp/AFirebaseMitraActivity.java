@@ -7,6 +7,7 @@ import com.elkana.dslibrary.exception.OrderAlreadyFinished;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetOrder;
 import com.elkana.dslibrary.listener.ListenerModifyData;
+import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Assignment;
 import com.elkana.dslibrary.util.Const;
@@ -41,11 +42,11 @@ public abstract class AFirebaseMitraActivity extends FirebaseActivity{
     protected void Assignment_create(final String techId, final String techName, final String custId, final String orderId, final ListenerModifyData listener) {
 
         //1. get orderHeader
-        FBUtil.Orders_getPendingCustomerRef(custId, orderId, new ListenerGetOrder() {
+        FBUtil.Order_getPending(custId, orderId, new ListenerGetOrder() {
             @Override
-            public void onGetData(OrderHeader obj) {
+            public void onGetData(OrderHeader orderHeader, OrderBucket orderBucket) {
                 // cannot assign finished status
-                if (EOrderStatus.isFinished(obj)) {
+                if (EOrderStatus.isFinished(orderHeader)) {
                     if (listener != null)
                         listener.onError(new OrderAlreadyFinished());
 
@@ -76,7 +77,7 @@ public abstract class AFirebaseMitraActivity extends FirebaseActivity{
 
                 assignment.setUid(refAssignment.getKey());
 
-                String customerId = obj.getCustomerId();
+                String customerId = orderHeader.getCustomerId();
 
                 final Map<String, Object> keyValOrder = new HashMap<>();
                 /*
@@ -96,7 +97,7 @@ public abstract class AFirebaseMitraActivity extends FirebaseActivity{
                     mitra node
                     orders/ac/pending/mitra/<mitraId>/<orderId>/statusDetailId
                  */
-                _root_node = FBUtil.REF_ORDERS_MITRA_AC_PENDING + "/" + obj.getPartyId() + "/" + orderId;
+                _root_node = FBUtil.REF_ORDERS_MITRA_AC_PENDING + "/" + orderHeader.getPartyId() + "/" + orderId;
                 keyValOrder.put(_root_node + "/assignmentId", assignment.getUid());
                 keyValOrder.put(_root_node + "/statusDetailId", _newStatus.name());
                 keyValOrder.put(_root_node + "/technicianId", techId);
@@ -107,18 +108,18 @@ public abstract class AFirebaseMitraActivity extends FirebaseActivity{
 
                 assignment.setTechnicianId(techId);
                 assignment.setTechnicianName(techName);
-                assignment.setDateOfService(obj.getDateOfService());
-                assignment.setTimeOfService(obj.getTimeOfService());
+                assignment.setDateOfService(orderHeader.getDateOfService());
+                assignment.setTimeOfService(orderHeader.getTimeOfService());
                 assignment.setStatusDetailId(_newStatus.name());
                 assignment.setUpdatedBy(String.valueOf(Const.USER_AS_MITRA));
-                assignment.setCustomerAddress(obj.getAddressByGoogle());
-                assignment.setCustomerId(obj.getCustomerId());
-                assignment.setCustomerName(obj.getCustomerName());
-                assignment.setLatitude(obj.getLatitude());
-                assignment.setLongitude(obj.getLongitude());
-                assignment.setOrderId(obj.getUid());
-                assignment.setMitraId(obj.getPartyId());
-                assignment.setMitraName(obj.getPartyName());
+                assignment.setCustomerAddress(orderHeader.getAddressByGoogle());
+                assignment.setCustomerId(orderHeader.getCustomerId());
+                assignment.setCustomerName(orderHeader.getCustomerName());
+                assignment.setLatitude(orderHeader.getLatitude());
+                assignment.setLongitude(orderHeader.getLongitude());
+                assignment.setOrderId(orderHeader.getUid());
+                assignment.setMitraId(orderHeader.getPartyId());
+                assignment.setMitraName(orderHeader.getPartyName());
 
                 // unavoided timestamp using java.util.Date
                 assignment.setUpdatedTimestamp(new Date().getTime());

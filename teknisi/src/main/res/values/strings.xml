@@ -37,4 +37,5 @@
     <string name="title_activity_mitra_list">Daftar Mitra</string>
     <string name="title_activity_payment">Payment</string>
 
+    <string name="status_cancelled_by_customer">Customer membatalkan pesanan.</string>
 </resources>

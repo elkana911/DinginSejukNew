@@ -254,7 +254,12 @@ public class FragmentOrderACNew extends Fragment {
         btnSubmitOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                trySubmitOrder();
+                Util.showDialogConfirmation(getActivity(), "Submit Order", "Booking Layanan sekarang ?", new ListenerPositiveConfirmation() {
+                    @Override
+                    public void onPositive() {
+                        submitOrder();
+                    }
+                });
             }
         });
 
@@ -725,30 +730,21 @@ public class FragmentOrderACNew extends Fragment {
         selectAddressDefault();
     }
 
-    private void trySubmitOrder() {
+    private void submitOrder() {
+
+        final AlertDialog dialog = Util.showProgressDialog(getContext(), "Booking Confirmation...");
+
         final OrderHeader orderHeader = tryToBuildOrder();
 
         if (orderHeader == null) {
             return;
         }
 
-        Util.showDialogConfirmation(getActivity(), "Submit Order", "Booking Layanan sekarang ?", new ListenerPositiveConfirmation() {
-            @Override
-            public void onPositive() {
-                submitOrder(orderHeader);
-            }
-        });
-
-    }
-
-    private void submitOrder(final OrderHeader orderHeader) {
-        final AlertDialog dialog = Util.showProgressDialog(getContext(), "Submit Order...");
-
         DatabaseReference orderPendingCustomerRef = database.getReference(DataUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(mUserId).push();
 
         final String orderKey = orderPendingCustomerRef.getKey();
-        // fill uid
+        // set uid
         orderHeader.setUid(orderKey);
 
         final OrderBucket orderBucket = new OrderBucket();
@@ -777,7 +773,7 @@ public class FragmentOrderACNew extends Fragment {
                 }
 
                 // MUST USE DIFFERENCE REFERENCE TO AVOID REPLACED VALUE !!
-                FBUtil.Orders_getPendingMitraRef(orderHeader.getPartyId(), orderKey)
+                FBUtil.Order_getPendingMitraRef(orderHeader.getPartyId(), orderKey)
                         .setValue(orderBucket).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {

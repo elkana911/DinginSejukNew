@@ -93,6 +93,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mList.clear();
 
+                // TODO: bug wkt reschedule ga mau kirim notify
                 alertDialog.dismiss();
 
                 if (!dataSnapshot.exists())
@@ -129,20 +130,29 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                         for (TechnicianReg reg : technicianRegs) {
                             final String techId = reg.getTechId();
 
-                            NotifyTechnician notifyTechnician = _r.where(NotifyTechnician.class)
-                                    .equalTo("orderId", _obj.getUid())
-                                    .equalTo("techId", techId).findFirst();
-                            if (notifyTechnician == null) {
+                            // if reschedule, _obj.gettechnicianid will be null
+//                            if (notifyTechnician == null || (_obj.getTechnicianId() == null)) {
+                            if (_obj.getTechnicianId() == null) {
+
 
                                 _r.executeTransaction(new Realm.Transaction() {
                                     @Override
                                     public void execute(Realm realm) {
+                                        // resent if reschedule, so delete existing orderid
+                                        realm.where(NotifyTechnician.class)
+                                                .equalTo("orderId", _obj.getUid())
+                                                .equalTo("techId", techId).findAll().deleteAllFromRealm();
+
+//                                        NotifyTechnician notifyTechnician = realm.where(NotifyTechnician.class)
+//                                                .equalTo("orderId", _obj.getUid())
+//                                                .equalTo("techId", techId).findFirst();
+
                                         NotifyTechnician __obj = new NotifyTechnician();
                                         __obj.setUid(java.util.UUID.randomUUID().toString());
                                         __obj.setOrderId(_obj.getUid());
                                         __obj.setTechId(techId);
                                         __obj.setTimestamp(new Date().getTime());
-                                        _r.copyToRealmOrUpdate(__obj);
+                                        realm.copyToRealmOrUpdate(__obj);
                                     }
                                 });
 
@@ -434,7 +444,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                 @Override
                 public void onFinish() {
                     // utk mencegah status jadi expired krn timer diproses di thread lainnya yg gw ga tau
-                    if (lastStatus != EOrderDetailStatus.CREATED )
+if (lastStatus != EOrderDetailStatus.CREATED )
                         return;
 
                     tvOrderRemaining.setText("No Technicians accept the offer.");

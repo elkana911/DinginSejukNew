@@ -34,6 +34,7 @@ public class OrderUtil {
 
         orderBucket.setTechnicianId(null);
         orderBucket.setTechnicianName(null);
+        orderBucket.setStatusDetailId(EOrderDetailStatus.CREATED.name());
 
     }
 

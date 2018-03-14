@@ -96,7 +96,7 @@ public class FBUtil {
 
     //untested per 12 mar 18
     public static void moveOrderFromPendingToFinished(String customerId, String mitraId, String orderId, ListenerModifyData listener) {
-        movePath(Orders_getPendingCustomerRef(customerId, orderId)
+        movePath(Order_getPendingCustomerRef(customerId, orderId)
                 , FirebaseDatabase.getInstance().getReference(REF_ORDERS_CUSTOMER_AC_FINISHED).child(customerId).child(orderId)
                 , true
                 , listener);
@@ -269,53 +269,71 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
     }
 
 
-    public static DatabaseReference Orders_getPendingCustomerRef(String customerId, String orderId) {
+    public static DatabaseReference Order_getPendingCustomerRef(String customerId, String orderId) {
         return FirebaseDatabase.getInstance().getReference(REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(customerId)
                 .child(orderId);
 
     }
 
-    public static void Orders_getPendingCustomerRef(String customerId, String orderId, final ListenerGetOrder listener) {
+    public static void Order_getPending(String customerId, final String orderId, final ListenerGetOrder listener) {
 
-        Orders_getPendingCustomerRef(customerId, orderId)
+        if (listener == null)
+            return;
+
+        Order_getPendingCustomerRef(customerId, orderId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.exists()) {
-                            if (listener != null)
-                                listener.onError(new RuntimeException("Node not found"));
+                                listener.onError(new RuntimeException("Order Pending Customer not found !"));
 
                             return;
                         }
 
-                        OrderHeader orderHeader = dataSnapshot.getValue(OrderHeader.class);
+                        final OrderHeader orderHeader = dataSnapshot.getValue(OrderHeader.class);
 
-                        if (listener != null) {
-                            listener.onGetData(orderHeader);
-                        }
+                        Order_getPendingMitraRef(orderHeader.getPartyId(), orderId)
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (!dataSnapshot.exists()) {
+                                                listener.onError(new RuntimeException("Order Pending Mitra not found !"));
+
+                                            return;
+                                        }
+
+                                        OrderBucket orderBucket = dataSnapshot.getValue(OrderBucket.class);
+
+                                        listener.onGetData(orderHeader, orderBucket);
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                            listener.onError(databaseError.toException());
+                                    }
+                                });
 
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-                        if (listener != null)
                             listener.onError(databaseError.toException());
                     }
                 });
 
     }
 
-    public static DatabaseReference Orders_getPendingMitraRef(String mitraId, String orderId) {
+    public static DatabaseReference Order_getPendingMitraRef(String mitraId, String orderId) {
         return FirebaseDatabase.getInstance().getReference(REF_ORDERS_MITRA_AC_PENDING)
                 .child(mitraId)
                 .child(orderId);
 
     }
+/*
+    public static void Orders_getPendingMitra(String mitraId, String orderId, final ListenerGetOrder listener) {
 
-    public static void Orders_getPendingMitraRef(String mitraId, String orderId, final ListenerGetOrder listener) {
-
-        Orders_getPendingMitraRef(mitraId, orderId)
+        Order_getPendingMitraRef(mitraId, orderId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -326,10 +344,10 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                             return;
                         }
 
-                        OrderHeader orderHeader = dataSnapshot.getValue(OrderHeader.class);
+                        OrderBucket orderBucket = dataSnapshot.getValue(OrderBucket.class);
 
                         if (listener != null) {
-                            listener.onGetData(orderHeader);
+                            listener.onGetData(orderBucket);
                         }
 
                     }
@@ -342,7 +360,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                 });
 
     }
-
+*/
     public static void Orders_cancel(OrderHeader orderHeader, EOrderDetailStatus newStatus, final ListenerModifyData listener) {
 
         if (newStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER
@@ -390,26 +408,26 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         // utk saat ini hanya dipake oleh customer
         final String updatedBy = String.valueOf(Const.USER_AS_COSTUMER);
 
+        // ambil dulu value assignmentId dan techId krn wkt reschedule akan diset null
+        final String lastAssignmentId = oldOrderHeader.getAssignmentId();
+        final String lastTechId = oldOrderHeader.getTechnicianId();
+
         OrderUtil.setRescheduleOrder(oldOrderHeader, oldOrderBucket, newDate, updatedBy);
 
         // just replace, no push fb logic
-        Orders_getPendingCustomerRef(oldOrderHeader.getCustomerId(), oldOrderHeader.getUid())
+        Order_getPendingCustomerRef(oldOrderHeader.getCustomerId(), oldOrderHeader.getUid())
                 .setValue(oldOrderHeader).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Orders_getPendingMitraRef(oldOrderHeader.getPartyId(), oldOrderHeader.getUid())
+                    Order_getPendingMitraRef(oldOrderHeader.getPartyId(), oldOrderHeader.getUid())
                             .setValue(oldOrderBucket).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
 
-                                // kalo ada assignment, Harusnya techId jg ada
-                                final String assignmentId = oldOrderHeader.getAssignmentId();
-                                final String techId = oldOrderHeader.getTechnicianId();
-
-                                if (assignmentId != null)
-                                    Assignment_delete(techId, assignmentId, null);
+                                if (lastAssignmentId != null && lastTechId != null)
+                                    Assignment_delete(lastTechId, lastAssignmentId, null);
 
                                 listener.onSuccess();
                             } else {

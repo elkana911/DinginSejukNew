@@ -98,8 +98,6 @@
     <string name="status_unhandled">Saat ini Mitra sedang mencarikan spesialis untuk membantu Anda.</string>
     <string name="status_assigned">Mitra sudah mendapatkan Teknisi yang tepat untuk membantu Anda.</string>
     <string name="status_otw">Teknisi sedang dalam perjalanan menuju alamat Anda.</string>
-    <string name="status_cancelled_by_customer">Anda membatalkan pesanan.</string>
-    <string name="status_rescheduled">Anda melakukan penjadwalan ulang pesanan.</string>
     <string name="status_working">Teknisi sedang mengerjakan Pesanan Anda.</string>
     <string name="status_payment">Mohon segera lakukan proses pembayaran kepada Teknisi.\nTerima Kasih :)</string>
     <string name="status_cancelled_by_server">Mohon maaf, Server telah membatalkan pesanan Anda.</string>

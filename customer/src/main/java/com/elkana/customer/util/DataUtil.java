@@ -6,8 +6,10 @@ import android.util.Log;
 
 import com.elkana.customer.R;
 import com.elkana.customer.pojo.MobileSetup;
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerSync;
+import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.mitra.TmpMitra;
@@ -28,9 +30,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
@@ -288,19 +292,23 @@ udah di taruh di lib
         return m;
     }
 
-    public static void syncOrders(Context ctx, String customerId, final ListenerSync listener) {
-        if (!NetUtil.isConnected(ctx)) {
+    private static void recursiveGetMitra(final List<String> mitraList, int index, final ListenerSync listener) {
 
-            if (listener != null)
+        String mitraId;
+
+        if (index < 0) {
+            if (listener != null) {
                 listener.onPostSync(null);
-
+            }
             return;
         }
 
-//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(REF_ORDERS_AC).child(customerId);
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(REF_ORDERS_CUSTOMER_AC_PENDING).child(customerId);
+        mitraId = mitraList.get(index);
 
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        index -= 1;
+        final int lastIndex = index;
+        FirebaseDatabase.getInstance().getReference(REF_ORDERS_MITRA_AC_PENDING)
+                .child(mitraId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -309,7 +317,7 @@ udah di taruh di lib
                     try {
                         r.beginTransaction();
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                            OrderHeader _obj = postSnapshot.getValue(OrderHeader.class);
+                            OrderBucket _obj = postSnapshot.getValue(OrderBucket.class);
 
                             r.copyToRealmOrUpdate(_obj);
                             Log.e(TAG, _obj.toString());
@@ -321,8 +329,55 @@ udah di taruh di lib
                     }
                 }
 
+                recursiveGetMitra(mitraList, lastIndex, listener);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
                 if (listener != null)
-                    listener.onPostSync(null);
+                    listener.onPostSync(databaseError.toException());
+            }
+        });
+
+    }
+
+    public static void syncOrders(Context ctx, String customerId, final ListenerSync listener) {
+        if (!NetUtil.isConnected(ctx)) {
+
+            if (listener != null)
+                listener.onPostSync(null);
+
+            return;
+        }
+
+        FirebaseDatabase.getInstance().getReference(REF_ORDERS_CUSTOMER_AC_PENDING)
+                .child(customerId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                List<String> mitraList = new ArrayList<>();
+
+                if (dataSnapshot.exists()) {
+                    Realm r = Realm.getDefaultInstance();
+                    try {
+                        r.beginTransaction();
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            OrderHeader _obj = postSnapshot.getValue(OrderHeader.class);
+
+                            mitraList.add(_obj.getPartyId());
+
+                            r.copyToRealmOrUpdate(_obj);
+                            Log.e(TAG, _obj.toString());
+                        }
+
+                        r.commitTransaction();
+                    } finally {
+                        r.close();
+                    }
+                }
+
+                recursiveGetMitra(mitraList, mitraList.size()-1, listener);
 
             }
 
