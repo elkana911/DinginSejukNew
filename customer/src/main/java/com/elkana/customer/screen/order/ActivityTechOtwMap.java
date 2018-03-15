@@ -8,6 +8,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.elkana.customer.R;
+import com.elkana.customer.screen.AFirebaseActivity;
 import com.elkana.customer.util.DataUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.pojo.Movement;
@@ -29,7 +30,7 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.Date;
 
-public class ActivityTechOtwMap extends FirebaseActivity implements OnMapReadyCallback {
+public class ActivityTechOtwMap extends AFirebaseActivity implements OnMapReadyCallback {
 
     private static final String TAG = ActivityTechOtwMap.class.getSimpleName();
 
@@ -126,16 +127,6 @@ public class ActivityTechOtwMap extends FirebaseActivity implements OnMapReadyCa
                 .child(mOrderId);
 
         movementsRef.addChildEventListener(mChildEventListener);
-    }
-
-    @Override
-    protected void onLoggedOff() {
-
-    }
-
-    @Override
-    protected void onLoggedOn(FirebaseUser user) {
-
     }
 
     @Override

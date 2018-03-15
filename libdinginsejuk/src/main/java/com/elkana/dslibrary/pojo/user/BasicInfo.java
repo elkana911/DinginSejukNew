@@ -31,6 +31,7 @@ public class BasicInfo extends RealmObject implements Serializable {
     private String fax1;
     private String phone2;
     private String fax2;
+    private String jobTitle;
 
     private int userType;   // 10: consumer, 30: technician, 20:mitra, 99:server
     private long createdTimestamp;
@@ -199,6 +200,14 @@ public class BasicInfo extends RealmObject implements Serializable {
         this.userType = userType;
     }
 
+    public String getJobTitle() {
+        return jobTitle;
+    }
+
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+    }
+
     @Override
     public String toString() {
         return "BasicInfo{" +
@@ -219,6 +228,7 @@ public class BasicInfo extends RealmObject implements Serializable {
                 ", fax1='" + fax1 + '\'' +
                 ", phone2='" + phone2 + '\'' +
                 ", fax2='" + fax2 + '\'' +
+                ", jobTitle='" + jobTitle + '\'' +
                 ", userType=" + userType +
                 ", createdTimestamp=" + createdTimestamp +
                 ", updatedTimestamp=" + updatedTimestamp +

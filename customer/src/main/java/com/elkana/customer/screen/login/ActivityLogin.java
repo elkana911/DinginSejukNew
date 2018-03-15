@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.elkana.customer.R;
+import com.elkana.customer.screen.AFirebaseActivity;
 import com.elkana.customer.screen.MainActivity;
 import com.elkana.customer.screen.intro.ActivityIntro;
 import com.elkana.customer.screen.register.ActivityRegister;
@@ -29,7 +30,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 
-public class ActivityLogin extends FirebaseActivity {
+public class ActivityLogin extends AFirebaseActivity {
     private static final String TAG = ActivityLogin.class.getSimpleName();
     private static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA = 413;
 
@@ -109,11 +110,6 @@ public class ActivityLogin extends FirebaseActivity {
                 }
                 break;
         }
-    }
-
-    @Override
-    protected void onLoggedOff() {
-
     }
 
     @Override

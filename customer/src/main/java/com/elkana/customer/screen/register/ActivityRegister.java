@@ -19,8 +19,8 @@ import android.widget.Toast;
 
 import com.elkana.customer.R;
 import com.elkana.customer.pojo.MobileSetup;
+import com.elkana.customer.screen.AFirebaseActivity;
 import com.elkana.customer.util.DataUtil;
-import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.UserAddress;
 import com.elkana.dslibrary.util.Const;
@@ -40,8 +40,8 @@ import java.util.Map;
 
 import io.realm.Realm;
 
-public class ActivityRegister extends FirebaseActivity {
-    private static final String TAG = "Register";
+public class ActivityRegister extends AFirebaseActivity {
+    private static final String TAG = ActivityRegister.class.getSimpleName();
     private static final int REQUESTCODE_MAP = 66;
 
     private RVAdapterUserAddress mAdapter;
@@ -128,11 +128,6 @@ public class ActivityRegister extends FirebaseActivity {
             mEmail.setText("elkana911@yahoo.com");
             mPhone.setText("087886283377");
         }
-    }
-
-    @Override
-    protected void onLoggedOff() {
-
     }
 
     @Override

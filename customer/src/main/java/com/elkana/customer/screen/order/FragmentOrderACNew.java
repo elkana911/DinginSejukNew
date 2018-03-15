@@ -254,12 +254,7 @@ public class FragmentOrderACNew extends Fragment {
         btnSubmitOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Util.showDialogConfirmation(getActivity(), "Booking Confirmation", "Booking Layanan sekarang ?", new ListenerPositiveConfirmation() {
-                    @Override
-                    public void onPositive() {
-                        submitOrder();
-                    }
-                });
+                trySubmitOrder();
             }
         });
 
@@ -552,6 +547,7 @@ public class FragmentOrderACNew extends Fragment {
         mListener = null;
     }
 
+    /*
     private OrderHeader tryToBuildOrder() {
         boolean cancel = false;
         View focus = null;
@@ -677,8 +673,8 @@ public class FragmentOrderACNew extends Fragment {
 
         return orderHeader;
 
-    }
-
+    }*/
+/*
     protected void clearForm(boolean all) {
         etProblem.setText(null);
         etTime.setText(null);
@@ -690,7 +686,7 @@ public class FragmentOrderACNew extends Fragment {
             spAddress.setSelection(-1);
         }
     }
-
+*/
     protected void onSelectMitra() {
         spAddress.setError(null);
 
@@ -730,16 +726,8 @@ public class FragmentOrderACNew extends Fragment {
         selectAddressDefault();
     }
 
-    private void submitOrder() {
-
+    private void submitOrder(final OrderHeader orderHeader){
         final AlertDialog dialog = Util.showProgressDialog(getContext(), "Booking process...");
-
-        final OrderHeader orderHeader = tryToBuildOrder();
-
-        if (orderHeader == null) {
-            dialog.dismiss();
-            return;
-        }
 
         DatabaseReference orderPendingCustomerRef = database.getReference(DataUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(mUserId).push();
@@ -809,6 +797,144 @@ public class FragmentOrderACNew extends Fragment {
 
             }
         });
+
+    }
+
+    private void trySubmitOrder() {
+
+        boolean cancel = false;
+        View focus = null;
+
+        etDate.setError(null);
+        etTime.setError(null);
+        etProblem.setError(null);
+        spAddress.setError(null);
+        etSelectMitra.setError(null);
+
+        final String kapan = etDate.getText().toString().trim();
+        final String jam = etTime.getText().toString().trim();
+        final String problem = etProblem.getText().toString().trim();
+
+        Object addressObj = spAddress.getSelectedItem();
+        String alamat = "";
+        String alamatByGoogle = "";
+        String latitude = "";
+        String longitude = "";
+        if (addressObj != null) {
+            if (addressObj instanceof UserAddress) {
+                alamat = ((UserAddress) addressObj).getLabel();
+                alamatByGoogle = ((UserAddress) addressObj).getAddress();
+                latitude = ((UserAddress) addressObj).getLatitude();
+                longitude = ((UserAddress) addressObj).getLongitude();
+            } else {
+                alamat = addressObj.toString();
+                alamatByGoogle = alamat;
+            }
+
+        }
+        final String mitra = etSelectMitra.getText().toString().trim();
+
+        if (TextUtils.isEmpty(kapan)) {
+            etDate.setError(getString(R.string.error_field_required));
+            focus = etDate;
+            cancel = true;
+        }
+
+        if (TextUtils.isEmpty(jam)) {
+            etTime.setError(getString(R.string.error_field_required));
+            focus = etTime;
+            cancel = true;
+        }
+
+        if (TextUtils.isEmpty(problem)) {
+            etProblem.setError(getString(R.string.warning_field_required));
+        }
+
+        if (TextUtils.isEmpty(alamat)) {
+            spAddress.setError(getString(R.string.error_field_required));
+            focus = spAddress;
+            cancel = true;
+        }
+
+        if (TextUtils.isEmpty(mitra)) {
+            Toast.makeText(getContext(), "Mitra not defined", Toast.LENGTH_SHORT).show();
+            etSelectMitra.setError(getString(R.string.error_field_required));
+            focus = etSelectMitra;
+            cancel = true;
+        }
+
+        if (cancel) {
+            focus.requestFocus();
+            return;
+        }
+
+        final String finalAlamat = alamat;
+        final String finalAlamatByGoogle = alamatByGoogle;
+        final String finalLatitude = latitude;
+        final String finalLongitude = longitude;
+        Util.showDialogConfirmation(getActivity(), "Booking Confirmation", "Booking Layanan sekarang ?", new ListenerPositiveConfirmation() {
+            @Override
+            public void onPositive() {
+                final OrderHeader orderHeader = new OrderHeader();
+                orderHeader.setCustomerId(mUserId);//jd tdk mungkin user yg sama bisa order 2x
+                orderHeader.setDateOfService(kapanYYYYMMDD);
+                orderHeader.setTimeOfService(jam);
+                orderHeader.setTimestamp(Util.convertStringToDate(kapanYYYYMMDD + jam, "yyyyMMddHH:mm").getTime());
+                orderHeader.setServiceType(DateUtil.isToday(orderHeader.getTimestamp()) ? 1 : 2);
+                orderHeader.setInvoiceNo(String.valueOf(orderHeader.getTimestamp()));
+                orderHeader.setStatusId(EOrderStatus.PENDING.name());
+                orderHeader.setStatusDetailId(EOrderDetailStatus.CREATED.name());
+                orderHeader.setAddressId(finalAlamat);
+                orderHeader.setAddressByGoogle(finalAlamatByGoogle);
+                orderHeader.setLatitude(finalLatitude);
+                orderHeader.setLongitude(finalLongitude);
+
+                orderHeader.setJumlahAC(Integer.parseInt(etCounter.getText().toString()));
+                orderHeader.setProblem(problem);
+                orderHeader.setRescheduleCounter(0);
+                orderHeader.setUpdatedTimestamp(new Date().getTime());
+                orderHeader.setUpdatedBy(String.valueOf(Const.USER_AS_COSTUMER));
+
+                Realm realm = Realm.getDefaultInstance();
+                try {
+                    Mitra mitraObj = DataUtil.lookUpMitra(realm, mitra);
+
+                    orderHeader.setPartyId(mitraObj.getUid());
+                    orderHeader.setPartyName(mitraObj.getName());
+
+                    // final check constraint: cant have same address, same mitra and same day
+                    OrderHeader first = realm.where(OrderHeader.class)
+                            .equalTo("addressId", finalAlamat)
+                            .equalTo("partyId", mitraObj.getUid())
+                            .equalTo("dateOfService", kapanYYYYMMDD)
+                            .notEqualTo("statusId", EOrderStatus.FINISHED.name())
+                            .findFirst();
+
+                    if (first != null) {
+                        if (mListener != null) {
+                            mListener.onError(new OrderAlreadyExists(finalAlamat, mitra, kapan));
+                            return;
+                        }
+                    }
+
+                    // get the rest
+                    BasicInfo basicInfo = realm.where(BasicInfo.class)
+                            .equalTo("uid", mUserId)
+                            .findFirst();
+
+                    orderHeader.setCustomerName(basicInfo.getName());
+                    orderHeader.setPhone(basicInfo.getPhone1());
+
+
+                } finally {
+                    realm.close();
+                }
+
+                submitOrder(orderHeader);
+
+            }
+        });
+
     }
 
     /**

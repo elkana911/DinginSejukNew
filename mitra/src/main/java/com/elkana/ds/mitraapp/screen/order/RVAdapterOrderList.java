@@ -35,6 +35,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -75,6 +77,8 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         }
     };*/
+
+
 
     public RVAdapterOrderList(Context ctx, final String mitraId, ListenerOrderList listener) {
         mContext = ctx;
@@ -215,6 +219,18 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                 }
 
+                Collections.sort(mList, new Comparator<OrderBucket>() {
+                    @Override
+                    public int compare(OrderBucket s1, OrderBucket s2) {
+                        if (s1.getUpdatedTimestamp() < s2.getUpdatedTimestamp())
+                            return 1;   // DESCENDING
+                        else if (s1.getUpdatedTimestamp() > s2.getUpdatedTimestamp())
+                            return -1;
+                        else
+                            return 0;
+                    }
+                });
+
                 notifyDataSetChanged();
             }
 
@@ -261,6 +277,8 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         final OrderBucket obj = mList.get(position);
 
+        ((MyViewHolder) holder).tvNo.setText(position+1);
+
         ((MyViewHolder) holder).setData(obj);
 
         EOrderDetailStatus detailStatus = EOrderDetailStatus.convertValue(obj.getStatusDetailId());
@@ -297,7 +315,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
     class MyViewHolder extends RecyclerView.ViewHolder {
         public EOrderDetailStatus lastStatus;
 
-        public TextView tvAddress, tvCustomerName, tvHandledBy, tvOrderTime, tvOrderStatus, tvOrderRemaining;
+        public TextView tvAddress, tvCustomerName, tvHandledBy, tvOrderTime, tvOrderStatus, tvOrderRemaining, tvNo;
         public View view;
         public ImageView ivIconStatus;
         public Button btnCallTech, btnCallCust;
@@ -308,6 +326,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             super(itemView);
 
             view = itemView;
+            tvNo = itemView.findViewById(R.id.tvNo);
             tvAddress = itemView.findViewById(R.id.tvAddress);
 
             tvAddress.setCompoundDrawablePadding(10);

@@ -26,6 +26,8 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -68,6 +70,18 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
                     Log.e(TAG, assignment.toString());
                     mList.add(assignment);
                 }
+
+                Collections.sort(mList, new Comparator<Assignment>() {
+                    @Override
+                    public int compare(Assignment s1, Assignment s2) {
+                        if (s1.getUpdatedTimestamp() < s2.getUpdatedTimestamp())
+                            return 1;   // DESCENDING
+                        else if (s1.getUpdatedTimestamp() > s2.getUpdatedTimestamp())
+                            return -1;
+                        else
+                            return 0;
+                    }
+                });
 
                 notifyDataSetChanged();
 

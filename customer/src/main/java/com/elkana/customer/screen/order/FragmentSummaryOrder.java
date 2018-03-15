@@ -152,7 +152,7 @@ public class FragmentSummaryOrder extends Fragment {
                     realm.close();
                 }
 
-                displayOrder(mSelectedUserId, mSelectedOrderId);
+                displaySummaryOrder(mSelectedUserId, mSelectedOrderId);
             }
 
             @Override
@@ -170,7 +170,7 @@ public class FragmentSummaryOrder extends Fragment {
      *
      * @param orderId if null, latest order will be displayed
      */
-    private OrderHeader displayOrder(String userId, String orderId) {
+    private OrderHeader displaySummaryOrder(String userId, String orderId) {
         final Realm realm = Realm.getDefaultInstance();
         try {
 
@@ -190,6 +190,9 @@ public class FragmentSummaryOrder extends Fragment {
 
             RealmResults<OrderHeader> allSorted = query
                     .findAllSorted("updatedTimestamp", Sort.DESCENDING);
+
+            if (allSorted.size() < 1)
+                return null;
 
             final OrderHeader orderHeader = allSorted.first();
 
@@ -742,7 +745,7 @@ public class FragmentSummaryOrder extends Fragment {
 
         this.mSelectedUserId = userId;
 
-        OrderHeader orderHeader = displayOrder(userId, orderId);
+        OrderHeader orderHeader = displaySummaryOrder(userId, orderId);
 
         if (orderHeaderPendingRef != null)
             orderHeaderPendingRef.removeEventListener(mOrderHeaderPendingListener);

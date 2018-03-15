@@ -317,7 +317,7 @@ public class MainActivity extends FirebaseActivity
     }
 
     @Override
-    protected void onLoggedOn(FirebaseUser user) {
+    protected void onLoggedOn(final FirebaseUser user) {
 //        dont put any view logic here krn bisa dipanggil sebelum activity ready after login. let oncreate handle this
         final AlertDialog dialog = Util.showProgressDialog(this, "Loading user information...");
 
@@ -327,7 +327,8 @@ public class MainActivity extends FirebaseActivity
             @Override
             public void onPostSync(Exception e) {
                 if (e == null) {
-                    DataUtil.syncOrders(MainActivity.this, mAuth.getCurrentUser().getUid(), new ListenerSync() {
+                    DataUtil.syncOrders(MainActivity.this, user.getUid(), new ListenerSync() {
+//                    DataUtil.syncOrders(MainActivity.this, mAuth.getCurrentUser().getUid(), new ListenerSync() {
                         @Override
                         public void onPostSync(Exception e) {
                             prepareScreen(true);
@@ -512,7 +513,7 @@ public class MainActivity extends FirebaseActivity
                     .equalTo("statusId", EOrderStatus.PENDING.name())
                     .count();
 
-            bottomNavigation.setNotification(String.valueOf(count), PAGE_ORDER_LIST);
+            bottomNavigation.setNotification(count < 1 ? null : String.valueOf(count), PAGE_ORDER_LIST);
         } finally {
             r.close();
         }

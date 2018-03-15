@@ -10,16 +10,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.elkana.customer.R;
+import com.elkana.customer.screen.AFirebaseActivity;
 import com.elkana.customer.screen.register.ActivityMapsUserAddress;
 import com.elkana.customer.screen.register.ListenerAddressList;
 import com.elkana.customer.screen.register.RVAdapterUserAddress;
-import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.UserAddress;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class ActivityProfile extends FirebaseActivity {
+public class ActivityProfile extends AFirebaseActivity {
 
     private static final String TAG = "Profile";
     private static final int RESULTCODE_MAP = 66;
@@ -124,16 +123,6 @@ public class ActivityProfile extends FirebaseActivity {
         });
         rvAddress.setAdapter(mAdapter);
         rvAddress.setLayoutManager(new LinearLayoutManager(this));
-
-    }
-
-    @Override
-    protected void onLoggedOff() {
-
-    }
-
-    @Override
-    protected void onLoggedOn(FirebaseUser user) {
 
     }
 
