@@ -51,7 +51,7 @@ public class MainActivityFragment extends Fragment {
 
     public String technicianId;
 
-    protected OnFragmentAssignmentistInteractionListener mListener;
+    protected OnFragmentAssignmentListInteractionListener mListener;
 
     public MainActivityFragment() {
     }
@@ -299,11 +299,11 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentAssignmentistInteractionListener) {
-            mListener = (OnFragmentAssignmentistInteractionListener) context;
+        if (context instanceof OnFragmentAssignmentListInteractionListener) {
+            mListener = (OnFragmentAssignmentListInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement " + OnFragmentAssignmentistInteractionListener.class.getSimpleName());
+                    + " must implement " + OnFragmentAssignmentListInteractionListener.class.getSimpleName());
         }
     }
 
@@ -314,7 +314,7 @@ public class MainActivityFragment extends Fragment {
     }
 
 
-    public interface OnFragmentAssignmentistInteractionListener {
+    public interface OnFragmentAssignmentListInteractionListener {
         void onStatusChange(EOrderDetailStatus status);
     }
 }

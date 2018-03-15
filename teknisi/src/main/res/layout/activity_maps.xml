@@ -70,7 +70,7 @@
     <android.support.v7.widget.CardView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="222dp"
+        android:layout_height="242dp"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         app:behavior_hideable="false"
@@ -135,6 +135,7 @@
                     android:text="Nama Pelanggan:" />
 
                 <TextView
+                    android:visibility="gone"
                     android:id="@+id/tvOrderId"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -160,6 +161,12 @@
 
                 <TextView
                     android:id="@+id/tvDateOfService"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tgl Pesan:" />
+                <TextView
+                    android:visibility="invisible"
+                    android:id="@+id/tvDateCancel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Tgl Pesan:" />

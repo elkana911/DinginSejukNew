@@ -47,7 +47,7 @@ import io.realm.RealmResults;
 
 public class MainActivity extends FirebaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        MainActivityFragment.OnFragmentAssignmentistInteractionListener
+        MainActivityFragment.OnFragmentAssignmentListInteractionListener
 {
 
     private static final String TAG = MainActivity.class.getSimpleName();

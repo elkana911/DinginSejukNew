@@ -231,7 +231,7 @@ public class FragmentSummaryOrder extends Fragment {
                 case ASSIGNED:
                     btnCancelOrder.setVisibility(View.VISIBLE);
                     btnReschedule.setVisibility(View.VISIBLE);
-                    btnReschedule.setEnabled(false);
+                    btnReschedule.setEnabled(orderHeader.getRescheduleCounter() < 1);
                     break;
                 case OTW:
                     // TODO: mungkin msh boleh dibatalkan ? tp kena charge atau gmn

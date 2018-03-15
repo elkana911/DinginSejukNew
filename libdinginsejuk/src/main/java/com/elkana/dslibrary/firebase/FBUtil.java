@@ -16,6 +16,7 @@ import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.FirebaseToken;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
+import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.OrderUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -204,17 +205,33 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         keyValOrder.put(root + "/statusDetailId", newStatus.name());
         keyValOrder.put(root + "/updatedTimestamp", time);
         keyValOrder.put(root + "/updatedBy", updatedBy);
+        if (newStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER
+                || newStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT
+                || newStatus == EOrderDetailStatus.CANCELLED_BY_SERVER
+                )
+            keyValOrder.put(root + "/statusId", EOrderStatus.FINISHED.name());
 
         root = REF_ORDERS_MITRA_AC_PENDING + "/" + mitraId + "/" + orderId;
         keyValOrder.put(root + "/statusDetailId", newStatus.name());
         keyValOrder.put(root + "/updatedTimestamp", time);
         keyValOrder.put(root + "/updatedBy", updatedBy);
+        if (newStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER
+                || newStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT
+                || newStatus == EOrderDetailStatus.CANCELLED_BY_SERVER
+                )
+            keyValOrder.put(root + "/statusId", EOrderStatus.FINISHED.name());
 
         if (assignmentId != null) {
             root = REF_ASSIGNMENTS_PENDING + "/" + techId + "/" + assignmentId + "/assign";
             keyValOrder.put(root + "/statusDetailId", newStatus.name());
             keyValOrder.put(root + "/updatedTimestamp", time);
             keyValOrder.put(root + "/updatedBy", updatedBy);
+            // belum tau perlu atau tdk
+//            if (newStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER
+//                    || newStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT
+//                    || newStatus == EOrderDetailStatus.CANCELLED_BY_SERVER
+//                    )
+//                keyValOrder.put(root + "/statusId", EOrderStatus.FINISHED.name());
         }
 
         FirebaseDatabase.getInstance().getReference().updateChildren(keyValOrder).addOnCompleteListener(new OnCompleteListener<Void>() {

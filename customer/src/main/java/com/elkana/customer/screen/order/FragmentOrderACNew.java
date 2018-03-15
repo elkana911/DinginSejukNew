@@ -254,7 +254,7 @@ public class FragmentOrderACNew extends Fragment {
         btnSubmitOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Util.showDialogConfirmation(getActivity(), "Submit Order", "Booking Layanan sekarang ?", new ListenerPositiveConfirmation() {
+                Util.showDialogConfirmation(getActivity(), "Booking Confirmation", "Booking Layanan sekarang ?", new ListenerPositiveConfirmation() {
                     @Override
                     public void onPositive() {
                         submitOrder();
@@ -732,11 +732,12 @@ public class FragmentOrderACNew extends Fragment {
 
     private void submitOrder() {
 
-        final AlertDialog dialog = Util.showProgressDialog(getContext(), "Booking Confirmation...");
+        final AlertDialog dialog = Util.showProgressDialog(getContext(), "Booking process...");
 
         final OrderHeader orderHeader = tryToBuildOrder();
 
         if (orderHeader == null) {
+            dialog.dismiss();
             return;
         }
 

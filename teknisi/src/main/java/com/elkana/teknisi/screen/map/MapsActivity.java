@@ -27,6 +27,7 @@ import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.OrderHeader;
+import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.Util;
@@ -80,10 +81,10 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
     private Location lastLoc;
     private CameraUpdate cameraCurrentPos, cameraAddress;
 
-    private ValueEventListener mValueEventListener;
+    private ValueEventListener alwaysListenOrderListener;
     private DatabaseReference alwaysListenOrderRef;
 
-    private TextView tvAddress, tvACCount, tvOrderId, tvProblem, tvMitra, tvDateOfService, tvCustomerName;
+    private TextView tvAddress, tvACCount, tvOrderId, tvProblem, tvMitra, tvDateOfService, tvCustomerName, tvDateCancel;
     private Button btnStartWorking, btnStartOtw;
     private BottomSheetBehavior mBottomSheetBehavior1;
 
@@ -116,6 +117,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
         tvDateOfService = findViewById(R.id.tvDateOfService);
         tvMitra = findViewById(R.id.tvMitra);
         tvProblem = findViewById(R.id.tvProblem);
+        tvDateCancel = findViewById(R.id.tvDateCancel);
 
         final CardView bottomSheetCardView = findViewById(R.id.bottom_sheet);
         mBottomSheetBehavior1 = BottomSheetBehavior.from(bottomSheetCardView);
@@ -523,10 +525,13 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
 
                 tvACCount.setText("Jml AC: " + String.valueOf(obj.getJumlahAC()));
                 tvOrderId.setText("Order Id: " + obj.getUid());
-                tvCustomerName.setText("Customer: " + obj.getCustomerName());
+                tvCustomerName.setText(obj.getCustomerName());
                 tvDateOfService.setText("Tgl Service: " + Util.convertDateToString(new Date(obj.getTimestamp()), "dd-MMM-yyyy HH:mm"));
                 tvMitra.setText("Mitra: " + obj.getPartyName());
                 tvProblem.setText("Permasalahan: " + obj.getProblem());
+
+                btnStartOtw.setEnabled(true);
+                btnStartWorking.setEnabled(true);
 
                 switch (EOrderDetailStatus.convertValue(obj.getStatusDetailId())) {
                     case ASSIGNED:
@@ -536,6 +541,15 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                     case OTW:
                         btnStartOtw.setVisibility(View.GONE);
                         btnStartWorking.setVisibility(View.VISIBLE);
+                        break;
+                    case CANCELLED_BY_CUSTOMER:
+                    case CANCELLED_BY_TIMEOUT:
+                    case CANCELLED_BY_SERVER:
+                        tvDateCancel.setText("Jam Cancel: "+ DateUtil.formatDateToSimple(obj.getUpdatedTimestamp()));
+                        tvDateCancel.setVisibility(View.VISIBLE);
+                        btnStartOtw.setText(obj.getStatusDetailId());
+                        btnStartOtw.setEnabled(false);
+                        btnStartWorking.setEnabled(false);
                         break;
                     default:
                         // bahaya finish disini, krn bisa saja ada proses lain blm selesai
@@ -551,20 +565,19 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
             }
         };
 
-        mValueEventListener = valueEventListener;
+        alwaysListenOrderListener = valueEventListener;
 
         // standalone monitor order
         alwaysListenOrderRef = FBUtil.Order_getPendingCustomerRef(mCustomerId, mOrderId);
-
-        alwaysListenOrderRef.addValueEventListener(mValueEventListener);
+        alwaysListenOrderRef.addValueEventListener(alwaysListenOrderListener);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        if (alwaysListenOrderRef != null && mValueEventListener != null) {
-            alwaysListenOrderRef.removeEventListener(mValueEventListener);
+        if (alwaysListenOrderRef != null && alwaysListenOrderListener != null) {
+            alwaysListenOrderRef.removeEventListener(alwaysListenOrderListener);
         }
     }
 }
