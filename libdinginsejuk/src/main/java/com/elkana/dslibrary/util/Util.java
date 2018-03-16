@@ -29,14 +29,19 @@ import com.elkana.dslibrary.pojo.OrderHeader;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import dmax.dialog.SpotsDialog;
 
@@ -486,5 +491,61 @@ public class Util {
 
         } else
             return false;
+    }
+
+    public static Map getFieldNamesAndValues(final Object valueObj) throws IllegalArgumentException,
+            IllegalAccessException
+    {
+        System.out.println("Begin - getFieldNamesAndValues");
+        Class c1 = valueObj.getClass();
+        System.out.println("Class name got is:: " + c1.getName());
+
+        Map fieldMap = new HashMap();
+        Field[] valueObjFields = c1.getDeclaredFields();
+
+        // compare values now
+        for (int i = 0; i < valueObjFields.length; i++)
+        {
+
+            String fieldName = valueObjFields[i].getName();
+
+            System.out.println("Getting Field Values for Field:: " + valueObjFields[i].getName());
+            valueObjFields[i].setAccessible(true);
+
+            Object newObj = valueObjFields[i].get(valueObj);
+
+            Class t = valueObjFields[i].getType();
+
+            if (t.equals(String.class)){
+                System.out.println("STRING!!!");
+            }
+
+            //if(f.getType().equals(int.class))
+
+            //if(f.getType().equals(long.class))
+
+//            if(f.getType().equals(List.class)){
+//                result.add(f.getName());
+//            }
+
+            //for other data type
+
+            //Map
+            //if(f.getType().equals(Map.class))
+
+            System.out.println("Value of field" + fieldName + "newObj:: " + newObj);
+            fieldMap.put(fieldName, newObj);
+
+        }
+        System.out.println("End - getFieldNamesAndValues");
+        return fieldMap;
+    }
+
+    public static String removeTrailingSlash(String path) {
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        return path;
     }
 }

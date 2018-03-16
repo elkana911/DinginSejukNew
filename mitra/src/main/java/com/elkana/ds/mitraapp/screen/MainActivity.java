@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
@@ -33,10 +34,12 @@ import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.FightInfo;
+import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -56,7 +59,6 @@ public class MainActivity extends AFirebaseMitraActivity
     DrawerLayout drawer;
     MenuItem menuLogout, menuEditProfile;
     CoordinatorLayout coordinatorLayout;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -375,8 +377,21 @@ public class MainActivity extends AFirebaseMitraActivity
         Assignment_create(fightInfo.getTechId(), fightInfo.getTechName(), fightInfo.getCustId(), fightInfo.getOrderId(), new ListenerModifyData() {
             @Override
             public void onSuccess() {
-                // delete fight
-                FBUtil.Assignment_deleteFight(fightInfo.getOrderId(), null);
+                // delete fight, dipindah setelah sukses delete all notify order
+
+                List<TechnicianReg> allTechnicianReg = DataUtil.getAllTechnicianReg();
+
+                FBUtil.TechnicianRegs_recursiveDeleteAllNotifyNewOrder(mAuth.getCurrentUser().getUid(), fightInfo.getOrderId(),  allTechnicianReg, allTechnicianReg.size()-1, new ListenerModifyData() {
+                    @Override
+                    public void onSuccess() {
+                        FBUtil.Assignment_deleteFight(fightInfo.getOrderId(), null);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+
+                    }
+                });
             }
 
             @Override

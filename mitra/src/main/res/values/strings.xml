@@ -14,7 +14,7 @@
     <string name="error_technician_not_found">Teknisi tidak terdaftar. Pastikan yang bersangkutan sudah Registrasi via aplikasi Teknisi.</string>
     <string name="error_technician_not_available">Teknisi tidak tersedia</string>
 
-    <string name="message_no_order">No Order for Today. We\'ll inform you later.</string>
+    <string name="message_no_order">No Bookings for Today.</string>
 
     <string name="prompt_company_name">Company Name</string>
     <string name="prompt_phone_office">Work Phone</string>

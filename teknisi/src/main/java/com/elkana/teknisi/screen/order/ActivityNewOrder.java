@@ -12,12 +12,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.pojo.mitra.NotifyNewOrderItem;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
+import com.elkana.teknisi.screen.payment.ActivityPayment;
 import com.google.firebase.auth.FirebaseUser;
 
 public class ActivityNewOrder extends FirebaseActivity {
@@ -29,45 +31,10 @@ public class ActivityNewOrder extends FirebaseActivity {
     public static final String PARAM_MITRA_ID = "mitra.id";
 
     String mOrderId, mMitraId;
-//    boolean isOrderTaken = false;
-
-//    Button btnGiveUpOrDo, btnTakeOrder, btnDenyOrder;
-//    TextView tvCounter, tvPleaseAcceptNewOrder;
-//    View llQuickButtons;
     RecyclerView rvOrders;
+    private boolean selfDeny = false;
 
     private RVAdapterNotifyNewOrderList mAdapter;
-
-//    CountDownTimer timer;
-//    private ValueEventListener mQuickestEventListener;
-//    private DatabaseReference fightRef;
-
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-/*
-        long expirationMillis = 2 * 60 * 1000;
-
-        timer = new CountDownTimer(expirationMillis, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                String ss = Util.convertDateToString(new Date(millisUntilFinished), "mm:ss");
-                tvCounter.setText(ss);
-            }
-
-            @Override
-            public void onFinish() {
-                tvCounter.setText("Expired!!");
-
-                btnGiveUpOrDo.setVisibility(View.VISIBLE);
-                llQuickButtons.setVisibility(View.GONE);
-                // TODO: update firebase db
-
-            }
-        }.start();
-*/
-    }
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -95,79 +62,7 @@ public class ActivityNewOrder extends FirebaseActivity {
                 finish();
             }
         });
-/*
-        llQuickButtons = findViewById(R.id.llQuickButtons);
-        tvPleaseAcceptNewOrder = findViewById(R.id.tvPleaseAcceptNewOrder);
-        tvCounter = findViewById(R.id.tvCounter);
-        btnGiveUpOrDo = findViewById(R.id.btnGiveUpOrDo);
-        btnGiveUpOrDo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                timer.cancel();
 
-                if (isOrderTaken) {
-                    setResult(RESULT_OK);
-                } else {
-                    setResult(RESULT_CANCELED);
-                }
-
-                finish();
-            }
-        });
-
-        btnDenyOrder = findViewById(R.id.btnDenyOrder);
-        btnDenyOrder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Util.showDialogConfirmation(ActivityNewOrder.this, "Tolak Order", "Yakin Anda tolak dan coba Lain kali ?", new ListenerPositiveConfirmation() {
-                    @Override
-                    public void onPositive() {
-                        timer.cancel();
-                        setResult(RESULT_CANCELED);
-                        finish();
-                    }
-                });
-        }
-        });
-
-        btnTakeOrder = findViewById(R.id.btnTakeOrder);
-        btnTakeOrder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final AlertDialog alertDialog = Util.showProgressDialog(ActivityNewOrder.this);
-
-                // check already taken ? assume device is offline intentfully
-
-                final DatabaseReference _fightRef = FBUtil.Assignment_fight(mOrderId)
-                        .child("techId");
-
-                _fightRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-                            _fightRef.setValue(mTechId).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    timer.cancel();
-                                    alertDialog.dismiss();
-
-                                    // hapus notify_new_order
-                                    FBUtil.TechnicianReg_DeleteNotifyNewOrder(mMitraId, mTechId,  mOrderId,null);
-                                }
-                            });
-                            return;
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
-                    }
-                });
-            }
-
-        });
-*/
         String mTechId = mAuth.getCurrentUser().getUid();
 
         String mTechName = mAuth.getCurrentUser().getDisplayName();
@@ -179,6 +74,9 @@ public class ActivityNewOrder extends FirebaseActivity {
         mAdapter = new RVAdapterNotifyNewOrderList(this, mMitraId, mTechId, mTechName, new ListenerNotifyNewOrderList() {
             @Override
             public void onDeny(NotifyNewOrderItem data) {
+
+                selfDeny = true;
+
                 if (mAdapter.getItemCount() < 2) {
                     setResult(RESULT_CANCELED);
                     finish();
@@ -193,45 +91,28 @@ public class ActivityNewOrder extends FirebaseActivity {
                 }
 
             }
+
+            @Override
+            public void onOrderRemoved(NotifyNewOrderItem data) {
+                if (!selfDeny) {
+                    Toast.makeText(ActivityNewOrder.this, "Maaf, Booking dari " + data.getCustomerName() + " sudah tidak tersedia.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onTimesUp() {
+
+            }
+
+            @Override
+            public void onTimerStart() {
+                selfDeny = false;
+            }
         });
 
         rvOrders = findViewById(R.id.rvOrders);
         rvOrders.setLayoutManager(new GridLayoutManager(this, 1));
         rvOrders.setAdapter(mAdapter);
-/*
-        mQuickestEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (!dataSnapshot.exists())
-                    return;
-
-                // already taken
-                isOrderTaken = true;
-                String value = dataSnapshot.getValue().toString();
-
-                if (value.equals(mTechId)) {
-                    tvCounter.setText("YESS !!!");
-                    tvPleaseAcceptNewOrder.setText("Anda tercepat ambil order.\nSelamat bekerja !");
-
-                } else {
-                    tvCounter.setText("Terlambat !");
-                    tvPleaseAcceptNewOrder.setText("Order sudah diambil Teknisi lain");
-                }
-
-                llQuickButtons.setVisibility(View.GONE);
-                btnGiveUpOrDo.setText("Tutup Layar");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, databaseError.getMessage(), databaseError.toException());
-            }
-        };
-
-        fightRef = FBUtil.Assignment_fight(mOrderId).child("techId");
-
-        fightRef.addValueEventListener(mQuickestEventListener);
-        */
     }
 
     @Override
@@ -249,7 +130,6 @@ public class ActivityNewOrder extends FirebaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         mAdapter.cleanUpListener();
-//        fightRef.removeEventListener(mQuickestEventListener);
     }
 
     @Override

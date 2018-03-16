@@ -19,6 +19,7 @@ import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.mitra.NotifyNewOrderItem;
 import com.elkana.dslibrary.util.Const;
+import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.pojo.MobileSetup;
@@ -67,8 +68,8 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
         mNotifyNewOrderListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.e(TAG, ">>>>>child added");
                 NotifyNewOrderItem _obj = dataSnapshot.getValue(NotifyNewOrderItem.class);
+                Log.e(TAG, ">>>>>child added " + _obj);
 
                 MobileSetup mobileSetup = DataUtil.getMobileSetup();
                 //disable krn msh testing new order
@@ -93,17 +94,23 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Log.e(TAG, ">>>>>>>>child removed");
                 NotifyNewOrderItem _obj = dataSnapshot.getValue(NotifyNewOrderItem.class);
+                Log.e(TAG, ">>>>>>>>child removed " + _obj);
 
+                boolean changed = false;
                 for (int i = 0; i < mList.size(); i++) {
                     if (!mList.get(i).getOrderId().equals(_obj.getOrderId()))
                         continue;
 
                     mList.remove(i);
+
+                    changed = true;
                     break;
                 }
                 notifyDataSetChanged();
+
+                if (changed && mListener != null)
+                    mListener.onOrderRemoved(_obj);
             }
 
             @Override
@@ -203,16 +210,19 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
 //            tvCustomerName.setText(data.getCustomerName());
 //            tvOrderTime.setText(Util.convertDateToString(new Date(data.getTimestamp()), "dd MMM yyyy HH:mm"));
             StringBuilder sb = new StringBuilder();
-            sb.append("Jadwal : ").append(data.getOrderTimestamp()).append("\n");
+            sb.append("Jadwal : ").append(DateUtil.displayTimeInJakarta(data.getOrderTimestamp(), "dd MMM yyyy HH:mm")).append("\n");
             sb.append("Jumlah AC : ").append(data.getAcCount()).append("\n");
-            sb.append("Alamat : ").append(data.getAddress()).append("\n");
-            sb.append("Nama : ").append(data.getCustomerName()).append("\n");
+//            sb.append("Alamat : ").append(data.getAddress()).append("\n");
+            sb.append(data.getAddress()).append("\n");
+            sb.append(data.getCustomerName()).append("\n");
+//            sb.append("Nama : ").append(data.getCustomerName()).append("\n");
             tvOrderInfo.setText(sb.toString());
 
             btnCloseExpired.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FBUtil.TechnicianReg_DeleteNotifyNewOrder(mMitraId, mTechId, data.getOrderId(), new ListenerModifyData() {
+
+                    FBUtil.TechnicianReg_deleteNotifyNewOrder(mMitraId, mTechId, data.getOrderId(), new ListenerModifyData() {
                         @Override
                         public void onSuccess() {
                             if (mListener == null)
@@ -232,7 +242,8 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
             btnDenyOrder.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Util.showDialogConfirmation(mContext, "Tolak Order", "yakin Anda tolak dan coba lain kali ?", new ListenerPositiveConfirmation() {
+
+                    Util.showDialogConfirmation(mContext, "Tolak Order", "Anda yakin tolak dan coba lain kali ?", new ListenerPositiveConfirmation() {
                         @Override
                         public void onPositive() {
                             timer.cancel();
@@ -279,7 +290,11 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                                     // stop timer
                                     timer.cancel();
 
-                                    // hapus notify_new_order
+                                    if (mListener != null)
+                                        mListener.onAccept(data);
+
+                                    // hapus notify_new_order, dipindah di mitra saja krn lbh stabil inetnya
+                                    /*
                                     FBUtil.TechnicianReg_DeleteNotifyNewOrder(mMitraId, mTechId, data.getOrderId(), new ListenerModifyData() {
                                         @Override
                                         public void onSuccess() {
@@ -294,6 +309,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                                             Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
                                         }
                                     });
+                                    */
                                 }
                             });
 
@@ -341,10 +357,15 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                     btnDenyOrder.setVisibility(View.INVISIBLE);
                     btnTakeOrder.setVisibility(View.INVISIBLE);
                     btnCloseExpired.setVisibility(View.VISIBLE);
-                    // TODO: update firebase db
+
+                    if (mListener != null)
+                        mListener.onTimesUp();
 
                 }
             }.start();
+
+            if (mListener != null)
+                mListener.onTimerStart();
         }
     }
 }

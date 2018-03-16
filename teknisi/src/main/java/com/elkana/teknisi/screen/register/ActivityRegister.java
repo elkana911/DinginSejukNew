@@ -25,6 +25,7 @@ import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.SharedPrefUtil;
 import com.elkana.dslibrary.util.Util;
+import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.pojo.MobileSetup;
 import com.elkana.teknisi.util.DataUtil;
@@ -44,7 +45,7 @@ import java.util.Map;
 
 import io.realm.Realm;
 
-public class ActivityRegister extends FirebaseActivity {
+public class ActivityRegister extends AFirebaseTeknisiActivity {
 
     private static final String TAG = ActivityRegister.class.getSimpleName();
 
@@ -136,16 +137,6 @@ public class ActivityRegister extends FirebaseActivity {
 //        });
 
     }
-
-    @Override
-    protected void onLoggedOff() {
-
-    }
-
-    @Override
-    protected void onLoggedOn(FirebaseUser user) {
-    }
-
 
     /**
      * Attempts to sign in or register the account specified by the login form.

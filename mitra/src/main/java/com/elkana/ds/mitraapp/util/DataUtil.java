@@ -162,6 +162,15 @@ public class DataUtil {
         return obj;
     }
 
+    public static List<TechnicianReg> getAllTechnicianReg() {
+        Realm r = Realm.getDefaultInstance();
+        try {
+            return r.copyFromRealm(r.where(TechnicianReg.class).findAll());
+        } finally {
+            r.close();
+        }
+    }
+
 
     public static int isWorkingHour(int offset) {
 

@@ -110,6 +110,24 @@
 
                 </android.support.design.widget.TextInputLayout>
 
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
+
+                    <AutoCompleteTextView
+                        android:id="@+id/etJobTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawablePadding="20dp"
+                        android:hint="@string/prompt_jobtitle"
+                        android:inputType="textPhonetic"
+                        android:maxLines="1"
+                        android:text="Spesialis AC"
+                        />
+
+                </android.support.design.widget.TextInputLayout>
+
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/rvMitra"
                     android:layout_width="match_parent"

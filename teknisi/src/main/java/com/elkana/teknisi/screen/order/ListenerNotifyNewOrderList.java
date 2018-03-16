@@ -10,4 +10,10 @@ public interface ListenerNotifyNewOrderList {
     void onDeny(NotifyNewOrderItem data);
 
     void onAccept(NotifyNewOrderItem data);
+
+    void onOrderRemoved(NotifyNewOrderItem data);
+
+    void onTimesUp();
+
+    void onTimerStart();
 }

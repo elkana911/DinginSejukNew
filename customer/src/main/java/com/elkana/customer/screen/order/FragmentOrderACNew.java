@@ -62,11 +62,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import fr.ganfra.materialspinner.MaterialSpinner;
 import io.realm.Realm;
@@ -547,146 +549,6 @@ public class FragmentOrderACNew extends Fragment {
         mListener = null;
     }
 
-    /*
-    private OrderHeader tryToBuildOrder() {
-        boolean cancel = false;
-        View focus = null;
-
-        etDate.setError(null);
-        etTime.setError(null);
-        etProblem.setError(null);
-        spAddress.setError(null);
-        etSelectMitra.setError(null);
-
-        String kapan = etDate.getText().toString().trim();
-        String jam = etTime.getText().toString().trim();
-        String problem = etProblem.getText().toString().trim();
-
-        Object addressObj = spAddress.getSelectedItem();
-        String alamat = "";
-        String alamatByGoogle = "";
-        String latitude = "";
-        String longitude = "";
-        if (addressObj != null) {
-            if (addressObj instanceof UserAddress) {
-                alamat = ((UserAddress) addressObj).getLabel();
-                alamatByGoogle = ((UserAddress) addressObj).getAddress();
-                latitude = ((UserAddress) addressObj).getLatitude();
-                longitude = ((UserAddress) addressObj).getLongitude();
-            } else {
-                alamat = addressObj.toString();
-                alamatByGoogle = alamat;
-            }
-
-        }
-        String mitra = etSelectMitra.getText().toString().trim();
-
-        if (TextUtils.isEmpty(kapan)) {
-            etDate.setError(getString(R.string.error_field_required));
-            focus = etDate;
-            cancel = true;
-        }
-
-        if (TextUtils.isEmpty(jam)) {
-            etTime.setError(getString(R.string.error_field_required));
-            focus = etTime;
-            cancel = true;
-        }
-
-        if (TextUtils.isEmpty(problem)) {
-            etProblem.setError(getString(R.string.warning_field_required));
-        }
-
-        if (TextUtils.isEmpty(alamat)) {
-            spAddress.setError(getString(R.string.error_field_required));
-            focus = spAddress;
-            cancel = true;
-        }
-
-        if (TextUtils.isEmpty(mitra)) {
-            Toast.makeText(getContext(), "Mitra not defined", Toast.LENGTH_SHORT).show();
-            etSelectMitra.setError(getString(R.string.error_field_required));
-            focus = etSelectMitra;
-            cancel = true;
-        }
-
-        if (cancel) {
-            focus.requestFocus();
-            return null;
-        }
-
-        final OrderHeader orderHeader = new OrderHeader();
-        orderHeader.setCustomerId(mUserId);//jd tdk mungkin user yg sama bisa order 2x
-        orderHeader.setDateOfService(kapanYYYYMMDD);
-        orderHeader.setTimeOfService(jam);
-        orderHeader.setTimestamp(Util.convertStringToDate(kapanYYYYMMDD + jam, "yyyyMMddHH:mm").getTime());
-        orderHeader.setServiceType(DateUtil.isToday(orderHeader.getTimestamp()) ? 1 : 2);
-        orderHeader.setInvoiceNo(String.valueOf(orderHeader.getTimestamp()));
-        orderHeader.setStatusId(EOrderStatus.PENDING.name());
-        orderHeader.setStatusDetailId(EOrderDetailStatus.CREATED.name());
-        orderHeader.setAddressId(alamat);
-        orderHeader.setAddressByGoogle(alamatByGoogle);
-        orderHeader.setLatitude(latitude);
-        orderHeader.setLongitude(longitude);
-
-        orderHeader.setJumlahAC(Integer.parseInt(etCounter.getText().toString()));
-        orderHeader.setProblem(problem);
-        orderHeader.setRescheduleCounter(0);
-        orderHeader.setUpdatedTimestamp(new Date().getTime());
-        orderHeader.setUpdatedBy(String.valueOf(Const.USER_AS_COSTUMER));
-
-        Realm realm = Realm.getDefaultInstance();
-        try {
-            Mitra mitraObj = DataUtil.lookUpMitra(realm, mitra);
-
-            orderHeader.setPartyId(mitraObj.getUid());
-            orderHeader.setPartyName(mitraObj.getName());
-
-            // final check constraint: cant have same address, same mitra and same day
-            OrderHeader first = realm.where(OrderHeader.class)
-                    .equalTo("addressId", alamat)
-                    .equalTo("partyId", mitraObj.getUid())
-                    .equalTo("dateOfService", kapanYYYYMMDD)
-                    .notEqualTo("statusId", EOrderStatus.FINISHED.name())
-                    .findFirst();
-
-            if (first != null) {
-                if (mListener != null) {
-                    mListener.onError(new OrderAlreadyExists(alamat, mitra, kapan));
-
-                    return null;
-                }
-            }
-
-            // get the rest
-            BasicInfo basicInfo = realm.where(BasicInfo.class)
-                    .equalTo("uid", mUserId)
-                    .findFirst();
-
-            orderHeader.setCustomerName(basicInfo.getName());
-            orderHeader.setPhone(basicInfo.getPhone1());
-
-
-        } finally {
-            realm.close();
-        }
-
-        return orderHeader;
-
-    }*/
-/*
-    protected void clearForm(boolean all) {
-        etProblem.setText(null);
-        etTime.setText(null);
-        etCounter.setText("1");
-
-        int addressCount = spAddress.getAdapter().getCount();
-
-        if (all) {
-            spAddress.setSelection(-1);
-        }
-    }
-*/
     protected void onSelectMitra() {
         spAddress.setError(null);
 
@@ -749,6 +611,51 @@ public class FragmentOrderACNew extends Fragment {
         orderBucket.setUpdatedTimestamp(new Date().getTime());
         orderBucket.setUpdatedBy(String.valueOf(Const.USER_AS_COSTUMER));
 
+
+        try {
+
+            Map<String, Object> keyValOrderHeader = FBUtil.convertOrderHeaderToKeyVal(FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING + "/" + orderHeader.getCustomerId() + "/" + orderKey, orderHeader);
+
+            Map<String, Object> keyValOrderBucket = FBUtil.convertOrderHeaderToKeyVal(FBUtil.REF_ORDERS_MITRA_AC_PENDING + "/" + orderHeader.getPartyId() + "/" + orderKey, orderBucket);
+
+            keyValOrderHeader.putAll(keyValOrderBucket);
+
+            FirebaseDatabase.getInstance().getReference().updateChildren(keyValOrderHeader).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    dialog.dismiss();
+
+                    if (task.isSuccessful()) {
+
+                        Realm realm = Realm.getDefaultInstance();
+                        try {
+                            // flushed
+                            realm.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    realm.copyToRealmOrUpdate(orderHeader);
+                                    realm.copyToRealmOrUpdate(orderBucket);
+                                }
+                            });
+
+                            if (mListener != null) {
+                                mListener.onOrderCreated(orderHeader);
+                            }
+
+                        } finally {
+                            realm.close();
+                        }
+                    } else {
+                        Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        /*
         orderPendingCustomerRef.setValue(orderHeader).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -797,6 +704,7 @@ public class FragmentOrderACNew extends Fragment {
 
             }
         });
+        */
 
     }
 

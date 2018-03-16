@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.elkana.ds.mitraapp.R;
@@ -49,6 +50,7 @@ public class FragmentOrderList extends Fragment {
     private String mParamMitraId;
     private String mParam2;
 
+    TextView tvEmptyMsg;
     RecyclerView rvOrders;
 
     private OnFragmentOrderListInteractionListener mListener;
@@ -130,11 +132,19 @@ public class FragmentOrderList extends Fragment {
             }
 
             @Override
+            public void onRefresh() {
+                tvEmptyMsg.setVisibility(mAdapter.getItemCount() > 0 ? View.GONE : View.VISIBLE);
+            }
+
+            @Override
             public void onNewOrderCameIn(OrderBucket orderBucket) {
 
             }
         });
 
+        // mitra will listen to path assignments/ac/fight/<orderId>/
+        // barangsiapa ada teknisi yg update path tersebut, maka mitra akan otomatis buat assignmentordernya
+        // TODO: hapus notify_new_order semua teknisi
         assignmentFightValueListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -180,6 +190,8 @@ public class FragmentOrderList extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_order_list, container, false);
+
+        tvEmptyMsg = v.findViewById(R.id.tvEmptyMsg);
 
         rvOrders = v.findViewById(R.id.rvOrders);
         rvOrders.setLayoutManager(new GridLayoutManager(getContext(), columnCount));

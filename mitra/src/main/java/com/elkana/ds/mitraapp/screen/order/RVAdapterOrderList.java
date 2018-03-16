@@ -80,7 +80,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 
 
-    public RVAdapterOrderList(Context ctx, final String mitraId, ListenerOrderList listener) {
+    public RVAdapterOrderList(Context ctx, final String mitraId, final ListenerOrderList listener) {
         mContext = ctx;
 
         if (mitraId == null) {
@@ -97,17 +97,34 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mList.clear();
 
-                // TODO: bug wkt reschedule ga mau kirim notify
                 alertDialog.dismiss();
 
-                if (!dataSnapshot.exists())
+                if (!dataSnapshot.exists()) {
+                    if (listener != null)
+                        listener.onRefresh();
+
                     return;
+                }
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     final OrderBucket _obj = postSnapshot.getValue(OrderBucket.class);
                     Log.e(TAG, "DataChange:" + _obj.toString());
 
                     EOrderDetailStatus detailStatus = EOrderDetailStatus.convertValue(_obj.getStatusDetailId());
+
+                    // skip FINISHED yesterday order
+                    if (detailStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT ||
+                            detailStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER ||
+                            detailStatus == EOrderDetailStatus.CANCELLED_BY_SERVER ||
+                            detailStatus == EOrderDetailStatus.PAID
+                            ) {
+                        Date _updatedDate = new Date(_obj.getUpdatedTimestamp());
+                        Date _today = new Date();
+                        if (DateUtil.isBeforeDay(_updatedDate, _today)) {
+                            continue;
+                        }
+                    }
+
 
                     mList.add(_obj);
 
@@ -127,11 +144,12 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                     // cek dulu jumlah teknisi terdaftar
                     final Realm _r = Realm.getDefaultInstance();
                     try {
-                        RealmResults<TechnicianReg> technicianRegs = _r.where(TechnicianReg.class).findAll();
+//                        RealmResults<TechnicianReg> technicianRegs = _r.where(TechnicianReg.class).findAll();
 
                         // TODO: urutin by scoring tertinggi
 
-                        for (TechnicianReg reg : technicianRegs) {
+                        List<TechnicianReg> allTechnicianReg = DataUtil.getAllTechnicianReg();
+                        for (TechnicianReg reg : allTechnicianReg) {
                             final String techId = reg.getTechId();
 
                             // if reschedule, _obj.gettechnicianid will be null
@@ -188,7 +206,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                             } else {
                                 // cek kalo udah expired dihapus aja
                                 if (Util.isExpiredOrder(_obj)) {
-                                    FBUtil.TechnicianReg_DeleteNotifyNewOrder(mitraId, techId, _obj.getUid(), new ListenerModifyData() {
+                                    FBUtil.TechnicianReg_deleteNotifyNewOrder(mitraId, techId, _obj.getUid(), new ListenerModifyData() {
                                         @Override
                                         public void onSuccess() {
                                             Realm __r = Realm.getDefaultInstance();
@@ -219,19 +237,23 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                 }
 
-                Collections.sort(mList, new Comparator<OrderBucket>() {
-                    @Override
-                    public int compare(OrderBucket s1, OrderBucket s2) {
-                        if (s1.getUpdatedTimestamp() < s2.getUpdatedTimestamp())
-                            return 1;   // DESCENDING
-                        else if (s1.getUpdatedTimestamp() > s2.getUpdatedTimestamp())
-                            return -1;
-                        else
-                            return 0;
-                    }
-                });
+                if (mList.size() > 0)
+                    Collections.sort(mList, new Comparator<OrderBucket>() {
+                        @Override
+                        public int compare(OrderBucket s1, OrderBucket s2) {
+                            if (s1.getUpdatedTimestamp() < s2.getUpdatedTimestamp())
+                                return 1;   // DESCENDING
+                            else if (s1.getUpdatedTimestamp() > s2.getUpdatedTimestamp())
+                                return -1;
+                            else
+                                return 0;
+                        }
+                    });
 
                 notifyDataSetChanged();
+
+                if (listener != null)
+                    listener.onRefresh();
             }
 
             @Override
@@ -277,7 +299,8 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         final OrderBucket obj = mList.get(position);
 
-        ((MyViewHolder) holder).tvNo.setText(position+1);
+        ((MyViewHolder) holder).tvNo.setText("#" + (mList.size() - position));
+//        ((MyViewHolder) holder).tvNo.setText("#" + String.valueOf(position+1));
 
         ((MyViewHolder) holder).setData(obj);
 
@@ -326,6 +349,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             super(itemView);
 
             view = itemView;
+
             tvNo = itemView.findViewById(R.id.tvNo);
             tvAddress = itemView.findViewById(R.id.tvAddress);
 
@@ -382,11 +406,12 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvOrderRemaining.setVisibility(View.GONE);
 
             btnCallTech.setVisibility(View.VISIBLE);
-            int resIcon = -1;
+
+            int resIcon;
             switch (EOrderDetailStatus.convertValue(data.getStatusDetailId())) {
                 case ASSIGNED:
                     resIcon = R.drawable.ic_assignment_ind_black_24dp;
-                    tvHandledBy.setText("Awaiting " + data.getTechnicianName() + " Confirmation...");
+                    tvHandledBy.setText("Awaiting " + data.getTechnicianName() + " to Start Working...");
                     break;
                 case UNHANDLED:
                     resIcon = R.drawable.ic_assignment_late_black_24dp;
@@ -438,7 +463,15 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
         public void startTimer(final OrderBucket obj){
 
             // one minute adalah gap bahwa tdk ada teknisi yg accept
-            final long expirationMillis = (obj.getUpdatedTimestamp() - new Date().getTime()) + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
+            // ntah knp new Date bisa kalah duluan sama obj.getupdatedtimestamp
+            Date now = new Date();
+            long selisih;
+            if (obj.getUpdatedTimestamp() < now.getTime())
+                selisih = now.getTime() - obj.getUpdatedTimestamp();
+            else
+                selisih = obj.getUpdatedTimestamp() - now.getTime();
+
+            final long expirationMillis = selisih + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
 //            final long expirationMillis = (new Date().getTime() - obj.getOrderStartTimestamp()) + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
 //            final long expirationMillis = obj.getTimestamp() + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
 

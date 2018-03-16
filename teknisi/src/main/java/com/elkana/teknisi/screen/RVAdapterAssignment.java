@@ -71,17 +71,18 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
                     mList.add(assignment);
                 }
 
-                Collections.sort(mList, new Comparator<Assignment>() {
-                    @Override
-                    public int compare(Assignment s1, Assignment s2) {
-                        if (s1.getUpdatedTimestamp() < s2.getUpdatedTimestamp())
-                            return 1;   // DESCENDING
-                        else if (s1.getUpdatedTimestamp() > s2.getUpdatedTimestamp())
-                            return -1;
-                        else
-                            return 0;
-                    }
-                });
+                if (mList.size() > 0)
+                    Collections.sort(mList, new Comparator<Assignment>() {
+                        @Override
+                        public int compare(Assignment s1, Assignment s2) {
+                            if (s1.getUpdatedTimestamp() < s2.getUpdatedTimestamp())
+                                return 1;   // DESCENDING
+                            else if (s1.getUpdatedTimestamp() > s2.getUpdatedTimestamp())
+                                return -1;
+                            else
+                                return 0;
+                        }
+                    });
 
                 notifyDataSetChanged();
 
@@ -151,12 +152,19 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
 
         public void setData(final Assignment obj) {
 
+            boolean showMap = false;
             int resIcon = -1;
             switch (EOrderDetailStatus.convertValue(obj.getStatusDetailId())) {
+                case ASSIGNED:
+                    showMap = true;
+                    // use default icon
+                    break;
                 case OTW:
+                    showMap = true;
                     resIcon = R.drawable.ic_directions_bike_black_24dp;
                     break;
                 case WORKING:
+                    showMap = true;
                     resIcon = R.drawable.ic_build_black_24dp;
                     break;
                 case PAYMENT:
@@ -183,8 +191,7 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
             tvCustomerName.setText(obj.getCustomerName());
             tvMitra.setText(mContext.getString(R.string.label_mitra, obj.getMitraName()));
 
-            String tos = Util.convertDateToString(Util.convertStringToDate(obj.getDateOfService(), "yyyyMMdd"), "dd MMM yyyy")
-                    + " " + obj.getTimeOfService();
+            String tos = Util.convertDateToString(Util.convertStringToDate(obj.getDateOfService(), "yyyyMMdd"), "dd MMM yyyy") + " " + obj.getTimeOfService();
 
             tvDateOfService.setText(mContext.getString(R.string.label_serviceDate) + " " + tos);
 
@@ -194,29 +201,33 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
                 thumbnailMap.setVisibility(View.GONE);
             } else {
 
-                StringBuilder map_static_url = new StringBuilder("https://maps.googleapis.com/maps/api/staticmap?size=400x200&zoom=15");
-                map_static_url.append("&markers=color:red|label:A|")
-                        .append(obj.getLatitude())
-                        .append(",")
-                        .append(obj.getLongitude());
+                if (showMap) {
+                    StringBuilder map_static_url = new StringBuilder("https://maps.googleapis.com/maps/api/staticmap?size=400x200&zoom=15");
+                    map_static_url.append("&markers=color:red|label:A|")
+                            .append(obj.getLatitude())
+                            .append(",")
+                            .append(obj.getLongitude());
 
 //        https://maps.googleapis.com/maps/api/staticmap?size=600x300&markers=color:red|label:A|-6.24415,106.6357&zoom=15
 //            Picasso.with(mContext).load(map_static_url.toString()).networkPolicy(NetworkPolicy.OFFLINE).into(((MyViewHolder) holder).ivMap);
-                Picasso.with(mContext).load(map_static_url.toString())
-                        .fit()
+                    Picasso.with(mContext).load(map_static_url.toString())
+                            .fit()
 //                    .centerInside()
-                        .into(thumbnailMap, new Callback() {
-                            @Override
-                            public void onSuccess() {
+                            .into(thumbnailMap, new Callback() {
+                                @Override
+                                public void onSuccess() {
 
-                            }
+                                }
 
-                            @Override
-                            public void onError() {
-                                thumbnailMap.setVisibility(View.GONE);
-                            }
-                        });
+                                @Override
+                                public void onError() {
+                                    thumbnailMap.setVisibility(View.GONE);
+                                }
+                            });
 
+                } else {
+                    thumbnailMap.setVisibility(View.GONE);
+                }
             }
 
             view.setOnClickListener(new View.OnClickListener() {

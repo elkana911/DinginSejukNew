@@ -18,6 +18,7 @@ import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.OrderUtil;
+import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -27,6 +28,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -489,7 +491,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         });
     }
 
-    public static void TechnicianReg_DeleteNotifyNewOrder(String mitraId, String techId, String orderId, final ListenerModifyData listener) {
+    public static void TechnicianReg_deleteNotifyNewOrder(String mitraId, String techId, String orderId, final ListenerModifyData listener) {
 
         TechnicianReg_getNotifyNewOrderRef(mitraId, techId)
                 .child(orderId)
@@ -596,4 +598,56 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                 .child("mitra");
     }
 
+    public static void TechnicianRegs_recursiveDeleteAllNotifyNewOrder(final String mitraId, final String orderId, final List<TechnicianReg> allTechnicianReg, int index, final ListenerModifyData listener) {
+
+        TechnicianReg techReg;
+
+        if (index < 0) {
+            if (listener != null) {
+                listener.onSuccess();
+            }
+            return;
+        }
+
+        techReg = allTechnicianReg.get(index);
+
+        index -= 1;
+        final int lastIndex = index;
+
+        TechnicianReg_deleteNotifyNewOrder(mitraId, techReg.getTechId(), orderId, new ListenerModifyData() {
+            @Override
+            public void onSuccess() {
+                TechnicianRegs_recursiveDeleteAllNotifyNewOrder(mitraId, orderId, allTechnicianReg, lastIndex, listener);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (listener != null)
+                    listener.onError(e);
+            }
+        });
+
+    }
+
+    public static Map<String, Object> convertOrderHeaderToKeyVal(String path, Object obj) throws IllegalAccessException {
+
+        path = Util.removeTrailingSlash(path);
+
+        final Map<String, Object> keyValOrder = new HashMap<>();
+
+        for (Field field : obj.getClass().getDeclaredFields()) {
+
+            field.setAccessible(true);
+
+            // otomatis key
+            if (field.getName().equals("updatedTimestamp")) {
+                keyValOrder.put(path + "/" + field.getName() , ServerValue.TIMESTAMP);
+            } else {
+                keyValOrder.put(path + "/" + field.getName() , field.get(obj));
+            }
+        }
+
+        return keyValOrder;
+
+    }
 }
