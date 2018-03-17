@@ -15,6 +15,7 @@ public class OrderBucket extends RealmObject implements Serializable {
     private String customerId;
     private String customerName;
     private String addressByGoogle;
+    private String partyId;
     private String technicianId;
     private String technicianName;
     private String statusDetailId;
@@ -53,6 +54,14 @@ public class OrderBucket extends RealmObject implements Serializable {
 
     public void setAddressByGoogle(String addressByGoogle) {
         this.addressByGoogle = addressByGoogle;
+    }
+
+    public String getPartyId() {
+        return partyId;
+    }
+
+    public void setPartyId(String partyId) {
+        this.partyId = partyId;
     }
 
     public String getTechnicianId() {
@@ -118,6 +127,7 @@ public class OrderBucket extends RealmObject implements Serializable {
                 ", customerId='" + customerId + '\'' +
                 ", customerName='" + customerName + '\'' +
                 ", addressByGoogle='" + addressByGoogle + '\'' +
+                ", partyId='" + partyId + '\'' +
                 ", technicianId='" + technicianId + '\'' +
                 ", technicianName='" + technicianName + '\'' +
                 ", statusDetailId='" + statusDetailId + '\'' +

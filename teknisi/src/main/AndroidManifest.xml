@@ -95,7 +95,8 @@
             android:name=".screen.dataac.ActivityDataAC"
             android:label="@string/title_activity_data_ac"
             android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".screen.order.ActivityNewOrder">
+        <activity android:name=".screen.order.ActivityNewOrder"
+            android:launchMode="singleTask">
 
 
         </activity>

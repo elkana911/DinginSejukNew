@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.elkana.customer.R;
 import com.elkana.customer.pojo.MobileSetup;
-import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerSync;
 import com.elkana.dslibrary.pojo.OrderBucket;
@@ -292,7 +291,7 @@ udah di taruh di lib
         return m;
     }
 
-    private static void recursiveGetMitra(final List<String> mitraList, int index, final ListenerSync listener) {
+    private static void recursiveGetPendingMitra(final List<String> mitraList, int index, final ListenerSync listener) {
 
         String mitraId;
 
@@ -329,7 +328,7 @@ udah di taruh di lib
                     }
                 }
 
-                recursiveGetMitra(mitraList, lastIndex, listener);
+                recursiveGetPendingMitra(mitraList, lastIndex, listener);
             }
 
             @Override
@@ -377,7 +376,12 @@ udah di taruh di lib
                     }
                 }
 
-                recursiveGetMitra(mitraList, mitraList.size()-1, listener);
+                if (mitraList.size() > 0) {
+                    recursiveGetPendingMitra(mitraList, mitraList.size() - 1, listener);
+                } else {
+                    if (listener != null)
+                        listener.onPostSync(null);
+                }
 
             }
 

@@ -1,6 +1,7 @@
 package com.elkana.dslibrary.firebase;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.elkana.dslibrary.listener.ListenerGetAllData;
 import com.elkana.dslibrary.listener.ListenerGetBasicInfo;
@@ -462,33 +463,47 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
 
     }
 
-    public static void TechnicianReg_setNotifyNewOrder(NotifyNewOrderItem obj, final ListenerModifyData listener) {
-        final Map<String, Object> keyVal = new HashMap<>();
+    public static void TechnicianReg_setNotifyNewOrderTo(String techId, OrderBucket orderBucket, final ListenerModifyData listener) {
 
-        // see NotifyNewOrderItem
-        keyVal.put("orderId", obj.getOrderId());
-        keyVal.put("address", obj.getAddress());
-        keyVal.put("acCount", obj.getAcCount());
-        keyVal.put("customerId", obj.getCustomerId());
-        keyVal.put("customerName", obj.getCustomerName());
-        keyVal.put("orderTimestamp", obj.getOrderTimestamp());
-        keyVal.put("mitraTimestamp", obj.getMitraTimestamp());
-        keyVal.put("timestamp", ServerValue.TIMESTAMP);
+        if (TextUtils.isEmpty(techId)) {
+            throw new RuntimeException("techId must not empty");
+        }
 
-        TechnicianReg_getNotifyNewOrderRef(obj.getMitraId(), obj.getTechId())
-                .child(obj.getOrderId())
-                .updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    if (listener != null)
-                        listener.onSuccess();
-                } else {
-                    if (listener != null)
-                        listener.onError(task.getException());
+        NotifyNewOrderItem item = new NotifyNewOrderItem();
+        item.setAcCount(orderBucket.getAcCount());
+        item.setAddress(orderBucket.getAddressByGoogle());
+        item.setCustomerId(orderBucket.getCustomerId());
+        item.setCustomerName(orderBucket.getCustomerName());
+        item.setMitraId(orderBucket.getPartyId());
+        item.setOrderId(orderBucket.getUid());
+        item.setOrderTimestamp(orderBucket.getOrderTimestamp());    // this could be a problem
+        item.setMitraTimestamp(new Date().getTime());                // this could be a problem
+
+        // the problem is orderbucket information is not completed yet because technicianId is null when orderstatus=CREATED
+        // so techId must be supplied
+        item.setTechId(techId);
+
+        try {
+            Map<String, Object> keyVal = FBUtil.convertObjectToKeyVal(null, item);
+
+            TechnicianReg_getNotifyNewOrderRef(item.getMitraId(), item.getTechId())
+                    .child(item.getOrderId())
+                    .updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        if (listener != null)
+                            listener.onSuccess();
+                    } else {
+                        if (listener != null)
+                            listener.onError(task.getException());
+                    }
                 }
-            }
-        });
+            });
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static void TechnicianReg_deleteNotifyNewOrder(String mitraId, String techId, String orderId, final ListenerModifyData listener) {
@@ -629,9 +644,10 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
 
     }
 
-    public static Map<String, Object> convertOrderHeaderToKeyVal(String path, Object obj) throws IllegalAccessException {
+    public static Map<String, Object> convertObjectToKeyVal(String path, Object obj) throws IllegalAccessException {
 
-        path = Util.removeTrailingSlash(path);
+        if (!TextUtils.isEmpty(path))
+            path = Util.removeTrailingSlash(path);
 
         final Map<String, Object> keyValOrder = new HashMap<>();
 
@@ -640,10 +656,21 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
             field.setAccessible(true);
 
             // otomatis key
-            if (field.getName().equals("updatedTimestamp")) {
-                keyValOrder.put(path + "/" + field.getName() , ServerValue.TIMESTAMP);
+            if (field.getName().equals("updatedTimestamp") || field.getName().equals("timestamp")) {
+
+                if (TextUtils.isEmpty(path)) {
+                    keyValOrder.put(field.getName() , ServerValue.TIMESTAMP);
+                } else {
+                    keyValOrder.put(path + "/" + field.getName() , ServerValue.TIMESTAMP);
+                }
+
             } else {
-                keyValOrder.put(path + "/" + field.getName() , field.get(obj));
+
+                if (TextUtils.isEmpty(path)) {
+                    keyValOrder.put(field.getName() , field.get(obj));
+                } else {
+                    keyValOrder.put(path + "/" + field.getName() , field.get(obj));
+                }
             }
         }
 

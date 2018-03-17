@@ -215,6 +215,8 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
 //            sb.append("Alamat : ").append(data.getAddress()).append("\n");
             sb.append(data.getAddress()).append("\n");
             sb.append(data.getCustomerName()).append("\n");
+            sb.append("MitraTimestamp : ").append(DateUtil.displayTimeInJakarta(data.getMitraTimestamp(), "dd MMM yyyy HH:mm:ss")).append(data.getMitraTimestamp()).append("\n");
+            sb.append("Timestamp : ").append(DateUtil.displayTimeInJakarta(data.getTimestamp(), "dd MMM yyyy HH:mm:ss")). append(data.getTimestamp()).append("\n");
 //            sb.append("Nama : ").append(data.getCustomerName()).append("\n");
             tvOrderInfo.setText(sb.toString());
 
@@ -334,9 +336,11 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                 return;
 
             // harusnya dari sisi teknisi dikurangi 1 menit
-            long selisih = (obj.getMitraTimestamp() - new Date().getTime());
+            long selisih = (obj.getTimestamp() - new Date().getTime());
+//            long selisih = (obj.getUpdaMitraTimestamp() - new Date().getTime());
             final long expirationMillis = selisih + Const.TIME_TEN_MINUTE_MILLIS;
 //            final long expirationMillis = (obj.getTimestamp() - new Date().getTime()) + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
+            String start = DateUtil.formatMillisToMinutesSeconds(expirationMillis);
 
 //            final long expirationMillis = (new Date().getTime() - obj.getTimestamp());
 

@@ -62,7 +62,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -605,6 +604,7 @@ public class FragmentOrderACNew extends Fragment {
         orderBucket.setCustomerName(orderHeader.getCustomerName());
         orderBucket.setAddressByGoogle(orderHeader.getAddressByGoogle());
         orderBucket.setStatusDetailId(orderHeader.getStatusDetailId()); // duh males lg nambah node yg ini
+        orderBucket.setPartyId(orderHeader.getPartyId());
         orderBucket.setTechnicianId(orderHeader.getTechnicianId());
 //        orderBucket.setTechnicianName(orderHeader.getTechnicianId());
         orderBucket.setOrderTimestamp(orderHeader.getTimestamp());
@@ -614,9 +614,9 @@ public class FragmentOrderACNew extends Fragment {
 
         try {
 
-            Map<String, Object> keyValOrderHeader = FBUtil.convertOrderHeaderToKeyVal(FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING + "/" + orderHeader.getCustomerId() + "/" + orderKey, orderHeader);
+            Map<String, Object> keyValOrderHeader = FBUtil.convertObjectToKeyVal(FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING + "/" + orderHeader.getCustomerId() + "/" + orderKey, orderHeader);
 
-            Map<String, Object> keyValOrderBucket = FBUtil.convertOrderHeaderToKeyVal(FBUtil.REF_ORDERS_MITRA_AC_PENDING + "/" + orderHeader.getPartyId() + "/" + orderKey, orderBucket);
+            Map<String, Object> keyValOrderBucket = FBUtil.convertObjectToKeyVal(FBUtil.REF_ORDERS_MITRA_AC_PENDING + "/" + orderHeader.getPartyId() + "/" + orderKey, orderBucket);
 
             keyValOrderHeader.putAll(keyValOrderBucket);
 
@@ -654,58 +654,6 @@ public class FragmentOrderACNew extends Fragment {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-
-        /*
-        orderPendingCustomerRef.setValue(orderHeader).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-
-                if (!task.isSuccessful()) {
-
-                    dialog.dismiss();
-
-                    Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // MUST USE DIFFERENCE REFERENCE TO AVOID REPLACED VALUE !!
-                FBUtil.Order_getPendingMitraRef(orderHeader.getPartyId(), orderKey)
-                        .setValue(orderBucket).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        dialog.dismiss();
-
-                        if (!task.isSuccessful()) {
-                            Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        Realm realm = Realm.getDefaultInstance();
-                        try {
-                            // flushed
-                            realm.executeTransaction(new Realm.Transaction() {
-                                @Override
-                                public void execute(Realm realm) {
-                                    realm.copyToRealmOrUpdate(orderHeader);
-                                    realm.copyToRealmOrUpdate(orderBucket);
-                                }
-                            });
-
-                            if (mListener != null) {
-                                mListener.onOrderCreated(orderHeader);
-                            }
-
-                        } finally {
-                            realm.close();
-                        }
-
-                    }
-                });
-
-            }
-        });
-        */
-
     }
 
     private void trySubmitOrder() {

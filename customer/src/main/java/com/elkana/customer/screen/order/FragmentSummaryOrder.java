@@ -758,10 +758,11 @@ public class FragmentSummaryOrder extends Fragment {
         // assign listener
         orderHeaderPendingRef.addValueEventListener(mOrderHeaderPendingListener);
 
-        // update kalo udah expired
+        // update kalo udah expired. ga perlu, dipindah di mitra saja
         if (!Util.isExpiredOrder(orderHeader))
             return;
 
+        /*
         // TODO: due to timeline, just update the status. when time is available, please handle by moving node to "finished"
         // sebenere males juga ngurusin move node krn riskan putus koneksi
         Toast.makeText(getActivity(), "Expired Order ! Please handle.", Toast.LENGTH_SHORT).show();
@@ -777,6 +778,7 @@ public class FragmentSummaryOrder extends Fragment {
 
             }
         });
+        */
 
         // TODO: should go back to order list ?
                 /*

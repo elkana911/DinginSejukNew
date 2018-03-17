@@ -107,10 +107,10 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    final OrderBucket _obj = postSnapshot.getValue(OrderBucket.class);
-                    Log.e(TAG, "DataChange:" + _obj.toString());
+                    final OrderBucket _orderBucket = postSnapshot.getValue(OrderBucket.class);
+                    Log.e(TAG, "DataChange:" + _orderBucket.toString());
 
-                    EOrderDetailStatus detailStatus = EOrderDetailStatus.convertValue(_obj.getStatusDetailId());
+                    EOrderDetailStatus detailStatus = EOrderDetailStatus.convertValue(_orderBucket.getStatusDetailId());
 
                     // skip FINISHED yesterday order
                     if (detailStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT ||
@@ -118,7 +118,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                             detailStatus == EOrderDetailStatus.CANCELLED_BY_SERVER ||
                             detailStatus == EOrderDetailStatus.PAID
                             ) {
-                        Date _updatedDate = new Date(_obj.getUpdatedTimestamp());
+                        Date _updatedDate = new Date(_orderBucket.getUpdatedTimestamp());
                         Date _today = new Date();
                         if (DateUtil.isBeforeDay(_updatedDate, _today)) {
                             continue;
@@ -126,7 +126,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
 
 
-                    mList.add(_obj);
+                    mList.add(_orderBucket);
 
                     // if today's service, notify technicians ? disabled krn diganti teknik NotifyTechnician
 //                    if (!DateUtil.isToday(_obj.getTimestamp())) {
@@ -144,75 +144,59 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                     // cek dulu jumlah teknisi terdaftar
                     final Realm _r = Realm.getDefaultInstance();
                     try {
-//                        RealmResults<TechnicianReg> technicianRegs = _r.where(TechnicianReg.class).findAll();
 
                         // TODO: urutin by scoring tertinggi
 
-                        List<TechnicianReg> allTechnicianReg = DataUtil.getAllTechnicianReg();
-                        for (TechnicianReg reg : allTechnicianReg) {
+                        for (TechnicianReg reg : DataUtil.getAllTechnicianReg()) {
                             final String techId = reg.getTechId();
 
-                            // if reschedule, _obj.gettechnicianid will be null
-//                            if (notifyTechnician == null || (_obj.getTechnicianId() == null)) {
-                            if (_obj.getTechnicianId() == null) {
+                            NotifyTechnician notifyTechnician = _r.where(NotifyTechnician.class)
+                                    .equalTo("orderId", _orderBucket.getUid())
+                                    .equalTo("techId", techId)
+                                    .findFirst();
 
+                            // on reschedule/new booking, _obj.gettechnicianid will be null
+                            if (_orderBucket.getTechnicianId() == null) {
 
-                                _r.executeTransaction(new Realm.Transaction() {
-                                    @Override
-                                    public void execute(Realm realm) {
-                                        // resent if reschedule, so delete existing orderid
-                                        realm.where(NotifyTechnician.class)
-                                                .equalTo("orderId", _obj.getUid())
-                                                .equalTo("techId", techId).findAll().deleteAllFromRealm();
+                                // TODO: cek sudah pernah di kirim ?,
+                                if (notifyTechnician == null) {
+                                    NotifyTechnician __obj = new NotifyTechnician();
+                                    __obj.setUid(java.util.UUID.randomUUID().toString());
+                                    __obj.setOrderId(_orderBucket.getUid());
+                                    __obj.setTechId(techId);
+                                    __obj.setTimestamp(new Date().getTime());
 
-//                                        NotifyTechnician notifyTechnician = realm.where(NotifyTechnician.class)
-//                                                .equalTo("orderId", _obj.getUid())
-//                                                .equalTo("techId", techId).findFirst();
+                                    _r.beginTransaction();
+                                    _r.copyToRealmOrUpdate(__obj);
+                                    _r.commitTransaction();
 
-                                        NotifyTechnician __obj = new NotifyTechnician();
-                                        __obj.setUid(java.util.UUID.randomUUID().toString());
-                                        __obj.setOrderId(_obj.getUid());
-                                        __obj.setTechId(techId);
-                                        __obj.setTimestamp(new Date().getTime());
-                                        realm.copyToRealmOrUpdate(__obj);
-                                    }
-                                });
+                                    FBUtil.TechnicianReg_setNotifyNewOrderTo(techId, _orderBucket, new ListenerModifyData() {
+                                        @Override
+                                        public void onSuccess() {
 
-                                NotifyNewOrderItem __item = new NotifyNewOrderItem();
-                                __item.setAcCount(_obj.getAcCount());
-                                __item.setAddress(_obj.getAddressByGoogle());
-                                __item.setCustomerId(_obj.getCustomerId());
-                                __item.setCustomerName(_obj.getCustomerName());
-                                __item.setMitraId(mMitraId);
-                                __item.setOrderId(_obj.getUid());
-                                __item.setOrderTimestamp(_obj.getOrderTimestamp());
-                                __item.setMitraTimestamp(new Date().getTime());
-//                                __item.setMitraTimestamp(_obj.getUpdatedTimestamp());
-                                __item.setTechId(techId);
+                                        }
 
-                                // harusnya terkirim k teknisi terdaftar kalo blm ada di table notifytechnician
-                                FBUtil.TechnicianReg_setNotifyNewOrder(__item, new ListenerModifyData() {
-                                    @Override
-                                    public void onSuccess() {
+                                        @Override
+                                        public void onError(Exception e) {
+                                            Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
 
-                                    }
+                                } else {
+                                    // on reschedule case, we need to resent again by update some row
+                                }
 
-                                    @Override
-                                    public void onError(Exception e) {
-                                        Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
 
                             } else {
                                 // cek kalo udah expired dihapus aja
-                                if (Util.isExpiredOrder(_obj)) {
-                                    FBUtil.TechnicianReg_deleteNotifyNewOrder(mitraId, techId, _obj.getUid(), new ListenerModifyData() {
+                                if (Util.isExpiredOrder(_orderBucket)) {
+                                    FBUtil.TechnicianReg_deleteNotifyNewOrder(mitraId, techId, _orderBucket.getUid(), new ListenerModifyData() {
                                         @Override
                                         public void onSuccess() {
                                             Realm __r = Realm.getDefaultInstance();
                                             try {
                                                 __r.beginTransaction();
-                                                __r.where(NotifyTechnician.class).equalTo("orderId", _obj.getUid())
+                                                __r.where(NotifyTechnician.class).equalTo("orderId", _orderBucket.getUid())
                                                         .equalTo("techId", techId).findAll().deleteAllFromRealm();
                                                 __r.commitTransaction();
                                             } finally {
@@ -495,13 +479,36 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                 @Override
                 public void onFinish() {
+                    if (mList.size() < 1)
+                        return;
+
                     // utk mencegah status jadi expired krn timer diproses di thread lainnya yg gw ga tau
-if (lastStatus != EOrderDetailStatus.CREATED )
+                    boolean masihAda = false;
+                    try {
+                        for (OrderBucket ob : mList) {
+
+                            String _itemUid = ob.getUid();
+                            String _uid = obj.getUid();
+
+                            if (_itemUid.equals(_uid)) {
+                                masihAda = true; break;
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+
+                        return;
+                    }
+
+                    if (!masihAda)
+                        return;
+
+                    if (lastStatus != EOrderDetailStatus.CREATED )
                         return;
 
                     tvOrderRemaining.setText("No Technicians accept the offer.");
 
-                    //bahaya, infinite loop
+                    // TODO: harusnya hny update kalo ada di MList
                     FBUtil.Order_SetStatus(mMitraId, obj.getCustomerId(), obj.getUid(), null, null, EOrderDetailStatus.UNHANDLED, String.valueOf(Const.USER_AS_MITRA), null);
                 }
             }.start();

@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
+import com.elkana.dslibrary.pojo.mitra.ServiceType;
+import com.elkana.dslibrary.pojo.mitra.SubServiceType;
 import com.elkana.dslibrary.pojo.technician.ServiceItem;
 import com.elkana.dslibrary.pojo.technician.Technician;
 import com.elkana.dslibrary.util.Const;
@@ -96,14 +98,14 @@ public class DataUtil {
                     mobileSetup.setTheme_color_electric("#00796a");
                     mobileSetup.setTheme_color_electric_accent("#e7f4fc");
                     mobileSetup.setTheme_color_electric_inactive("#bac9cc");
-                    mobileSetup.setTimeout_cancel_minute(Util.TESTING_MODE ? 2 : 30);
+                    mobileSetup.setTimeout_cancel_minute(Util.TESTING_MODE ? 2 : 30);*/
                     realm.copyToRealmOrUpdate(new ServiceType(10, "Air Conditioner", "Air Conditioner"));
                     realm.copyToRealmOrUpdate(new ServiceType(20, "Electricity", "PLN/Listrik"));
 
                     realm.copyToRealmOrUpdate(new SubServiceType(10, "Cleaning", "Bersihin AC"));
                     realm.copyToRealmOrUpdate(new SubServiceType(20, "Freon Charge", "Freon Charge"));
                     realm.copyToRealmOrUpdate(new SubServiceType(30, "Installation", "Instalasi"));
-                    */
+
                     mobileSetup.setTrackingGps(false);
                     realm.copyToRealmOrUpdate(mobileSetup);
 

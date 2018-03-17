@@ -464,6 +464,8 @@ public class Util {
         return !TextUtils.isEmpty(phone) && phone.length() > 4;
     }
 
+    // fungsi yg cukup bahaya. jgn dipake dulu. harusnya expiredtime bisa diprediksi, jgn 0
+    @Deprecated
     public static boolean isExpiredOrder(OrderHeader orderHeader) {
         EOrderDetailStatus status = EOrderDetailStatus.convertValue(orderHeader.getStatusDetailId());
         if (status == EOrderDetailStatus.CREATED
@@ -472,12 +474,14 @@ public class Util {
                 /*|| status == EOrderDetailStatus.RESCHEDULED*/
                 || status == EOrderDetailStatus.UNKNOWN
                 ) {
-            return isExpiredTime(orderHeader.getTimestamp(), 0);
+            return isExpiredTime(orderHeader.getTimestamp(), 30);   //hardcode 30
 
         } else
             return false;
     }
 
+    // fungsi yg cukup bahaya. jgn dipake dulu
+    @Deprecated
     public static boolean isExpiredOrder(OrderBucket orderBucket) {
         EOrderDetailStatus status = EOrderDetailStatus.convertValue(orderBucket.getStatusDetailId());
 
@@ -487,7 +491,7 @@ public class Util {
                 /*|| status == EOrderDetailStatus.RESCHEDULED*/
                 || status == EOrderDetailStatus.UNKNOWN
                 ) {
-            return isExpiredTime(orderBucket.getOrderTimestamp(), 0);
+            return isExpiredTime(orderBucket.getOrderTimestamp(), 30);
 
         } else
             return false;

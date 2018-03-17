@@ -32,7 +32,7 @@ public class ActivityNewOrder extends FirebaseActivity {
 
     String mOrderId, mMitraId;
     RecyclerView rvOrders;
-    private boolean selfDeny = false;
+//    private boolean selfDeny = false;
 
     private RVAdapterNotifyNewOrderList mAdapter;
 
@@ -75,28 +75,28 @@ public class ActivityNewOrder extends FirebaseActivity {
             @Override
             public void onDeny(NotifyNewOrderItem data) {
 
-                selfDeny = true;
-
-                if (mAdapter.getItemCount() < 2) {
-                    setResult(RESULT_CANCELED);
-                    finish();
-                }
+//                selfDeny = true;
+//
+//                if (mAdapter.getItemCount() < 2) {
+//                    setResult(RESULT_CANCELED);
+//                    finish();
+//                }
             }
 
             @Override
             public void onAccept(NotifyNewOrderItem data) {
-                if (mAdapter.getItemCount() < 2) {
-                    setResult(RESULT_OK);
-                    finish();
-                }
+//                if (mAdapter.getItemCount() < 2) {
+//                    setResult(RESULT_OK);
+//                    finish();
+//                }
 
             }
 
             @Override
             public void onOrderRemoved(NotifyNewOrderItem data) {
-                if (!selfDeny) {
-                    Toast.makeText(ActivityNewOrder.this, "Maaf, Booking dari " + data.getCustomerName() + " sudah tidak tersedia.", Toast.LENGTH_SHORT).show();
-                }
+//                if (!selfDeny) {
+//                    Toast.makeText(ActivityNewOrder.this, "Maaf, Booking dari " + data.getCustomerName() + " sudah tidak tersedia.", Toast.LENGTH_SHORT).show();
+//                }
             }
 
             @Override
@@ -106,7 +106,7 @@ public class ActivityNewOrder extends FirebaseActivity {
 
             @Override
             public void onTimerStart() {
-                selfDeny = false;
+//                selfDeny = false;
             }
         });
 
