@@ -13,7 +13,6 @@ import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.screen.map.ActivityMaps;
 import com.elkana.ds.mitraapp.screen.register.ListenerAddressList;
 import com.elkana.ds.mitraapp.screen.register.RVAdapterUserAddress;
-import com.elkana.ds.mitraapp.util.DataUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.pojo.user.BasicInfo;

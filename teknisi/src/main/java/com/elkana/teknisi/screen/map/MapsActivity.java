@@ -92,7 +92,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-//        DatabaseReference ref = database.getReference(DataUtil.REF_ASSIGNMENTS_PENDING)
+//        DatabaseReference ref = database.getReference(TeknisiUtil.REF_ASSIGNMENTS_PENDING)
 //                .child(mTechnicianId).child(mAssignmentId).child("assign");
 
     }

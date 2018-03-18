@@ -1,7 +1,6 @@
 package com.elkana.ds.mitraapp.screen;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -13,12 +12,10 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
@@ -29,19 +26,14 @@ import com.elkana.ds.mitraapp.screen.login.ActivityLogin;
 import com.elkana.ds.mitraapp.screen.order.FragmentOrderList;
 import com.elkana.ds.mitraapp.screen.profile.ActivityProfile;
 import com.elkana.ds.mitraapp.screen.register.technician.ActivityRegisterTechnician;
-import com.elkana.ds.mitraapp.util.DataUtil;
-import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.FightInfo;
 import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 public class MainActivity extends AFirebaseMitraActivity
         implements NavigationView.OnNavigationItemSelectedListener
@@ -139,7 +131,7 @@ public class MainActivity extends AFirebaseMitraActivity
 
         refreshToolbar();
 
-        DataUtil.cleanTransactionData();
+        MitraUtil.cleanTransactionData();
 
         startActivityForResult(new Intent(this, ActivityLogin.class), REQUESTCODE_LOGIN);
         finish();
@@ -161,8 +153,8 @@ public class MainActivity extends AFirebaseMitraActivity
         TextView tvProfileEmail = headerView.findViewById(R.id.tvProfileEmail);
         tvProfileEmail.setText(user.getEmail());
 
-        DataUtil.syncUserInformation();
-        DataUtil.syncTechnicianReg();
+        MitraUtil.syncUserInformation();
+        MitraUtil.syncTechnicianReg();
     }
 
     @Override
@@ -379,7 +371,7 @@ public class MainActivity extends AFirebaseMitraActivity
             public void onSuccess() {
                 // delete fight, dipindah setelah sukses delete all notify order
 
-                List<TechnicianReg> allTechnicianReg = DataUtil.getAllTechnicianReg();
+                List<TechnicianReg> allTechnicianReg = MitraUtil.getAllTechnicianReg();
 
                 FBUtil.TechnicianRegs_recursiveDeleteAllNotifyNewOrder(mAuth.getCurrentUser().getUid(), fightInfo.getOrderId(),  allTechnicianReg, allTechnicianReg.size()-1, new ListenerModifyData() {
                     @Override

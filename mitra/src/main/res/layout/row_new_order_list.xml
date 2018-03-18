@@ -94,6 +94,13 @@
                     android:layout_height="wrap_content"
                     android:text="Call Tech"/>
                 <Button
+                    android:id="@+id/btnChangeTech"
+                    android:layout_centerHorizontal="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible"
+                    android:text="Change Tech"/>
+                <Button
                     android:id="@+id/btnCallCust"
                     android:layout_alignParentEnd="true"
                     android:layout_width="wrap_content"

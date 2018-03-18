@@ -23,7 +23,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.elkana.customer.R;
-import com.elkana.customer.util.DataUtil;
+import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
@@ -211,7 +211,7 @@ public class FragmentSummaryOrder extends Fragment {
             sb.append(getString(R.string.prompt_hello, basicInfo.getName().toUpperCase())).append("\n");
 
             EOrderDetailStatus orderDetailStatus = EOrderDetailStatus.convertValue(orderHeader.getStatusDetailId());
-            sb.append(DataUtil.getMessageStatusDetail(getContext(), orderDetailStatus)).append("\n");
+            sb.append(CustomerUtil.getMessageStatusDetail(getContext(), orderDetailStatus)).append("\n");
 
             EOrderStatus orderStatus = EOrderStatus.convertValue(orderHeader.getStatusId());
 
@@ -267,17 +267,17 @@ public class FragmentSummaryOrder extends Fragment {
 
             tvStatusDetil.setText(sb.toString());
 
-            tvServiceType.setText(getString(R.string.prompt_ac_serviceType) + ": " + DataUtil.getServiceTypeLabel(getContext(), orderHeader.getServiceType()));
+            tvServiceType.setText(getString(R.string.prompt_ac_serviceType) + ": " + CustomerUtil.getServiceTypeLabel(getContext(), orderHeader.getServiceType()));
 
             tvDate.setText(getString(R.string.prompt_date_service) + ": " + Util.prettyTimestamp(getContext(), orderHeader.getTimestamp()));
 
             tvAddress.setText(getString(R.string.prompt_cust_address) + ": " + orderHeader.getAddressId());
 
-            DataUtil.syncMitra(getContext(), new ListenerSync() {
+            CustomerUtil.syncMitra(getContext(), new ListenerSync() {
                 @Override
                 public void onPostSync(Exception e) {
 
-                    Mitra mitraObj = DataUtil.lookUpMitraById(realm, orderHeader.getPartyId());
+                    Mitra mitraObj = CustomerUtil.lookUpMitraById(realm, orderHeader.getPartyId());
 
                     if (mitraObj != null) {
                         tvMitra.setText(getString(R.string.prompt_vendor) + ": " + mitraObj.getName() + ", " + mitraObj.getAddressLabel() + ", Ph: " + mitraObj.getPhone1());
@@ -572,7 +572,7 @@ public class FragmentSummaryOrder extends Fragment {
                     if (orderHeader == null)
                         return;
 
-                    Mitra mitra = DataUtil.lookUpMitraById(realm, orderHeader.getPartyId());
+                    Mitra mitra = CustomerUtil.lookUpMitraById(realm, orderHeader.getPartyId());
 
                     String availPhone = mitra.getPhone1() == null ? mitra.getPhone2() : mitra.getPhone1();
 
@@ -767,7 +767,7 @@ public class FragmentSummaryOrder extends Fragment {
         // sebenere males juga ngurusin move node krn riskan putus koneksi
         Toast.makeText(getActivity(), "Expired Order ! Please handle.", Toast.LENGTH_SHORT).show();
 
-        DataUtil.updateOrderStatus(orderHeader.getUid(), userId, EOrderDetailStatus.CANCELLED_BY_TIMEOUT, new ListenerModifyData() {
+        CustomerUtil.updateOrderStatus(orderHeader.getUid(), userId, EOrderDetailStatus.CANCELLED_BY_TIMEOUT, new ListenerModifyData() {
             @Override
             public void onSuccess() {
 

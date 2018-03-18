@@ -29,8 +29,8 @@ import io.realm.Realm;
  * Created by Eric on 23-Oct-17.
  */
 
-public class DataUtil {
-    public static final String TAG = DataUtil.class.getSimpleName();
+public class TeknisiUtil {
+    public static final String TAG = TeknisiUtil.class.getSimpleName();
 //    public static final String REF_VENDORS_AC = "master/party/supplierAC";
 
     public static final String REF_ORDERS_CUSTOMER_AC_PENDING = "orders/ac/pending/customer";
@@ -217,7 +217,7 @@ public class DataUtil {
             keyVal.put("statusId", EOrderStatus.PENDING.name());
         }
 
-        FirebaseDatabase.getInstance().getReference(DataUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
+        FirebaseDatabase.getInstance().getReference(TeknisiUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(userId)
                 .child(orderId).updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

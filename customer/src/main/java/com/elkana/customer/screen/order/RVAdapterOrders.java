@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.elkana.customer.R;
-import com.elkana.customer.util.DataUtil;
+import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
@@ -163,8 +163,8 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
             Realm r = Realm.getDefaultInstance();
             try{
 
-                Mitra mitra = DataUtil.lookUpMitraById(r, obj.getPartyId());
-//                Mitra mitra = DataUtil.lookUpMitra(r, Long.parseLong(obj.getPartyId()));
+                Mitra mitra = CustomerUtil.lookUpMitraById(r, obj.getPartyId());
+//                Mitra mitra = CustomerUtil.lookUpMitra(r, Long.parseLong(obj.getPartyId()));
 
                 if (mitra != null) {
                     ((MyViewHolder) holder).tvMitra.setText(ctx.getString(R.string.row_order_mitra, mitra.getName()));
@@ -173,7 +173,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 EOrderDetailStatus orderStatus = EOrderDetailStatus.convertValue(obj.getStatusDetailId());
 
-                ((MyViewHolder) holder).tvStatus.setText(DataUtil.getMessageStatusDetail(ctx, orderStatus));
+                ((MyViewHolder) holder).tvStatus.setText(CustomerUtil.getMessageStatusDetail(ctx, orderStatus));
 
             }finally {
                 r.close();

@@ -13,13 +13,18 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_editProfile"
+        android:id="@+id/action_calendar"
         android:orderInCategory="102"
+        android:title="@string/action_calendar"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_editProfile"
+        android:orderInCategory="103"
         android:title="@string/action_edit_profile"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_logout"
-        android:orderInCategory="103"
+        android:orderInCategory="104"
         android:title="@string/action_signout"
         app:showAsAction="ifRoom" />
 </menu>

@@ -24,8 +24,7 @@ import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.screen.dataac.ActivityDataAC;
-import com.elkana.teknisi.screen.payment.ActivityPayment;
-import com.elkana.teknisi.util.DataUtil;
+import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -74,7 +73,7 @@ public class ActivityServiceDetail extends FirebaseActivity {
         final AlertDialog dialog = Util.showProgressDialog(this, "Check Orders...");
 
         // 13 mar 18 lupa knp utk ngisi mOrderId dll ga based on param di oncreate aja ? soalnya sempet forceclose wkt activity ini dipanggil
-        database.getReference(DataUtil.REF_ASSIGNMENTS_PENDING)
+        database.getReference(TeknisiUtil.REF_ASSIGNMENTS_PENDING)
                 .child(mTechnicianId)
                 .child(mAssignmentId)
                 .child("assign").addListenerForSingleValueEvent(new ValueEventListener() {

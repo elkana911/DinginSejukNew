@@ -9,11 +9,9 @@ import com.elkana.ds.mitraapp.pojo.MobileSetup;
 import com.elkana.ds.mitraapp.pojo.NotifyTechnician;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
-import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Assignment;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
-import com.elkana.dslibrary.pojo.mitra.TmpMitra;
 import com.elkana.dslibrary.pojo.technician.Technician;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.FirebaseToken;
@@ -21,7 +19,6 @@ import com.elkana.dslibrary.pojo.user.UserAddress;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
-import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,8 +41,8 @@ import io.realm.Realm;
  * Created by Eric on 23-Oct-17.
  */
 
-public class DataUtil {
-    public static final String TAG = DataUtil.class.getSimpleName();
+public class MitraUtil {
+    public static final String TAG = MitraUtil.class.getSimpleName();
     public static final String REF_VENDORS_AC = "master/party/supplierAC";
 //    public static final String REF_ORDERS_AC = "orders/ac/orderHeader";
 
@@ -222,7 +219,7 @@ public class DataUtil {
             keyVal.put("statusId", EOrderStatus.PENDING.name());
         }
 
-        FirebaseDatabase.getInstance().getReference(DataUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
+        FirebaseDatabase.getInstance().getReference(MitraUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(userId)
                 .child(orderId).updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -394,7 +391,7 @@ public class DataUtil {
                 });
 
 
-        database.getReference(DataUtil.REF_MASTER_SETUP)
+        database.getReference(MitraUtil.REF_MASTER_SETUP)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {

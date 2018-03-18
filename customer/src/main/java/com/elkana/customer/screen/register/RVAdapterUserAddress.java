@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 
 import com.elkana.customer.R;
 import com.elkana.dslibrary.pojo.user.UserAddress;
+import com.elkana.dslibrary.util.Util;
 
 import java.util.List;
 
@@ -108,11 +109,11 @@ public class RVAdapterUserAddress extends RecyclerView.Adapter<RecyclerView.View
             super(itemView);
 
             tvLabelAddress = itemView.findViewById(R.id.tvLabelAddress);
-//            tvLabelAddress.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(ctx, R.drawable.ic_home_black_24dp, android.R.color.white), null, null, null);
+            tvLabelAddress.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(ctx, R.drawable.ic_home_black_24dp, android.R.color.darker_gray), null, null, null);
 
             btnDelete = itemView.findViewById(R.id.btnDeleteAddress);
-//            btnDelete.setImageResource(R.drawable.ic_indeterminate_check_box_black_24dp);
-            btnDelete.setColorFilter(Color.parseColor("#FFFFFF"));
+            btnDelete.setImageResource(R.drawable.ic_indeterminate_check_box_black_24dp);
+            btnDelete.setColorFilter(Color.parseColor("#000000"));
 
         }
     }

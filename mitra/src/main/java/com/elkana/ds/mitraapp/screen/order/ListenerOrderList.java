@@ -8,6 +8,8 @@ import com.elkana.dslibrary.pojo.OrderBucket;
 
 public interface ListenerOrderList {
     void onItemSelected(OrderBucket order);
+    void onChangeTech(OrderBucket data);
+
     void onRefresh();
 
     void onNewOrderCameIn(OrderBucket orderBucket);

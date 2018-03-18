@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.firebase.FBUtil;
@@ -30,7 +31,7 @@ import com.elkana.teknisi.pojo.MitraReg;
 import com.elkana.teknisi.screen.login.ActivityLogin;
 import com.elkana.teknisi.screen.order.ActivityNewOrder;
 import com.elkana.teknisi.screen.profile.ActivityProfile;
-import com.elkana.teknisi.util.DataUtil;
+import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -178,7 +179,7 @@ public class MainActivity extends FirebaseActivity
             ((MainActivityFragment) currentFragment).cleanUpListener();
         }
 
-        DataUtil.cleanTransactionData();
+        TeknisiUtil.cleanTransactionData();
 
         startActivity(new Intent(this, ActivityLogin.class));
 //        startActivityForResult(new Intent(this, ActivityLogin.class), REQUESTCODE_LOGIN);
@@ -187,7 +188,7 @@ public class MainActivity extends FirebaseActivity
 
     @Override
     protected void onLoggedOn(FirebaseUser user) {
-        DatabaseReference userRef = database.getReference(DataUtil.REF_TECHNICIAN_AC)
+        DatabaseReference userRef = database.getReference(TeknisiUtil.REF_TECHNICIAN_AC)
                 .child(user.getUid());
 
         userRef.child("basicInfo").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -358,6 +359,10 @@ public class MainActivity extends FirebaseActivity
         } else if (id == R.id.action_login) {
 //            startActivity(new Intent(this, ActivityLogin.class));
             return true;
+        } else if (id == R.id.action_calendar) {
+//            startActivity(new Intent(this, ActivityLogin.class));
+            Toast.makeText(this, "Under construction.\nPlease vote for this menu.", Toast.LENGTH_SHORT).show();
+            return true;
         } else if (id == R.id.action_logout) {
             logout();
 
@@ -451,7 +456,7 @@ public class MainActivity extends FirebaseActivity
 //        dialog.show();
 
         // get subservice of ac
-        database.getReference(DataUtil.REF_SUBSERVICEAC)
+        database.getReference(TeknisiUtil.REF_SUBSERVICEAC)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {

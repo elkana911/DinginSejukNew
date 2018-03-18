@@ -54,7 +54,7 @@ public abstract class AFirebaseMitraActivity extends FirebaseActivity{
                 }
 
 //                please put this validation outside
-//                if (DataUtil.isExpiredOrder(obj)) {
+//                if (MitraUtil.isExpiredOrder(obj)) {
 //                    if (listener != null)
 //                        listener.onError(new OrderExpired());
 //

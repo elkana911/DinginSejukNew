@@ -9,8 +9,7 @@ import android.view.WindowManager;
 
 import com.elkana.customer.R;
 import com.elkana.customer.screen.AFirebaseActivity;
-import com.elkana.customer.util.DataUtil;
-import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.pojo.Movement;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.maps.CameraUpdate;
@@ -22,7 +21,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -123,7 +121,7 @@ public class ActivityTechOtwMap extends AFirebaseActivity implements OnMapReadyC
             }
         };
 
-        movementsRef = database.getReference(DataUtil.REF_MOVEMENTS)
+        movementsRef = database.getReference(CustomerUtil.REF_MOVEMENTS)
                 .child(mOrderId);
 
         movementsRef.addChildEventListener(mChildEventListener);

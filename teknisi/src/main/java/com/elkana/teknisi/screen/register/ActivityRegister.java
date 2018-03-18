@@ -19,7 +19,6 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.map.Location;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.util.Const;
@@ -28,12 +27,10 @@ import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.pojo.MobileSetup;
-import com.elkana.teknisi.util.DataUtil;
+import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 
@@ -236,7 +233,7 @@ public class ActivityRegister extends AFirebaseTeknisiActivity {
 
     public void registerUser(final String nama, final String phone) {
         final FirebaseUser currentUser = mAuth.getCurrentUser();
-        DatabaseReference ref = database.getReference(DataUtil.REF_TECHNICIAN_AC);
+        DatabaseReference ref = database.getReference(TeknisiUtil.REF_TECHNICIAN_AC);
 
         final DatabaseReference userIdRef = ref.child(currentUser.getUid());
 

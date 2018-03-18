@@ -18,11 +18,10 @@ import android.widget.Toast;
 
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.NotifyTechnician;
-import com.elkana.ds.mitraapp.util.DataUtil;
+import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.OrderBucket;
-import com.elkana.dslibrary.pojo.mitra.NotifyNewOrderItem;
 import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.DateUtil;
@@ -41,7 +40,6 @@ import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 /**
  * Created by Eric on 01-Dec-17.
@@ -147,7 +145,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                         // TODO: urutin by scoring tertinggi
 
-                        for (TechnicianReg reg : DataUtil.getAllTechnicianReg()) {
+                        for (TechnicianReg reg : MitraUtil.getAllTechnicianReg()) {
                             final String techId = reg.getTechId();
 
                             NotifyTechnician notifyTechnician = _r.where(NotifyTechnician.class)
@@ -246,7 +244,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         };
 
-        orders4MitraRef = FirebaseDatabase.getInstance().getReference(DataUtil.REF_ORDERS_MITRA_AC_PENDING)
+        orders4MitraRef = FirebaseDatabase.getInstance().getReference(MitraUtil.REF_ORDERS_MITRA_AC_PENDING)
                 .child(mitraId);
 
         orders4MitraRef.addValueEventListener(mOrderBucketListener);
@@ -325,7 +323,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
         public TextView tvAddress, tvCustomerName, tvHandledBy, tvOrderTime, tvOrderStatus, tvOrderRemaining, tvNo;
         public View view;
         public ImageView ivIconStatus;
-        public Button btnCallTech, btnCallCust;
+        public Button btnCallTech, btnCallCust, btnChangeTech;
 
         CountDownTimer timer;
 
@@ -364,6 +362,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             btnCallCust = itemView.findViewById(R.id.btnCallCust);
             btnCallTech = itemView.findViewById(R.id.btnCallTech);
+            btnChangeTech = itemView.findViewById(R.id.btnChangeTech);
 
         }
 
@@ -372,7 +371,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvCustomerName.setText(data.getCustomerName());
             tvOrderTime.setText(Util.convertDateToString(new Date(data.getOrderTimestamp()), "dd MMM yyyy HH:mm"));
 
-//            if (Util.isExpiredOrder(obj.getTimestamp(), DataUtil.getMobileSetup().getLastOrderMinutes())) {
+//            if (Util.isExpiredOrder(obj.getTimestamp(), MitraUtil.getMobileSetup().getLastOrderMinutes())) {
 //                obj.setStatusDetailId(EOrderDetailStatus.CANCELLED_BY_TIMEOUT.name());
 //            }
 
@@ -390,12 +389,14 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvOrderRemaining.setVisibility(View.GONE);
 
             btnCallTech.setVisibility(View.VISIBLE);
+            btnChangeTech.setVisibility(View.INVISIBLE);
 
             int resIcon;
             switch (EOrderDetailStatus.convertValue(data.getStatusDetailId())) {
                 case ASSIGNED:
                     resIcon = R.drawable.ic_assignment_ind_black_24dp;
                     tvHandledBy.setText("Awaiting " + data.getTechnicianName() + " to Start Working...");
+                    btnChangeTech.setVisibility(View.VISIBLE);
                     break;
                 case UNHANDLED:
                     resIcon = R.drawable.ic_assignment_late_black_24dp;
@@ -439,6 +440,13 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
             });
 
+            btnChangeTech.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mListener != null)
+                        mListener.onChangeTech(data);
+                }
+            });
         }
 
         // start timer dimulai sejak new order masuk, jika dalam 15 menit ga ada yg ambil masuk ke status UNHANDLED

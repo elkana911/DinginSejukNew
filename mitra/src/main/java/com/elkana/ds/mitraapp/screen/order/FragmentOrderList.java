@@ -20,6 +20,7 @@ import com.elkana.ds.mitraapp.screen.assign.ActivityScrollingAssignment;
 import com.elkana.ds.mitraapp.screen.map.ActivityTechOtwMap;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
+import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.FightInfo;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
@@ -129,6 +130,22 @@ public class FragmentOrderList extends Fragment {
                         Toast.makeText(getActivity(), "Unhandled " + order.getStatusDetailId(), Toast.LENGTH_SHORT).show();
                         break;
                 }
+            }
+
+            @Override
+            public void onChangeTech(final OrderBucket data) {
+                Util.showDialogConfirmation(getActivity(), "Change Technician", "Yakin ganti/pindah teknisi ?", new ListenerPositiveConfirmation() {
+                    @Override
+                    public void onPositive() {
+                        Intent intent = new Intent(getActivity(), ActivityScrollingAssignment.class);
+                        intent.putExtra(ActivityScrollingAssignment.PARAM_ORDER_ID, data.getUid());
+                        intent.putExtra(ActivityScrollingAssignment.PARAM_CUSTOMER_ID, data.getCustomerId());
+                        intent.putExtra(ActivityScrollingAssignment.PARAM_CUSTOMER_NAME, data.getCustomerName());
+                        startActivity(intent);
+
+                    }
+                });
+
             }
 
             @Override

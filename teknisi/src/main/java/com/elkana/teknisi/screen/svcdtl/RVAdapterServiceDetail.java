@@ -23,7 +23,7 @@ import com.elkana.dslibrary.pojo.technician.ServiceItem;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.pojo.ServiceToParty;
-import com.elkana.teknisi.util.DataUtil;
+import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -72,7 +72,7 @@ public class RVAdapterServiceDetail extends RecyclerView.Adapter<RecyclerView.Vi
 
         final AlertDialog dialog = Util.showProgressDialog(mContext, "Check Available Services");
 
-        FirebaseDatabase.getInstance().getReference(DataUtil.REF_VENDOR_AC_SERVICES)
+        FirebaseDatabase.getInstance().getReference(TeknisiUtil.REF_VENDOR_AC_SERVICES)
                 .child(partyId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -312,7 +312,7 @@ public class RVAdapterServiceDetail extends RecyclerView.Adapter<RecyclerView.Vi
             Realm r = Realm.getDefaultInstance();
             try{
 
-                Mitra mitra = DataUtil.lookUpMitra(r, Long.parseLong(obj.getPartyId()));
+                Mitra mitra = TeknisiUtil.lookUpMitra(r, Long.parseLong(obj.getPartyId()));
 
                 if (mitra != null) {
                     ((MyViewHolder) holder).tvMitra.setText(ctx.getString(R.string.row_order_mitra, mitra.getName()));
@@ -320,7 +320,7 @@ public class RVAdapterServiceDetail extends RecyclerView.Adapter<RecyclerView.Vi
 
                 EOrderDetailStatus orderStatus = EOrderDetailStatus.convertValue(obj.getStatusDetailId());
 
-                ((MyViewHolder) holder).tvStatus.setText(DataUtil.getMessageStatusDetail(ctx, orderStatus));
+                ((MyViewHolder) holder).tvStatus.setText(TeknisiUtil.getMessageStatusDetail(ctx, orderStatus));
 
             }finally {
                 r.close();

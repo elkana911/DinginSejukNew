@@ -20,7 +20,7 @@ import android.widget.Toast;
 import com.elkana.customer.R;
 import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.screen.AFirebaseActivity;
-import com.elkana.customer.util.DataUtil;
+import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.UserAddress;
 import com.elkana.dslibrary.util.Const;
@@ -76,7 +76,7 @@ public class ActivityRegister extends AFirebaseActivity {
             }
         });
 
-        MobileSetup mobileSetup = DataUtil.getMobileSetup();
+        MobileSetup mobileSetup = CustomerUtil.getMobileSetup();
         if (getSupportActionBar() != null) {
 //            getSupportActionBar().setTitle(title);
 //            getSupportActionBar().setSubtitle(userFullName);

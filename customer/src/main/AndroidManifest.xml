@@ -45,6 +45,12 @@
         <activity
             android:name=".screen.register.ActivityRegister"
             android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".screen.profile.ActivityProfile"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden" />
+
         <activity
             android:name=".screen.login.LoginActivity_Wizard"
             android:label="@string/title_activity_login"

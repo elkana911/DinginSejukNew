@@ -32,7 +32,7 @@ import com.elkana.customer.screen.order.FragmentSummaryOrder;
 import com.elkana.customer.screen.profile.ActivityProfile;
 import com.elkana.customer.screen.register.ActivityWelcomeNewUser;
 import com.elkana.customer.pojo.MobileSetup;
-import com.elkana.customer.util.DataUtil;
+import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.fragment.AdapterFragments;
 import com.elkana.dslibrary.listener.ListenerSync;
@@ -311,7 +311,7 @@ public class MainActivity extends FirebaseActivity
         }
         if (menuEditProfile != null)
             menuEditProfile.setVisible(FirebaseAuth.getInstance().getCurrentUser() != null);
-//        DataUtil.initiateOfflineData();
+//        CustomerUtil.initiateOfflineData();
 
 //        prepareScreen();
     }
@@ -321,14 +321,14 @@ public class MainActivity extends FirebaseActivity
 //        dont put any view logic here krn bisa dipanggil sebelum activity ready after login. let oncreate handle this
         final AlertDialog dialog = Util.showProgressDialog(this, "Loading user information...");
 
-        DataUtil.syncUserInformation(this.realm);
+        CustomerUtil.syncUserInformation(this.realm);
 
-        DataUtil.syncMitra(this, new ListenerSync() {
+        CustomerUtil.syncMitra(this, new ListenerSync() {
             @Override
             public void onPostSync(Exception e) {
                 if (e == null) {
-                    DataUtil.syncOrders(MainActivity.this, user.getUid(), new ListenerSync() {
-//                    DataUtil.syncOrders(MainActivity.this, mAuth.getCurrentUser().getUid(), new ListenerSync() {
+                    CustomerUtil.syncOrders(MainActivity.this, user.getUid(), new ListenerSync() {
+//                    CustomerUtil.syncOrders(MainActivity.this, mAuth.getCurrentUser().getUid(), new ListenerSync() {
                         @Override
                         public void onPostSync(Exception e) {
                             prepareScreen(true);
@@ -387,9 +387,9 @@ public class MainActivity extends FirebaseActivity
 
             return true;
         } else if (id == R.id.action_editProfile) {
-//            Intent i = new Intent(this, ActivityProfile.class);
-//            i.putExtra("mode", ActivityProfile.MODE_EDIT_ADDRESS);
-//            startActivity(i);
+            Intent i = new Intent(this, ActivityProfile.class);
+            i.putExtra("mode", ActivityProfile.MODE_EDIT_ADDRESS);
+            startActivity(i);
             return true;
         }
 
@@ -526,7 +526,7 @@ public class MainActivity extends FirebaseActivity
 
     @Override
     public void onOrderCancelled(int serviceType, String invoiceNo) {
-        final Snackbar snackbar = Snackbar.make(coordinatorLayout, getString(R.string.message_order_cancelled, DataUtil.getServiceTypeLabel(this, serviceType), invoiceNo), Snackbar.LENGTH_LONG);
+        final Snackbar snackbar = Snackbar.make(coordinatorLayout, getString(R.string.message_order_cancelled, CustomerUtil.getServiceTypeLabel(this, serviceType), invoiceNo), Snackbar.LENGTH_LONG);
         snackbar.setAction("Ok", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -540,7 +540,7 @@ public class MainActivity extends FirebaseActivity
 
     @Override
     public void onOrderRescheduled(int serviceType, String invoiceNo) {
-        final Snackbar snackbar = Snackbar.make(coordinatorLayout, getString(R.string.message_order_rescheduled, DataUtil.getServiceTypeLabel(this, serviceType), invoiceNo), Snackbar.LENGTH_LONG);
+        final Snackbar snackbar = Snackbar.make(coordinatorLayout, getString(R.string.message_order_rescheduled, CustomerUtil.getServiceTypeLabel(this, serviceType), invoiceNo), Snackbar.LENGTH_LONG);
         snackbar.setAction("Ok", new View.OnClickListener() {
             @Override
             public void onClick(View v) {

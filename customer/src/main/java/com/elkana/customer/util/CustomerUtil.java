@@ -42,8 +42,8 @@ import io.realm.Realm;
  * Created by Eric on 23-Oct-17.
  */
 
-public class DataUtil {
-    public static final String TAG = DataUtil.class.getSimpleName();
+public class CustomerUtil {
+    public static final String TAG = CustomerUtil.class.getSimpleName();
     public static final String REF_MITRA_AC = "mitra/ac";
 
     public static final String REF_ORDERS_AC_PENDING = "orders/ac/pending";
@@ -406,7 +406,7 @@ udah di taruh di lib
             keyVal.put("statusId", EOrderStatus.PENDING.name());
         }
 
-        FirebaseDatabase.getInstance().getReference(DataUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
+        FirebaseDatabase.getInstance().getReference(CustomerUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(userId)
                 .child(orderId).updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

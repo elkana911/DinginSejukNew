@@ -3,7 +3,7 @@ package com.elkana.teknisi;
 import android.app.Application;
 
 import com.elkana.dslibrary.MyLibraryModule;
-import com.elkana.teknisi.util.DataUtil;
+import com.elkana.teknisi.util.TeknisiUtil;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -34,6 +34,6 @@ public class MyApplication extends Application {
                 .build();
         Realm.setDefaultConfiguration(config);
 
-        DataUtil.initiateOfflineData();
+        TeknisiUtil.initiateOfflineData();
     }
 }

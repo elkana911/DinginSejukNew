@@ -2,9 +2,8 @@ package com.elkana.ds.mitraapp;
 
 import android.app.Application;
 
-import com.elkana.ds.mitraapp.util.DataUtil;
+import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.MyLibraryModule;
-import com.google.firebase.database.FirebaseDatabase;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -38,6 +37,6 @@ public class MyApplication extends Application {
                 .build();
         Realm.setDefaultConfiguration(config);
 
-        DataUtil.initiateOfflineData();
+        MitraUtil.initiateOfflineData();
     }
 }

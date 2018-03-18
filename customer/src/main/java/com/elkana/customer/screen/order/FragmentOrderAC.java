@@ -34,7 +34,7 @@ import com.elkana.customer.R;
 import com.elkana.customer.exception.OrderAlreadyExists;
 import com.elkana.customer.screen.register.SimpleAdapterUserAddress;
 import com.elkana.customer.pojo.MobileSetup;
-import com.elkana.customer.util.DataUtil;
+import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
@@ -152,7 +152,7 @@ public class FragmentOrderAC extends Fragment {
 
         database = FirebaseDatabase.getInstance();
 
-        mobileSetup = DataUtil.getMobileSetup();
+        mobileSetup = CustomerUtil.getMobileSetup();
 
         radiusVendorKM = mobileSetup.getVendor_radius_km();
 
@@ -181,7 +181,7 @@ public class FragmentOrderAC extends Fragment {
                     return false;
 
                 Toast.makeText(getContext(), getString(R.string.warning_you_pick_mitra, marker.getTitle()), Toast.LENGTH_SHORT).show();
-//                etSelectMitra.setText(DataUtil.lookUpMitraById((String)marker.getTag()).getName());
+//                etSelectMitra.setText(CustomerUtil.lookUpMitraById((String)marker.getTag()).getName());
 
                 return false;
             }
@@ -367,7 +367,7 @@ public class FragmentOrderAC extends Fragment {
 
                     if (mMap != null & ua.getAddress() != null) {
 
-                        MobileSetup mobileSetup = DataUtil.getMobileSetup();
+                        MobileSetup mobileSetup = CustomerUtil.getMobileSetup();
 
                         double latitude = Double.parseDouble(ua.getLatitude());
                         double longitude = Double.parseDouble(ua.getLongitude());
@@ -420,7 +420,7 @@ public class FragmentOrderAC extends Fragment {
                                         marker.showInfoWindow();
 
                                     // create new mitra list based on radius
-                                    TmpMitra tmpMitra = DataUtil.cloneMitra(mitra);
+                                    TmpMitra tmpMitra = CustomerUtil.cloneMitra(mitra);
                                     mitraInRange.add(tmpMitra);
                                 } else {
                                     // Outside The Circle
@@ -462,11 +462,11 @@ public class FragmentOrderAC extends Fragment {
         // auto select
         selectAddressDefault();
 
-        Date nextWorkingDay = DataUtil.getWorkingDay(new Date(), 2);
+        Date nextWorkingDay = CustomerUtil.getWorkingDay(new Date(), 2);
         etDate.setText(Util.prettyDate(getContext(),  nextWorkingDay, true));
         kapanYYYYMMDD = Util.convertDateToString(nextWorkingDay, "yyyyMMdd");
 
-//        etTime.setText(DataUtil.getNextWorkingHour(2));
+//        etTime.setText(CustomerUtil.getNextWorkingHour(2));
 
         tvExtraCharge.setText(getString(R.string.warning_extracharge1));
         tvExtraCharge.setVisibility(DateUtil.isToday(nextWorkingDay) ? View.VISIBLE : View.INVISIBLE);
@@ -597,7 +597,7 @@ public class FragmentOrderAC extends Fragment {
 
         Realm realm = Realm.getDefaultInstance();
         try {
-            Mitra mitraObj = DataUtil.lookUpMitra(realm, mitra);
+            Mitra mitraObj = CustomerUtil.lookUpMitra(realm, mitra);
 
             orderHeader.setPartyId(mitraObj.getUid());
             orderHeader.setPartyName(mitraObj.getName());
@@ -695,7 +695,7 @@ public class FragmentOrderAC extends Fragment {
 
         final AlertDialog dialog = Util.showProgressDialog(getContext(), "Submit Order...");
 
-        DatabaseReference orderPendingCustomerRef = database.getReference(DataUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
+        DatabaseReference orderPendingCustomerRef = database.getReference(CustomerUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(mUserId).push();
 
         final String orderKey = orderPendingCustomerRef.getKey();
@@ -725,7 +725,7 @@ public class FragmentOrderAC extends Fragment {
                 }
 
                 // MUST USE DIFFERENCE REFERENCE TO AVOID REPLACED VALUE !!
-                DatabaseReference orderPendingMitraRef = database.getReference(DataUtil.REF_ORDERS_MITRA_AC_PENDING)
+                DatabaseReference orderPendingMitraRef = database.getReference(CustomerUtil.REF_ORDERS_MITRA_AC_PENDING)
                         .child(orderHeader.getPartyId())
                         .child(orderKey);
                 orderPendingMitraRef.setValue(orderBucket).addOnCompleteListener(new OnCompleteListener<Void>() {

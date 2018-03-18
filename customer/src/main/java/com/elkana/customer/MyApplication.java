@@ -2,9 +2,8 @@ package com.elkana.customer;
 
 import android.app.Application;
 
-import com.elkana.customer.util.DataUtil;
+import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.MyLibraryModule;
-import com.google.firebase.database.FirebaseDatabase;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -39,6 +38,6 @@ public class MyApplication extends Application {
         Realm.setDefaultConfiguration(config);
 
 
-        DataUtil.initiateOfflineData();
+        CustomerUtil.initiateOfflineData();
     }
 }

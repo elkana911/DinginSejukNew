@@ -8,7 +8,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.elkana.ds.mitraapp.R;
-import com.elkana.ds.mitraapp.util.DataUtil;
+import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.pojo.Movement;
 import com.elkana.dslibrary.util.Util;
@@ -122,7 +122,7 @@ public class ActivityTechOtwMap extends FirebaseActivity implements OnMapReadyCa
             }
         };
 
-        movementsRef = database.getReference(DataUtil.REF_MOVEMENTS)
+        movementsRef = database.getReference(MitraUtil.REF_MOVEMENTS)
                 .child(mOrderId);
 
         movementsRef.addChildEventListener(mChildEventListener);

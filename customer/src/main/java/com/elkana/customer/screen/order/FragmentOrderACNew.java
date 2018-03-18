@@ -33,7 +33,7 @@ import com.elkana.customer.R;
 import com.elkana.customer.exception.OrderAlreadyExists;
 import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.screen.register.SimpleAdapterUserAddress;
-import com.elkana.customer.util.DataUtil;
+import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.OrderBucket;
@@ -149,7 +149,7 @@ public class FragmentOrderACNew extends Fragment {
 
         database = FirebaseDatabase.getInstance();
 
-        mobileSetup = DataUtil.getMobileSetup();
+        mobileSetup = CustomerUtil.getMobileSetup();
 
         radiusVendorKM = mobileSetup.getVendor_radius_km();
 
@@ -178,7 +178,7 @@ public class FragmentOrderACNew extends Fragment {
                     return false;
 
                 Toast.makeText(getContext(), getString(R.string.warning_you_pick_mitra, marker.getTitle()), Toast.LENGTH_SHORT).show();
-//                etSelectMitra.setText(DataUtil.lookUpMitraById((String)marker.getTag()).getName());
+//                etSelectMitra.setText(CustomerUtil.lookUpMitraById((String)marker.getTag()).getName());
 
                 return false;
             }
@@ -380,7 +380,7 @@ public class FragmentOrderACNew extends Fragment {
 
                     if (mMap != null & ua.getAddress() != null) {
 
-                        MobileSetup mobileSetup = DataUtil.getMobileSetup();
+                        MobileSetup mobileSetup = CustomerUtil.getMobileSetup();
 
                         double latitude = Double.parseDouble(ua.getLatitude());
                         double longitude = Double.parseDouble(ua.getLongitude());
@@ -433,7 +433,7 @@ public class FragmentOrderACNew extends Fragment {
                                         marker.showInfoWindow();
 
                                     // create new mitra list based on radius
-                                    TmpMitra tmpMitra = DataUtil.cloneMitra(mitra);
+                                    TmpMitra tmpMitra = CustomerUtil.cloneMitra(mitra);
                                     mitraInRange.add(tmpMitra);
                                 } else {
                                     // Outside The Circle
@@ -476,11 +476,11 @@ public class FragmentOrderACNew extends Fragment {
         selectAddressDefault();
         selectMitraDefault();
 
-        Date nextWorkingDay = DataUtil.getWorkingDay(new Date(), 2);
+        Date nextWorkingDay = CustomerUtil.getWorkingDay(new Date(), 2);
         etDate.setText(Util.prettyDate(getContext(),  nextWorkingDay, true));
         kapanYYYYMMDD = Util.convertDateToString(nextWorkingDay, "yyyyMMdd");
 
-//        etTime.setText(DataUtil.getNextWorkingHour(2));
+//        etTime.setText(CustomerUtil.getNextWorkingHour(2));
 
         tvExtraCharge.setText(getString(R.string.warning_extracharge1));
         tvExtraCharge.setVisibility(DateUtil.isToday(nextWorkingDay) ? View.VISIBLE : View.INVISIBLE);
@@ -590,7 +590,7 @@ public class FragmentOrderACNew extends Fragment {
     private void submitOrder(final OrderHeader orderHeader){
         final AlertDialog dialog = Util.showProgressDialog(getContext(), "Booking process...");
 
-        DatabaseReference orderPendingCustomerRef = database.getReference(DataUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
+        DatabaseReference orderPendingCustomerRef = database.getReference(CustomerUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(mUserId).push();
 
         final String orderKey = orderPendingCustomerRef.getKey();
@@ -753,7 +753,7 @@ public class FragmentOrderACNew extends Fragment {
 
                 Realm realm = Realm.getDefaultInstance();
                 try {
-                    Mitra mitraObj = DataUtil.lookUpMitra(realm, mitra);
+                    Mitra mitraObj = CustomerUtil.lookUpMitra(realm, mitra);
 
                     orderHeader.setPartyId(mitraObj.getUid());
                     orderHeader.setPartyName(mitraObj.getName());

@@ -16,8 +16,6 @@ import android.widget.TextView;
 
 import com.elkana.ds.mitraapp.AFirebaseMitraActivity;
 import com.elkana.ds.mitraapp.R;
-import com.elkana.ds.mitraapp.util.DataUtil;
-import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.component.RealmSearchView;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetOrder;
@@ -27,7 +25,6 @@ import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 import com.elkana.dslibrary.util.Util;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -140,13 +137,15 @@ public class ActivityScrollingAssignment extends AFirebaseMitraActivity{
 //                if (expired)
 //                    return;
 
+                // TODO: already assigned for same order
+
                 Util.showDialogConfirmation(ActivityScrollingAssignment.this, "Assignment", "Tugaskan " + obj.getName().toUpperCase() + " ?", new ListenerPositiveConfirmation() {
                     @Override
                     public void onPositive() {
 
                         final AlertDialog dialog = Util.showProgressDialog(ActivityScrollingAssignment.this);
 
-                        //TODO: should check DataUtil.isExpiredOrder(obj)
+                        //TODO: should check MitraUtil.isExpiredOrder(obj)
                         // build assignment here
                         Assignment_create(obj.getTechId(), obj.getName(), mCustomerId, mOrderId, new ListenerModifyData() {
                             @Override

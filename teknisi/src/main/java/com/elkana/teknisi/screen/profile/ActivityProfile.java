@@ -25,7 +25,6 @@ import com.elkana.teknisi.BuildConfig;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.pojo.MitraReg;
 import com.elkana.teknisi.pojo.UserMitra;
-import com.elkana.teknisi.util.DataUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -123,7 +122,7 @@ public class ActivityProfile extends FirebaseActivity {
 
                 BasicInfo copyFromRealm = realm.copyFromRealm(basicInfo);
 
-//                DatabaseReference usersRef = database.getReference(DataUtil.REF_TECHNICIAN_AC)
+//                DatabaseReference usersRef = database.getReference(TeknisiUtil.REF_TECHNICIAN_AC)
 //                        .child(mAuth.getCurrentUser().getUid())
 //                        .child("address");
 //

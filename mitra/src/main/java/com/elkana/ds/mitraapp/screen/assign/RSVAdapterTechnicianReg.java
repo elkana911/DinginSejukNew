@@ -32,7 +32,7 @@ public class RSVAdapterTechnicianReg extends RealmSearchAdapter<TechnicianReg, R
         this.mContext = context;
         this.mListener = listener;
 
-//        FirebaseDatabase.getInstance().getReference(DataUtil.REF_MI)
+//        FirebaseDatabase.getInstance().getReference(MitraUtil.REF_MI)
     }
 
 

@@ -23,7 +23,7 @@ import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.pojo.MobileSetup;
-import com.elkana.teknisi.util.DataUtil;
+import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
@@ -71,7 +71,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                 NotifyNewOrderItem _obj = dataSnapshot.getValue(NotifyNewOrderItem.class);
                 Log.e(TAG, ">>>>>child added " + _obj);
 
-                MobileSetup mobileSetup = DataUtil.getMobileSetup();
+                MobileSetup mobileSetup = TeknisiUtil.getMobileSetup();
                 //disable krn msh testing new order
                 // hanya ambil yg belum expired. dikurangi 1 menit utk toleransi klik/koneksi. misal diinfo 10 menit timer, tp sebenere cuma dikasih 9 menit utk tampil di layar
 //                if (Util.isExpiredOrder(_obj.getOrderTimestamp(), mobileSetup.getExpiryLastOrderMinutes() - 1)) {

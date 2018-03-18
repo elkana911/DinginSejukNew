@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.elkana.customer.R;
-import com.elkana.customer.util.DataUtil;
+import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -137,7 +137,7 @@ public class FragmentOrderList extends Fragment {
         this.mUserId = customerId;
 
 //        orderRef = FirebaseDatabase.getInstance().getReference("orders/ac/orderHeader/" + this.mUserId);
-        orderRef = FirebaseDatabase.getInstance().getReference(DataUtil.REF_ORDERS_CUSTOMER_AC_PENDING).child(this.mUserId);
+        orderRef = FirebaseDatabase.getInstance().getReference(CustomerUtil.REF_ORDERS_CUSTOMER_AC_PENDING).child(this.mUserId);
 
         if (mAdapter != null)
             mAdapter.cleanUpListener();

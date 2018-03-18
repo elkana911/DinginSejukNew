@@ -22,7 +22,7 @@ import com.elkana.teknisi.pojo.MobileSetup;
 import com.elkana.teknisi.screen.map.MapsActivity;
 import com.elkana.teknisi.screen.payment.ActivityPayment;
 import com.elkana.teknisi.screen.svcdtl.ActivityServiceDetail;
-import com.elkana.teknisi.util.DataUtil;
+import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -149,7 +149,7 @@ public class MainActivityFragment extends Fragment {
                 final AlertDialog dialog = Util.showProgressDialog(getContext(), "Check Status");
 
                 //read the last status of orderid
-                final DatabaseReference orderRef = FirebaseDatabase.getInstance().getReference(DataUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
+                final DatabaseReference orderRef = FirebaseDatabase.getInstance().getReference(TeknisiUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                         .child(assignment.getCustomerId())
                         .child(assignment.getOrderId());
 
