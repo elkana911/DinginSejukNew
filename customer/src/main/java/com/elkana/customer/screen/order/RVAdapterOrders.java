@@ -268,7 +268,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     class MyAddOrderHolder extends RecyclerView.ViewHolder {
-        public Button btn;
+//        public Button btn;
         public FloatingActionButton fab;
 
 
@@ -276,22 +276,20 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
             super(itemView);
 
             fab = itemView.findViewById(R.id.fabAddService);
+            /*
             btn = itemView.findViewById(R.id.btnAddService);
             btn.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(ctx, R.drawable.ic_add_black_24dp, android.R.color.black), null, null, null);
 
 
-            //            btn.setImageResource(R.drawable.ic_add_black_24dp);
-//            btn.setColorFilter(Color.parseColor("#FFFFFF"));
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (mListener != null) {
                         mListener.onAddOrder();
                     }
-//                    startActivityForResult(new Intent(ActivityRegister.this, ActivityMaps.class), 66);
-//                        Toast.makeText(ctx, "You click add", Toast.LENGTH_SHORT).show();
                 }
             });
+            */
 
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override

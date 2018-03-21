@@ -33,8 +33,10 @@ public class ActivityTechOtwMap extends AFirebaseActivity implements OnMapReadyC
     private static final String TAG = ActivityTechOtwMap.class.getSimpleName();
 
     public static final String PARAM_ORDER_ID = "order.id";
+    public static final String PARAM_TECH_NAME = "technician.name";
+
     protected static final float MAP_ZOOM_DEFAULT = 13;
-    String mOrderId;
+    String mOrderId, mTechName;
 
     private DatabaseReference movementsRef;
     private GoogleMap mMap;
@@ -45,13 +47,21 @@ public class ActivityTechOtwMap extends AFirebaseActivity implements OnMapReadyC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tech_otw_map);
 
+        mOrderId = getIntent().getStringExtra(PARAM_ORDER_ID);
+        mTechName = getIntent().getStringExtra(PARAM_TECH_NAME);
+
+        if (Util.TESTING_MODE && mOrderId == null) {
+            mOrderId = "-L-srlSFRLdoqFLzRbHV";
+            mTechName = "LIA";
+        }
+
         if (getSupportActionBar() != null) {
 //            getSupportActionBar().setTitle(title);
 //            getSupportActionBar().setSubtitle(userFullName);
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
-//            getSupportActionBar().setTitle(TAG);
+            getSupportActionBar().setTitle(mTechName + " Position");
 
 //            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
 
@@ -61,12 +71,6 @@ public class ActivityTechOtwMap extends AFirebaseActivity implements OnMapReadyC
 //                window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
             }
 
-        }
-
-        mOrderId = getIntent().getStringExtra(PARAM_ORDER_ID);
-
-        if (Util.TESTING_MODE && mOrderId == null) {
-            mOrderId = "-L-srlSFRLdoqFLzRbHV";
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.

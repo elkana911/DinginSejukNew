@@ -69,6 +69,11 @@ public class ActivityMitraList extends FirebaseActivity {
                 dialog.dismiss();
 
             }
+
+            @Override
+            public void onPrepare() {
+
+            }
         });
     }
 

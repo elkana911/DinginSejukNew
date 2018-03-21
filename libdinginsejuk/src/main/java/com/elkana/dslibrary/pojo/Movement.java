@@ -8,6 +8,9 @@ public class Movement {
     private String latitude;
     private String longitude;
 
+    public Movement() {
+    }
+
     public Movement(String latitude, String longitude) {
         this.latitude = latitude;
         this.longitude = longitude;

@@ -59,7 +59,7 @@ public class RVAdapterUserAddress extends RecyclerView.Adapter<RecyclerView.View
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         if (position == mList.size()) {
             // cukup 1 alamat saja utk mitra
-            ((MyAddAddressHolder) holder).btnAddAddress.setVisibility(mList.size() > 0 ? View.INVISIBLE : View.VISIBLE);
+            ((MyAddAddressHolder) holder).btnAddAddress.setVisibility(mList.size() > 0 ? View.GONE : View.VISIBLE);
         } else {
 
             final UserAddress obj = mList.get(position);
@@ -113,7 +113,7 @@ public class RVAdapterUserAddress extends RecyclerView.Adapter<RecyclerView.View
             super(itemView);
 
             tvLabelAddress = itemView.findViewById(R.id.tvLabelAddress);
-//            tvLabelAddress.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(ctx, R.drawable.ic_home_black_24dp, android.R.color.white), null, null, null);
+            tvLabelAddress.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(ctx, R.drawable.ic_home_black_24dp, android.R.color.darker_gray), null, null, null);
 
             btnDelete = itemView.findViewById(R.id.btnDeleteAddress);
             btnDelete.setImageResource(R.drawable.ic_indeterminate_check_box_black_24dp);
@@ -130,7 +130,7 @@ public class RVAdapterUserAddress extends RecyclerView.Adapter<RecyclerView.View
             super(itemView);
 
             btnAddAddress = itemView.findViewById(R.id.btnAddAddress);
-//            btnAddAddress.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(ctx, R.drawable.ic_add_black_24dp, android.R.color.white), null, null, null);
+            btnAddAddress.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(ctx, R.drawable.ic_add_black_24dp, android.R.color.darker_gray), null, null, null);
 
 
             //            btnAddAddress.setImageResource(R.drawable.ic_add_black_24dp);

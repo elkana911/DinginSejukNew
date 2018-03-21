@@ -273,8 +273,10 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
 
                             // kalo ada brarti udah keambil
 
-                            if (dataSnapshot.exists())
+                            if (dataSnapshot.exists()) {
+                                alertDialog.dismiss();
                                 return;
+                            }
 
                             //cocokkan dengan FightInfo, pake manual krn butuh timestampnya
                             final Map<String, Object> keyValOrder = new HashMap<>();

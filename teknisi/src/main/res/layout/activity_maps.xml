@@ -151,7 +151,7 @@
                     android:id="@+id/tvProblem"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Permasalahan:" />
+                    android:text="Keterangan:" />
 
                 <TextView
                     android:id="@+id/tvMitra"

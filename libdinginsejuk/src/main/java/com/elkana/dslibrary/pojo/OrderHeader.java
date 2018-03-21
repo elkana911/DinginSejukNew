@@ -22,6 +22,7 @@ public class OrderHeader extends RealmObject implements Serializable {
     private String partyId;         // why string ? for future reference could be unique string, even Mitra.id is a long
     private String partyName;
     private String technicianId;    // why string ? for future reference could be unique string
+    private String technicianName;
     private String addressId;
     private String addressByGoogle; // supaya kalo user delete tetep remain
     private String assignmentId;
@@ -37,6 +38,7 @@ public class OrderHeader extends RealmObject implements Serializable {
     private int rescheduleCounter;
     private long timestamp; // gabungan dateOfService & timeOfService
 //    private long estimatePrice;
+    private long createdTimestamp;
     private long updatedTimestamp;
     private String updatedBy;
 
@@ -134,6 +136,14 @@ public class OrderHeader extends RealmObject implements Serializable {
 
     public void setTechnicianId(String technicianId) {
         this.technicianId = technicianId;
+    }
+
+    public String getTechnicianName() {
+        return technicianName;
+    }
+
+    public void setTechnicianName(String technicianName) {
+        this.technicianName = technicianName;
     }
 
     public int getRatingByCustomer() {
@@ -248,6 +258,14 @@ public class OrderHeader extends RealmObject implements Serializable {
         this.updatedBy = updatedBy;
     }
 
+    public long getCreatedTimestamp() {
+        return createdTimestamp;
+    }
+
+    public void setCreatedTimestamp(long createdTimestamp) {
+        this.createdTimestamp = createdTimestamp;
+    }
+
     @Override
     public String toString() {
         return "OrderHeader{" +
@@ -261,6 +279,7 @@ public class OrderHeader extends RealmObject implements Serializable {
                 ", partyId='" + partyId + '\'' +
                 ", partyName='" + partyName + '\'' +
                 ", technicianId='" + technicianId + '\'' +
+                ", technicianName='" + technicianName + '\'' +
                 ", addressId='" + addressId + '\'' +
                 ", addressByGoogle='" + addressByGoogle + '\'' +
                 ", assignmentId='" + assignmentId + '\'' +
@@ -275,6 +294,7 @@ public class OrderHeader extends RealmObject implements Serializable {
                 ", phone='" + phone + '\'' +
                 ", rescheduleCounter=" + rescheduleCounter +
                 ", timestamp=" + timestamp +
+                ", createdTimestamp=" + createdTimestamp +
                 ", updatedTimestamp=" + updatedTimestamp +
                 ", updatedBy='" + updatedBy + '\'' +
                 '}';

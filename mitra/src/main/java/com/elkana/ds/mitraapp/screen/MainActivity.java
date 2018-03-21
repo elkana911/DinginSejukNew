@@ -25,6 +25,7 @@ import com.elkana.ds.mitraapp.screen.assign.FragmentTechnicianList;
 import com.elkana.ds.mitraapp.screen.login.ActivityLogin;
 import com.elkana.ds.mitraapp.screen.order.FragmentOrderList;
 import com.elkana.ds.mitraapp.screen.profile.ActivityProfile;
+import com.elkana.ds.mitraapp.screen.servicelist.ActivityServiceList;
 import com.elkana.ds.mitraapp.screen.register.technician.ActivityRegisterTechnician;
 import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.firebase.FBUtil;
@@ -37,8 +38,8 @@ import java.util.List;
 
 public class MainActivity extends AFirebaseMitraActivity
         implements NavigationView.OnNavigationItemSelectedListener
-        ,FragmentOrderList.OnFragmentOrderListInteractionListener
-        ,FragmentTechnicianList.OnFragmentTechnicianListInteractionListener{
+        , FragmentOrderList.OnFragmentOrderListInteractionListener
+        , FragmentTechnicianList.OnFragmentTechnicianListInteractionListener {
 
     public static final String SELECTED_NAV_MENU_KEY = "selected_nav_menu_key";
     private static final String TAG = "MainActivity";
@@ -155,6 +156,7 @@ public class MainActivity extends AFirebaseMitraActivity
 
         MitraUtil.syncUserInformation();
         MitraUtil.syncTechnicianReg();
+//        MitraUtil.syncServices();   // dipindah ke activityservicelist
     }
 
     @Override
@@ -248,6 +250,9 @@ public class MainActivity extends AFirebaseMitraActivity
 
         if (id == R.id.nav_tech_new) {
             startActivity(new Intent(this, ActivityRegisterTechnician.class));
+            return false;
+        } else if (id == R.id.nav_service_setup) {
+            startActivity(new Intent(this, ActivityServiceList.class));
             return false;
         }
 
@@ -373,7 +378,7 @@ public class MainActivity extends AFirebaseMitraActivity
 
                 List<TechnicianReg> allTechnicianReg = MitraUtil.getAllTechnicianReg();
 
-                FBUtil.TechnicianRegs_recursiveDeleteAllNotifyNewOrder(mAuth.getCurrentUser().getUid(), fightInfo.getOrderId(),  allTechnicianReg, allTechnicianReg.size()-1, new ListenerModifyData() {
+                FBUtil.TechnicianRegs_recursiveDeleteAllNotifyNewOrder(mAuth.getCurrentUser().getUid(), fightInfo.getOrderId(), allTechnicianReg, allTechnicianReg.size() - 1, new ListenerModifyData() {
                     @Override
                     public void onSuccess() {
                         FBUtil.Assignment_deleteFight(fightInfo.getOrderId(), null);

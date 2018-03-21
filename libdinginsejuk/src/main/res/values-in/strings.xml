@@ -35,9 +35,10 @@
     <string name="title_orders">Pesanan</string>
     <string name="title_reregister">Tidak Terdaftar</string>
 
-    <string name="prompt_date_service">Tanggal Layanan</string>
+    <string name="prompt_date_request">Tanggal Request</string>
+    <string name="prompt_date_service">Jadwal Layanan</string>
     <string name="prompt_cust_address">Alamat Rumah</string>
-    <string name="prompt_problem_ac">Permasalahan</string>
+    <string name="prompt_problem_ac">Catatan</string>
     <string name="prompt_search">Cari...</string>
     <string name="prompt_vendor">Mitra</string>
     <string name="prompt_name">Nama</string>
@@ -103,7 +104,7 @@
     <string name="status_cancelled_by_server">Mohon maaf, Server telah membatalkan pesanan Anda.</string>
     <string name="status_cancelled_by_timeout">Mohon maaf, Pesanan Anda telah dibatalkan karena tidak ada tanggapan dari Mitra pilihan Anda.</string>
     <string name="status_paid">Layanan sudah selesai dan dibayar.</string>
-    <string name="error_address_required">Mohon sertakan data Alamat Rumah.</string>
+
     <string name="message_review_given">Terima Kasih sudah menggunakan jasa kami. Masukan Anda sangat berarti bagi kami.</string>
     <string name="warning_you_pick_mitra">Anda memilih %1s</string>
     <string name="message_review_not_given">Silakan beri Rating untuk Layanan ini :)</string>

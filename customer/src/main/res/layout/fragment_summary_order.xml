@@ -111,7 +111,14 @@
                 android:text="Jenis Layanan :" />
 
             <TextView
-                android:id="@+id/tvDate"
+                android:id="@+id/tvDateRequest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearanceSummaryOrder"
+                android:text="Tanggal : 22 Oktober 2017" />
+
+            <TextView
+                android:id="@+id/tvDateService"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/TextAppearanceSummaryOrder"

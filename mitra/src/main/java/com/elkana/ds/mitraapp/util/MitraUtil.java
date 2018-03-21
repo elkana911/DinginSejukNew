@@ -8,9 +8,11 @@ import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.MobileSetup;
 import com.elkana.ds.mitraapp.pojo.NotifyTechnician;
 import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.listener.ListenerGetAllData;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.mitra.Assignment;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
+import com.elkana.dslibrary.pojo.mitra.SubServiceType;
 import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 import com.elkana.dslibrary.pojo.technician.Technician;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
@@ -61,7 +63,7 @@ public class MitraUtil {
     public static final String REF_ASSIGNMENTS_PENDING = "assignments/ac/pending";
     public static final String REF_ASSIGNMENTS_FINISHED = "assignments/ac/finished";
 
-    public static final String REF_MOVEMENTS= "movements";
+    public static final String REF_MOVEMENTS = "movements";
     public static final String REF_MASTER_SETUP = "master/mSetup/" + Const.CONFIG_AS_MITRA;
 
     public static void getOnlineDataToOffline() {
@@ -202,9 +204,9 @@ public class MitraUtil {
 
     public static MobileSetup getMobileSetup() {
         Realm r = Realm.getDefaultInstance();
-        try{
+        try {
             return r.copyFromRealm(r.where(MobileSetup.class).findFirst());
-        }finally {
+        } finally {
             r.close();
         }
     }
@@ -248,7 +250,64 @@ public class MitraUtil {
         return Util.isExpiredOrder(timestamp, getMobileSetup().getLastOrderMinutes());
     }
 */
-    public static void syncTechnicianReg(){
+
+    /**
+     * Ambil as table master utk service yg akan didaftarkan ke any mitra
+     */
+    public static void syncServices(final ListenerGetAllData listener) {
+
+        Realm r = Realm.getDefaultInstance();
+        try{
+            List<SubServiceType> _list = r.copyFromRealm(r.where(SubServiceType.class).findAll());
+
+            // get local cache
+            if (_list.size() > 0 && listener != null) {
+                listener.onSuccess(_list);
+                return;
+            }
+        }finally {
+            r.close();
+        }
+
+        FirebaseDatabase.getInstance().getReference(FBUtil.REF_MASTER_AC_SERVICE)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        Realm _r = Realm.getDefaultInstance();
+                        try {
+                            _r.beginTransaction();
+
+                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                SubServiceType obj = postSnapshot.getValue(SubServiceType.class);
+
+                                _r.copyToRealmOrUpdate(obj);
+                            }
+
+                            _r.commitTransaction();
+
+                            if (listener != null) {
+
+                                List<SubServiceType> _list = _r.copyFromRealm(_r.where(SubServiceType.class).findAll());
+                                listener.onSuccess(_list);
+                            }
+
+                        } finally {
+                            _r.close();
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                        listener.onError(databaseError.toException());
+                    }
+                });
+
+    }
+
+    public static void syncTechnicianReg() {
         String mitraId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         FirebaseDatabase.getInstance().getReference(FBUtil.REF_MITRA_AC)
@@ -267,14 +326,14 @@ public class MitraUtil {
                         }
 
                         Realm r = Realm.getDefaultInstance();
-                        try{
+                        try {
                             r.executeTransaction(new Realm.Transaction() {
                                 @Override
                                 public void execute(Realm realm) {
                                     realm.copyToRealmOrUpdate(list);
                                 }
                             });
-                        }finally {
+                        } finally {
                             r.close();
                         }
 
@@ -338,14 +397,14 @@ public class MitraUtil {
                         }
 
                         Realm r = Realm.getDefaultInstance();
-                        try{
+                        try {
                             r.executeTransaction(new Realm.Transaction() {
                                 @Override
                                 public void execute(Realm realm) {
                                     realm.copyToRealmOrUpdate(list);
                                 }
                             });
-                        }finally {
+                        } finally {
                             r.close();
                         }
                     }
@@ -372,14 +431,14 @@ public class MitraUtil {
                             list.add(ft);
                         }
                         Realm r = Realm.getDefaultInstance();
-                        try{
+                        try {
                             r.executeTransaction(new Realm.Transaction() {
                                 @Override
                                 public void execute(Realm realm) {
                                     realm.copyToRealmOrUpdate(list);
                                 }
                             });
-                        }finally {
+                        } finally {
                             r.close();
                         }
                     }
@@ -398,7 +457,7 @@ public class MitraUtil {
                         final MobileSetup mobileSetup = dataSnapshot.getValue(MobileSetup.class);
 
                         Realm r = Realm.getDefaultInstance();
-                        try{
+                        try {
                             r.executeTransaction(new Realm.Transaction() {
                                 @Override
                                 public void execute(Realm realm) {
@@ -406,7 +465,7 @@ public class MitraUtil {
                                 }
                             });
 
-                        }finally {
+                        } finally {
                             r.close();
                         }
                     }

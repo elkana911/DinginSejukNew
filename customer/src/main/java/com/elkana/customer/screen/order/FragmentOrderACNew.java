@@ -62,6 +62,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -614,7 +615,9 @@ public class FragmentOrderACNew extends Fragment {
 
         try {
 
-            Map<String, Object> keyValOrderHeader = FBUtil.convertObjectToKeyVal(FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING + "/" + orderHeader.getCustomerId() + "/" + orderKey, orderHeader);
+            String root = FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING + "/" + orderHeader.getCustomerId() + "/" + orderKey;
+            Map<String, Object> keyValOrderHeader = FBUtil.convertObjectToKeyVal(root, orderHeader);
+            keyValOrderHeader.put(root + "/createdTimestamp", ServerValue.TIMESTAMP);
 
             Map<String, Object> keyValOrderBucket = FBUtil.convertObjectToKeyVal(FBUtil.REF_ORDERS_MITRA_AC_PENDING + "/" + orderHeader.getPartyId() + "/" + orderKey, orderBucket);
 

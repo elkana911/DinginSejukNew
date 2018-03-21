@@ -124,6 +124,7 @@ public class FragmentOrderList extends Fragment {
                     case OTW:
                         intent = new Intent(getActivity(), ActivityTechOtwMap.class);
                         intent.putExtra(ActivityTechOtwMap.PARAM_ORDER_ID, order.getUid());
+                        intent.putExtra(ActivityTechOtwMap.PARAM_TECH_NAME, order.getTechnicianName());
                         startActivity(intent);
                         break;
                     default:
@@ -161,7 +162,6 @@ public class FragmentOrderList extends Fragment {
 
         // mitra will listen to path assignments/ac/fight/<orderId>/
         // barangsiapa ada teknisi yg update path tersebut, maka mitra akan otomatis buat assignmentordernya
-        // TODO: hapus notify_new_order semua teknisi
         assignmentFightValueListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -191,6 +191,7 @@ public class FragmentOrderList extends Fragment {
         };
 
         assignmentFightRef = FirebaseDatabase.getInstance().getReference(FBUtil.REF_ASSIGNMENTS_FIGHT);
+        assignmentFightRef.addValueEventListener(assignmentFightValueListener);
 
     }
 
@@ -198,6 +199,7 @@ public class FragmentOrderList extends Fragment {
     public void onDestroy() {
         super.onDestroy();
 
+        assignmentFightRef.removeEventListener(assignmentFightValueListener);
         mAdapter.cleanUpListener();
 
     }
@@ -239,12 +241,10 @@ public class FragmentOrderList extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        assignmentFightRef.addValueEventListener(assignmentFightValueListener);
     }
 
     @Override
     public void onStop() {
-        assignmentFightRef.removeEventListener(assignmentFightValueListener);
         super.onStop();
     }
 

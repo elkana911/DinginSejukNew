@@ -528,7 +528,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                 tvCustomerName.setText(obj.getCustomerName());
                 tvDateOfService.setText("Tgl Service: " + Util.convertDateToString(new Date(obj.getTimestamp()), "dd-MMM-yyyy HH:mm"));
                 tvMitra.setText("Mitra: " + obj.getPartyName());
-                tvProblem.setText("Permasalahan: " + obj.getProblem());
+                tvProblem.setText("Keterangan: " + obj.getProblem());
 
                 btnStartOtw.setEnabled(true);
                 btnStartWorking.setEnabled(true);

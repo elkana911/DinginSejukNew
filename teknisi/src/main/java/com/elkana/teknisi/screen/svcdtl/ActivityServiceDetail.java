@@ -22,6 +22,7 @@ import com.elkana.dslibrary.pojo.technician.ServiceItem;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
+import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.screen.dataac.ActivityDataAC;
 import com.elkana.teknisi.util.TeknisiUtil;
@@ -33,7 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Date;
 import java.util.List;
 
-public class ActivityServiceDetail extends FirebaseActivity {
+public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
     private static final String TAG = ActivityServiceDetail.class.getSimpleName();
 
     public static final String PARAM_ASSIGNMENT_ID = "assignment.id";
@@ -128,7 +129,7 @@ public class ActivityServiceDetail extends FirebaseActivity {
 //            getSupportActionBar().setSubtitle(userFullName);
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(getString(R.string.title_activity_servicedtl));
+//            getSupportActionBar().setTitle(getString(R.string.title_activity_servicedtl));
         }
 
         mAssignmentId = getIntent().getStringExtra(PARAM_ASSIGNMENT_ID);
@@ -300,16 +301,6 @@ public class ActivityServiceDetail extends FirebaseActivity {
 //        search_view = findViewById(R.id.search_view);
 //        search_view.getSearchBar().setVisibility(View.GONE);
 //        search_view.setAdapter(mAdapter);
-    }
-
-    @Override
-    protected void onLoggedOff() {
-
-    }
-
-    @Override
-    protected void onLoggedOn(FirebaseUser user) {
-
     }
 
     @Override

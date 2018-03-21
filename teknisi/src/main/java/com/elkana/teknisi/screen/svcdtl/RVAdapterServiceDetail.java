@@ -18,11 +18,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.pojo.mitra.ServiceToParty;
 import com.elkana.dslibrary.pojo.mitra.SubServiceType;
 import com.elkana.dslibrary.pojo.technician.ServiceItem;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
-import com.elkana.teknisi.pojo.ServiceToParty;
 import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -65,14 +66,9 @@ public class RVAdapterServiceDetail extends RecyclerView.Adapter<RecyclerView.Vi
 
         mAdapterServiceACSpinner = new AdapterServiceACSpinner(mContext, android.R.layout.simple_spinner_item, mListSubService);
 
-//        if (!NetUtil.isConnected(mContext)) {
-//            if (getDataLocal())
-//                return;
-//        }
-
         final AlertDialog dialog = Util.showProgressDialog(mContext, "Check Available Services");
 
-        FirebaseDatabase.getInstance().getReference(TeknisiUtil.REF_VENDOR_AC_SERVICES)
+        FirebaseDatabase.getInstance().getReference(FBUtil.REF_VENDOR_AC_SERVICES)
                 .child(partyId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -435,6 +431,8 @@ public class RVAdapterServiceDetail extends RecyclerView.Adapter<RecyclerView.Vi
                     }
                 }
             });
+
+
         }
     }
 

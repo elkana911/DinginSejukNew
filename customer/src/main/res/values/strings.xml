@@ -16,6 +16,8 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
+    <string name="error_address_required">Mohon sertakan data Alamat Rumah.</string>
+
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
@@ -112,4 +114,7 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="title_activity_maps_user_address">Map</string>
+
+
+
 </resources>

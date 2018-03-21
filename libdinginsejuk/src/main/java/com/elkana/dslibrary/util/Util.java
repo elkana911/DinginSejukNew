@@ -20,7 +20,6 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
 
-
 import com.elkana.dslibrary.BuildConfig;
 import com.elkana.dslibrary.R;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
@@ -31,8 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -428,8 +426,8 @@ public class Util {
 
     }
 
-    public static String counter(String numeric, boolean add, int minValue, int maxValue) {
-        int x = Integer.parseInt(numeric) + (add ? 1 : -1);
+    public static String counter(String numeric, boolean add, int minValue, int maxValue, int step) {
+        int x = new BigDecimal(numeric).intValue() + (add ? step : -step);
 
         if (x < minValue)
             x = minValue;
@@ -440,6 +438,10 @@ public class Util {
 
 
         return String.valueOf(x);
+    }
+
+    public static String counter(String numeric, boolean add, int minValue, int maxValue) {
+        return counter(numeric, add, minValue, maxValue, 1);
     }
 
     public static File createTempFileForCamera(Context ctx) throws IOException {

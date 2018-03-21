@@ -82,7 +82,7 @@ public class FragmentSummaryOrder extends Fragment {
 
     EditText etStatus, etRatingComments;
 
-    TextView tvStatusDetil, tvServiceType, tvDate, tvMitra, tvAddress, tvProblem;
+    TextView tvStatusDetil, tvServiceType, tvDateService, tvDateRequest, tvMitra, tvAddress, tvProblem;
 
     Button btnCheckTechnicianGps, btnPayment, btnCancelOrder, btnReschedule;
 
@@ -269,7 +269,8 @@ public class FragmentSummaryOrder extends Fragment {
 
             tvServiceType.setText(getString(R.string.prompt_ac_serviceType) + ": " + CustomerUtil.getServiceTypeLabel(getContext(), orderHeader.getServiceType()));
 
-            tvDate.setText(getString(R.string.prompt_date_service) + ": " + Util.prettyTimestamp(getContext(), orderHeader.getTimestamp()));
+            tvDateRequest.setText(getString(R.string.prompt_date_request) + ": " + Util.prettyTimestamp(getContext(), orderHeader.getCreatedTimestamp()));
+            tvDateService.setText(getString(R.string.prompt_date_service) + ": " + Util.prettyTimestamp(getContext(), orderHeader.getTimestamp()));
 
             tvAddress.setText(getString(R.string.prompt_cust_address) + ": " + orderHeader.getAddressId());
 
@@ -315,7 +316,8 @@ public class FragmentSummaryOrder extends Fragment {
         tvStatusDetil = v.findViewById(R.id.tvStatusDetil);
         tvAddress = v.findViewById(R.id.tvAddress);
         tvServiceType = v.findViewById(R.id.tvServiceType);
-        tvDate = v.findViewById(R.id.tvDate);
+        tvDateRequest = v.findViewById(R.id.tvDateRequest);
+        tvDateService = v.findViewById(R.id.tvDateService);
         tvMitra = v.findViewById(R.id.tvMitra);
         tvProblem = v.findViewById(R.id.tvProblem);
 
@@ -523,6 +525,7 @@ public class FragmentSummaryOrder extends Fragment {
 
                     Intent intent = new Intent(getActivity(), ActivityTechOtwMap.class);
                     intent.putExtra(ActivityTechOtwMap.PARAM_ORDER_ID, orderHeader.getUid());
+                    intent.putExtra(ActivityTechOtwMap.PARAM_TECH_NAME, orderHeader.getTechnicianName());
                     startActivity(intent);
 
                 } finally {
@@ -598,7 +601,8 @@ public class FragmentSummaryOrder extends Fragment {
 
         tvStatusDetil.setTypeface(fontFace);
         tvServiceType.setTypeface(fontFace);
-        tvDate.setTypeface(fontFace);
+        tvDateRequest.setTypeface(fontFace);
+        tvDateService.setTypeface(fontFace);
         tvProblem.setTypeface(fontFace);
         tvMitra.setTypeface(fontFace);
         tvAddress.setTypeface(fontFace);

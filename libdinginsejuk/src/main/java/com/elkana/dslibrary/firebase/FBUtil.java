@@ -3,6 +3,7 @@ package com.elkana.dslibrary.firebase;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.elkana.dslibrary.listener.ListenerDataExists;
 import com.elkana.dslibrary.listener.ListenerGetAllData;
 import com.elkana.dslibrary.listener.ListenerGetBasicInfo;
 import com.elkana.dslibrary.listener.ListenerGetOrder;
@@ -52,6 +53,9 @@ public class FBUtil {
     public static final String REF_MITRA_AC = "mitra/ac";
     public static final String REF_TECHNICIAN_AC = "technicians/ac";
 
+    @Deprecated
+    public static final String REF_VENDOR_AC_SERVICES = "serviceToParty/ac";
+    public static final String REF_MASTER_AC_SERVICE = "master/serviceType/airConditioner/subService";
 
     public static void deletePath(DatabaseReference path, final ListenerModifyData listener) {
         path.setValue(null, new DatabaseReference.CompletionListener() {
@@ -194,6 +198,9 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
      * @param listener
      */
     public static void Order_SetStatus(final String mitraId, final String customerId, final String orderId, final String assignmentId, String techId, EOrderDetailStatus newStatus, String updatedBy, final ListenerModifyData listener) {
+
+        //TODO: harusnya check dulu apakah order msh exist spy tdk timbul data hantu
+
         final Map<String, Object> keyValOrder = new HashMap<>();
 //        keyValOrder.put("statusDetailId", newStatus.name());
 //        keyValOrder.put("updatedTimestamp", new Date().getTime());
@@ -258,6 +265,12 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                 .child("technicians")
                 .child(technicianId);
 
+    }
+
+    public static DatabaseReference Mitra_GetServicesRef(String mitraId) {
+        return FirebaseDatabase.getInstance().getReference(REF_MITRA_AC)
+                .child(mitraId)
+                .child("services");
     }
 
     public static void Mitra_getAllMitra(final ListenerGetAllData listener) {
@@ -656,7 +669,8 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
             field.setAccessible(true);
 
             // otomatis key
-            if (field.getName().equals("updatedTimestamp") || field.getName().equals("timestamp")) {
+            if (field.getName().equals("updatedTimestamp")
+                    || field.getName().equals("timestamp")) {
 
                 if (TextUtils.isEmpty(path)) {
                     keyValOrder.put(field.getName() , ServerValue.TIMESTAMP);
@@ -675,6 +689,41 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         }
 
         return keyValOrder;
+
+    }
+
+    public static void TechnicianReg_isRegistered(String techId, String mitraId, final ListenerDataExists listener) {
+        FirebaseDatabase.getInstance().getReference(REF_MITRA_AC)
+                .child(mitraId)
+                .child("technicians")
+                .child(techId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (listener == null)
+                    return;
+
+                if (dataSnapshot.exists()) {
+                    listener.onFound();
+                    return;
+                }
+
+                listener.onNotFound();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                if (listener != null)
+                    listener.onError(databaseError.toException());
+            }
+        });
+
+    }
+
+    public static void TechnicianReg_isConflictJob(String mitraId, String techId, String orderId) {
+        // cek di jobhistory /jobs
+
+
+        // cek di assignment
 
     }
 }

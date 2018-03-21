@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
@@ -116,15 +117,20 @@ public class MainActivity extends FirebaseActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        View v = navigationView.getHeaderView(0);
+
+        TextView tvEmail = v.findViewById(R.id.tvEmail);
+        tvEmail.setText(mAuth.getCurrentUser().getEmail());
+
+        //        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         List<Fragment> fList = new ArrayList<Fragment>();
         // PAGE_ORDER_LIST
-        fList.add(FragmentOrderList.newInstance(currentUser == null ? null : currentUser.getUid(), null));
+        fList.add(FragmentOrderList.newInstance(mAuth.getCurrentUser() == null ? null : mAuth.getCurrentUser().getUid(), null));
         // PAGE_ORDER_DETAIL
         fList.add(FragmentSummaryOrder.newInstance());
         // PAGE_SERVER_CHOICE
-        fList.add(FragmentOrderACNew.newInstance(currentUser == null ? null : currentUser.getUid(), null));
+        fList.add(FragmentOrderACNew.newInstance(mAuth.getCurrentUser() == null ? null : mAuth.getCurrentUser().getUid(), null));
 //        fList.add(FragmentSvcChoice.newInstance(currentUser == null ? null : currentUser.getUid(), null));
 
         pageAdapter = new AdapterFragments(getSupportFragmentManager(), fList);
@@ -189,7 +195,7 @@ public class MainActivity extends FirebaseActivity
 
 
         // get user info
-        DatabaseReference usersRef = database.getReference("users").child(currentUser.getUid());
+        DatabaseReference usersRef = database.getReference("users").child(mAuth.getCurrentUser().getUid());
         DatabaseReference basicInfoRef = usersRef.child("basicInfo");
         basicInfoRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -216,6 +222,12 @@ public class MainActivity extends FirebaseActivity
                 } finally {
                     r.close();
                 }
+
+                NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+                View v = navigationView.getHeaderView(0);
+
+                TextView tvDisplayName = v.findViewById(R.id.tvDisplayName);
+                tvDisplayName.setText(basicInfo.getName());
 
             }
 
@@ -293,10 +305,10 @@ public class MainActivity extends FirebaseActivity
         });
 
         if (menuLogout != null) {
-            menuLogout.setVisible(currentUser != null);
+            menuLogout.setVisible(mAuth.getCurrentUser() != null);
         }
         if (menuEditProfile != null) {
-            menuEditProfile.setVisible(currentUser != null);
+            menuEditProfile.setVisible(mAuth.getCurrentUser() != null);
         }
 
         prepareScreen(false);
@@ -331,7 +343,11 @@ public class MainActivity extends FirebaseActivity
 //                    CustomerUtil.syncOrders(MainActivity.this, mAuth.getCurrentUser().getUid(), new ListenerSync() {
                         @Override
                         public void onPostSync(Exception e) {
-                            prepareScreen(true);
+                            try {
+                                prepareScreen(true);
+                            } catch (IllegalStateException e1) {
+                                e1.printStackTrace();
+                            }
                             dialog.dismiss();
 
                         }
@@ -363,8 +379,8 @@ public class MainActivity extends FirebaseActivity
         menuLogout = menu.findItem(R.id.action_logout);
         menuEditProfile = menu.findItem(R.id.action_editProfile);
 
-        menuLogout.setVisible(FirebaseAuth.getInstance().getCurrentUser() != null);
-        menuEditProfile.setVisible(FirebaseAuth.getInstance().getCurrentUser() != null);
+        menuLogout.setVisible(mAuth.getCurrentUser() != null);
+        menuEditProfile.setVisible(mAuth.getCurrentUser() != null);
 
         return true;
     }
@@ -381,9 +397,6 @@ public class MainActivity extends FirebaseActivity
             return true;
         } else if (id == R.id.action_logout) {
             logout();
-
-            startActivity(new Intent(this, ActivityLogin.class));
-            finish();
 
             return true;
         } else if (id == R.id.action_editProfile) {
@@ -414,6 +427,8 @@ public class MainActivity extends FirebaseActivity
 
         } else if (id == R.id.nav_send) {
 
+        } else if (id == R.id.nav_logout) {
+            logout();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -428,7 +443,7 @@ public class MainActivity extends FirebaseActivity
 
     }
 
-    private void prepareScreen(boolean forceRefresh) {
+    private void prepareScreen(boolean forceRefresh) throws IllegalStateException {
 
         long orderCount = this.realm.where(OrderHeader.class)
 //                .equalTo("customerId", customerId)
@@ -611,5 +626,12 @@ public class MainActivity extends FirebaseActivity
             ((FragmentOrderACNew) fragment).etSelectMitra.setText(mitra.getName());
         }
 
+    }
+
+    protected void logout(){
+        super.logout();
+
+        startActivity(new Intent(this, ActivityLogin.class));
+        finish();
     }
 }

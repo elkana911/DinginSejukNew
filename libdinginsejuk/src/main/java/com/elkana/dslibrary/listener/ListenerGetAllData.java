@@ -9,4 +9,6 @@ import java.util.List;
 public interface ListenerGetAllData {
     void onSuccess(List<? extends Object> list);
     void onError(Exception e);
+
+    void onPrepare();
 }

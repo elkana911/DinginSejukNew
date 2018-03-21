@@ -39,7 +39,6 @@ public class TeknisiUtil {
 
     //    public static final String REF_ORDERS_AC = "orders/ac/orderHeader";
     public static final String REF_SUBSERVICEAC = "master/serviceType/airConditioner/subService";   // biasanya dipakai di HQ utk available service for all mitra. tp tetep diunduh ke teknisi karena akan dimapping dengan serviceToParty
-    public static final String REF_VENDOR_AC_SERVICES = "serviceToParty/ac";
 
     public static final String REF_MITRA_AC = "mitra/ac";
     public static final String REF_TECHNICIAN_AC = "technicians/ac";

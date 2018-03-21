@@ -1,9 +1,10 @@
-package com.elkana.teknisi.pojo;
+package com.elkana.dslibrary.pojo.mitra;
 
 /**
  * Created by Eric on 18-Nov-17.
  * Dont send this object back to firebase !
  */
+@Deprecated
 public class ServiceToParty {
     private int serviceTypeId;
     private int priceSchemeId;

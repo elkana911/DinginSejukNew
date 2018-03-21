@@ -10,12 +10,15 @@
             android:title="Antrian Order" />
         <item
             android:icon="@drawable/ic_history_black_24dp"
+            android:visible="false"
             android:title="Histori Order" />
         <item
             android:icon="@drawable/ic_insert_chart_black_24dp"
+            android:visible="false"
             android:title="Laporan" />
         <item
             android:icon="@drawable/ic_person_pin_black_24dp"
+            android:visible="false"
             android:title="Monitoring" />
         <item
             android:id="@+id/nav_tech_list"
@@ -31,9 +34,15 @@
                 android:title="Tambah Teknisi" />
             <item
                 android:icon="@drawable/ic_assignment_turned_in_black_24dp"
-                android:title="Daftar Item Layanan" />
+                android:visible="false"
+                android:title="Daftar Item Layanan(ga jelas apa ini)" />
+            <item
+                android:id="@+id/nav_service_setup"
+                android:icon="@drawable/ic_layers_black_24dp"
+                android:title="Service Setup" />
             <item
                 android:icon="@drawable/ic_event_available_black_24dp"
+                android:visible="false"
                 android:title="Daftar Hari Kerja" />
         </menu>
     </item>

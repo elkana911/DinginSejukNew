@@ -138,6 +138,7 @@ public class ActivityScrollingAssignment extends AFirebaseMitraActivity{
 //                    return;
 
                 // TODO: already assigned for same order
+//                FBUtil.TechnicianReg_isConflictJob(obj.getTechId(), mOrderId);
 
                 Util.showDialogConfirmation(ActivityScrollingAssignment.this, "Assignment", "Tugaskan " + obj.getName().toUpperCase() + " ?", new ListenerPositiveConfirmation() {
                     @Override

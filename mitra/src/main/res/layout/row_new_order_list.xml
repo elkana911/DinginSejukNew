@@ -88,12 +88,6 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/btnCallTech"
-                    android:layout_alignParentStart="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Call Tech"/>
-                <Button
                     android:id="@+id/btnChangeTech"
                     android:layout_centerHorizontal="true"
                     android:layout_width="wrap_content"
@@ -101,7 +95,15 @@
                     android:visibility="invisible"
                     android:text="Change Tech"/>
                 <Button
+                    android:id="@+id/btnCallTech"
+                    android:layout_below="@id/btnChangeTech"
+                    android:layout_alignParentStart="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Call Tech"/>
+                <Button
                     android:id="@+id/btnCallCust"
+                    android:layout_below="@id/btnChangeTech"
                     android:layout_alignParentEnd="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

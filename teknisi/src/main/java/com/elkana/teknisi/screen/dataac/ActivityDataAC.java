@@ -9,16 +9,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 
-public class ActivityDataAC extends AppCompatActivity {
-
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-
-    }
+public class ActivityDataAC extends AFirebaseTeknisiActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +28,7 @@ public class ActivityDataAC extends AppCompatActivity {
 //            getSupportActionBar().setSubtitle(userFullName);
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(getString(R.string.title_activity_data_ac));
+//            getSupportActionBar().setTitle(getString(R.string.title_activity_data_ac));
         }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

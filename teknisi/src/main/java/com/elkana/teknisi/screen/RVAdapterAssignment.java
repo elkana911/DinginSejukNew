@@ -46,8 +46,8 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
     private DatabaseReference assignmentRef;
 
     public RVAdapterAssignment(Context context, String technicianId, final ListenerAssignmentList listener) {
-        this.mContext = context;
-        this.mListener = listener;
+        mContext = context;
+        mListener = listener;
 
         if (technicianId == null)
             return;

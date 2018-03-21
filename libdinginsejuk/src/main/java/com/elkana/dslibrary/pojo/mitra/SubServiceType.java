@@ -8,7 +8,6 @@ import io.realm.annotations.PrimaryKey;
 /**
  * Created by Eric on 20-Oct-17.
  */
-
 public class SubServiceType extends RealmObject implements Serializable{
     @PrimaryKey
     private int typeId;
