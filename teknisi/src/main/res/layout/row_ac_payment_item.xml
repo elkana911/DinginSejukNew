@@ -27,6 +27,7 @@
                     android:clickable="false"
                     android:focusable="false"
                     android:hint="@string/prompt_service_type"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:maxLines="1" />
 
             </android.support.design.widget.TextInputLayout>
@@ -37,6 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tilServiceItem"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:text="@string/label_quantity" />
 
             <TextView
@@ -47,6 +49,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_below="@id/tvQuantity"
                 android:layout_marginTop="8dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:text="@" />
 
             <TextView
@@ -57,6 +60,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_below="@id/tvQuantity"
                 android:layout_marginTop="8dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:text="Harga: Rp. " />
 
         </RelativeLayout>

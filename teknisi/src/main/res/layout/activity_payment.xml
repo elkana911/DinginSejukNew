@@ -15,9 +15,9 @@
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
-        android:layout_above="@id/btnLunas"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_above="@id/btnLunas">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/app_bar"
@@ -48,18 +48,29 @@
                     android:layout_gravity="bottom|center_horizontal"
                     android:gravity="center"
                     android:orientation="vertical"
+                    android:paddingEnd="@dimen/activity_horizontal_margin"
+                    android:paddingStart="@dimen/activity_horizontal_margin"
                     app:layout_collapseMode="pin">
 
                     <ImageView
                         android:layout_width="100dp"
                         android:layout_height="100dp"
-                        app:srcCompat="@drawable/ic_local_atm_black_24dp" />
+                        app:srcCompat="@drawable/ic_receipt_black_24dp" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Menunggu pembayaran dari pelanggan atas tagihan sbb:" />
+                        android:text="Dimohon ke pelanggan atas tagihan sbb:" />
 
+
+                    <TextView
+                        android:id="@+id/tvTotalFare"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:text="Total: 500000"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+                        android:textStyle="bold" />
 
                 </LinearLayout>
             </android.support.design.widget.CollapsingToolbarLayout>
@@ -68,6 +79,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/colorPaperBack"
             android:paddingEnd="@dimen/activity_horizontal_margin"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
@@ -82,27 +94,27 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvTotalFare"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="end"
                     android:text="Total: 500000"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:text="Rincian:" />
+                    android:text="Rincian:"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rvACItems"
-                android:background="@color/colorPaperBack"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/llSummary" />
+                android:layout_below="@id/llSummary"
+                android:background="@color/colorPaperBack" />
         </RelativeLayout>
 
 

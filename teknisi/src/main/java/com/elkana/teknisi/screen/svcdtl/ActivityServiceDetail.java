@@ -56,8 +56,7 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
 
 //    private ListView lvACItems;
     private RecyclerView rvACItems;
-    private RVAdapterServiceDetail mAdapter;
-//    private RVAdapterSvcDtl mAdapter;
+    private RVAdapterServiceDtl mAdapter;
 //    private RealmSearchView search_view;
 
     FloatingActionButton fabAddService;
@@ -173,7 +172,6 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
                 realm.commitTransaction();
 
                 mAdapter.notifyDataSetChanged();
-//                search_view.getRealmRecyclerView().invalidate();
             }
         });
 
@@ -183,21 +181,7 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
             public void onClick(View v) {
 
                 final List<ServiceItem> list = mAdapter.getList();
-                /*
-                if (list.size() < 1) {
-                    Util.showDialogConfirmation(ActivityServiceDetail.this, null, getString(R.string.confirm_no_charge), new ListenerPositiveConfirmation() {
-                        @Override
-                        public void onPositive() {
-                            Intent data = new Intent();
-                            data.putExtra("statusDetailId", EOrderDetailStatus.PAYMENT.name());
-                            setResult(RESULT_OK);
-                            finish();
-                        }
-                    });
 
-                    return;
-
-                } */
 
                 Util.showDialogConfirmation(ActivityServiceDetail.this, null, getString(R.string.confirm_start_payment), new ListenerPositiveConfirmation() {
                     @Override
@@ -247,27 +231,11 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
             }
         });
 
-
-//        mAdapter = new RVAdapterSvcDtl(this, this.realm, "uid", new ListenerServiceDetail() {
-//            @Override
-//            public void onAddServiceDetail() {
-////                mList.add(item);
-////                ServiceItem item = new ServiceItem();
-////                item.setUid(new Date().getTime());
-////                mAdapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void onDeleteItem(ServiceItem obj, int position) {
-//            }
-//        });
-        mAdapter = new RVAdapterServiceDetail(this, mAssignmentId, mMitraId, new ListenerServiceDetail() {
+        mAdapter = new RVAdapterServiceDtl(this, mMitraId, mAssignmentId, new ListenerServiceDetail() {
             @Override
             public void onAddServiceDetail() {
-                ServiceItem item = new ServiceItem();
-                item.setUid(new Date().getTime());
-//                mList.add(item);
-//                mAdapter.notifyDataSetChanged();
+//                ServiceItem item = new ServiceItem();
+//                item.setUid(new Date().getTime());
             }
 
             @Override
@@ -296,11 +264,6 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
         rvACItems = findViewById(R.id.rvACItems);
         rvACItems.setLayoutManager(new LinearLayoutManager(this));
         rvACItems.setAdapter(mAdapter);
-//        ListAdapter listAdapter;
-
-//        search_view = findViewById(R.id.search_view);
-//        search_view.getSearchBar().setVisibility(View.GONE);
-//        search_view.setAdapter(mAdapter);
     }
 
     @Override
@@ -310,8 +273,6 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
         if (resultCode != RESULT_OK) {
             return;
         }
-
-//        String orderStatus = data.getStringExtra("statusDetailId");
 
         if (requestCode != REQUESTCODE_SCREEN_DATA_AC)
             return;

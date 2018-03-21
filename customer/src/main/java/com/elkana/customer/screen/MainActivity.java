@@ -26,7 +26,6 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.elkana.customer.R;
 import com.elkana.customer.screen.login.ActivityLogin;
 import com.elkana.customer.screen.order.FragmentMitraListInRange;
-import com.elkana.customer.screen.order.FragmentOrderAC;
 import com.elkana.customer.screen.order.FragmentOrderACNew;
 import com.elkana.customer.screen.order.FragmentOrderList;
 import com.elkana.customer.screen.order.FragmentSummaryOrder;
@@ -59,7 +58,6 @@ import io.realm.Realm;
 public class MainActivity extends FirebaseActivity
         implements NavigationView.OnNavigationItemSelectedListener
         , FragmentOrderList.OnFragmentOrderListInteractionListener
-        , FragmentOrderAC.OnFragmentOrderACInteractionListener
         , FragmentOrderACNew.OnFragmentOrderACInteractionListener
         , FragmentSummaryOrder.OnFragmentSOInteractionListener
         , FragmentMitraListInRange.OnFragmentMitraListInRangeInteractionListener {

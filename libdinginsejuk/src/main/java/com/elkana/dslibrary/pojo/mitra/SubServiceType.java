@@ -6,6 +6,11 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
+ * Dipakai utk informasi dasar suatu service.
+ * Mitra menggunakan object ini dan biasa di taruh di spinner spy mitra mendaftarkan  service mana saja yg disediakan bagi teknisi spy bisa tampil di service detail.
+ * Tentu saja tidak ada info harga disini krn tiap mitra akan beda atur harganya
+ *
+ *
  * Created by Eric on 20-Oct-17.
  */
 public class SubServiceType extends RealmObject implements Serializable{
