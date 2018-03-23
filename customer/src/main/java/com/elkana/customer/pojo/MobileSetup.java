@@ -21,6 +21,7 @@ public class MobileSetup extends RealmObject implements Serializable {
     private String theme_color_default_accent;
 
     private int vendor_radius_km;
+    private int max_new_order;  // dibatasin maksimal order baru spy custmer ga nakal create order melulu
     private int unit_ac_max;
     private int lastOrderMinutes;   // menit yg diperlukan utk last order. harusnya sama utk semua aplikasi
 
@@ -113,6 +114,14 @@ public class MobileSetup extends RealmObject implements Serializable {
         return appLifeTime;
     }
 
+    public int getMax_new_order() {
+        return max_new_order;
+    }
+
+    public void setMax_new_order(int max_new_order) {
+        this.max_new_order = max_new_order;
+    }
+
     @Override
     public String toString() {
         return "MobileSetup{" +
@@ -124,6 +133,7 @@ public class MobileSetup extends RealmObject implements Serializable {
                 ", theme_color_default_inactive='" + theme_color_default_inactive + '\'' +
                 ", theme_color_default_accent='" + theme_color_default_accent + '\'' +
                 ", vendor_radius_km=" + vendor_radius_km +
+                ", max_new_order=" + max_new_order +
                 ", unit_ac_max=" + unit_ac_max +
                 ", lastOrderMinutes=" + lastOrderMinutes +
                 ", timeout_cancel_minute=" + timeout_cancel_minute +

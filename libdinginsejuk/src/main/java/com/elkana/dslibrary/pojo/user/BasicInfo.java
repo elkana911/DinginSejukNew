@@ -15,8 +15,8 @@ public class BasicInfo extends RealmObject implements Serializable {
     private String name;
     private String status;
 
-    private int workingHourStart;   //8
-    private int workingHourEnd; //17
+    private int workingHourStart;   //830
+    private int workingHourEnd; //1630
 
     private int rating;     // 0 - 50
     private boolean enable;

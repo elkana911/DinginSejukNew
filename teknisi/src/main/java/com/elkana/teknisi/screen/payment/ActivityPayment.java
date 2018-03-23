@@ -103,8 +103,24 @@ public class ActivityPayment extends AFirebaseTeknisiActivity {
 
         mAdapter = new RVAdapterPayment(this, mTechnicianId, mAssignmentId, new ListenerPaymentList() {
             @Override
-            public void onCalculateTotalFare(long sum) {
-                tvTotalFare.setText("Total : " + Util.convertLongToRupiah(sum));
+            public void onCalculateTotalFare(final long sum) {
+
+                final AlertDialog alertDialog = Util.showProgressDialog(ActivityPayment.this);
+                // update orderHeader
+                FBUtil.Order_updateValue(mCustomerId, mOrderId,"pleasePayAmount", sum, new ListenerModifyData(){
+
+                    @Override
+                    public void onSuccess() {
+                        alertDialog.dismiss();
+
+                        tvTotalFare.setText("Total : " + Util.convertLongToRupiah(sum));
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        alertDialog.dismiss();
+                    }
+                });
             }
         });
 

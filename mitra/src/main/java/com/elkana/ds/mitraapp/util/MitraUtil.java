@@ -10,6 +10,8 @@ import com.elkana.ds.mitraapp.pojo.NotifyTechnician;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetAllData;
 import com.elkana.dslibrary.listener.ListenerModifyData;
+import com.elkana.dslibrary.pojo.OrderBucket;
+import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Assignment;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.mitra.SubServiceType;
@@ -211,6 +213,64 @@ public class MitraUtil {
         }
     }
 
+
+    /**
+     // fungsi yg cukup bahaya. hanya boleh dipake di mitra yg jamnya lebih akurat
+     * 1 hour(60 minutes) from now
+     *
+     * @param timeMillisToCheck
+     * @param lastMinutes if 30, 30 minutes from now is expired
+     * @return
+     */
+    public static boolean isExpiredTime(long timeMillisToCheck, int lastMinutes) {
+        Date date = new Date(timeMillisToCheck);
+        // 2017-12-13 07:22
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.MINUTE, lastMinutes);
+        // 2017-12-13  07:22 + minuteToleransi
+
+        if (date.getTime() < c.getTimeInMillis()) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    // fungsi yg cukup bahaya. hanya boleh dipake di mitra yg jamnya lebih akurat
+    public static boolean isExpiredBooking(OrderHeader orderHeader) {
+        EOrderDetailStatus status = EOrderDetailStatus.convertValue(orderHeader.getStatusDetailId());
+        if (status == EOrderDetailStatus.CREATED
+                || status == EOrderDetailStatus.ASSIGNED
+                || status == EOrderDetailStatus.UNHANDLED
+                /*|| status == EOrderDetailStatus.RESCHEDULED*/
+                || status == EOrderDetailStatus.UNKNOWN
+                ) {
+            return isExpiredTime(orderHeader.getBookingTimestamp(), 30);   //hardcode 30
+
+        } else
+            return false;
+    }
+
+    // fungsi yg cukup bahaya. hanya boleh dipake di mitra yg jamnya lebih akurat
+    public static boolean isExpiredBooking(OrderBucket orderBucket) {
+        EOrderDetailStatus status = EOrderDetailStatus.convertValue(orderBucket.getStatusDetailId());
+
+        if (status == EOrderDetailStatus.CREATED
+                || status == EOrderDetailStatus.ASSIGNED
+                || status == EOrderDetailStatus.UNHANDLED
+                /*|| status == EOrderDetailStatus.RESCHEDULED*/
+                || status == EOrderDetailStatus.UNKNOWN
+                ) {
+            return isExpiredTime(orderBucket.getBookingTimestamp(), 30);
+
+        } else
+            return false;
+    }
+
+
     public static void updateOrderStatus(String orderId, String userId, EOrderDetailStatus status, final ListenerModifyData listener) {
         Map<String, Object> keyVal = new HashMap<>();
         keyVal.put("statusDetailId", status.name());
@@ -242,12 +302,12 @@ public class MitraUtil {
     }
 
     /*
-    public static boolean isExpiredOrder(OrderHeader order) {
-        return isExpiredOrder(order.getTimestamp());
+    public static boolean isExpiredBooking(OrderHeader order) {
+        return isExpiredBooking(order.getTimestamp());
     }
 
-    public static boolean isExpiredOrder(long timestamp) {
-        return Util.isExpiredOrder(timestamp, getMobileSetup().getLastOrderMinutes());
+    public static boolean isExpiredBooking(long timestamp) {
+        return Util.isExpiredBooking(timestamp, getMobileSetup().getLastOrderMinutes());
     }
 */
 
@@ -449,7 +509,7 @@ public class MitraUtil {
                     }
                 });
 
-
+        // sync setup
         database.getReference(MitraUtil.REF_MASTER_SETUP)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -477,5 +537,7 @@ public class MitraUtil {
                 });
 
     }
+
+
 
 }

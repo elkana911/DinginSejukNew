@@ -6,6 +6,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
+ * Tidak cuma utk invoice, tp bisa utk set nilai pajak, charge lain2nya. biasanya didefine wkt servicedtl
  * Created by Eric on 14-Nov-17.
  */
 

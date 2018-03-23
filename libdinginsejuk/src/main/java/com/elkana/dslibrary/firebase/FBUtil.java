@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.elkana.dslibrary.listener.ListenerDataExists;
 import com.elkana.dslibrary.listener.ListenerGetAllData;
 import com.elkana.dslibrary.listener.ListenerGetBasicInfo;
+import com.elkana.dslibrary.listener.ListenerGetLong;
 import com.elkana.dslibrary.listener.ListenerGetOrder;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.OrderBucket;
@@ -53,9 +54,8 @@ public class FBUtil {
     public static final String REF_MITRA_AC = "mitra/ac";
     public static final String REF_TECHNICIAN_AC = "technicians/ac";
 
-    @Deprecated
-    public static final String REF_VENDOR_AC_SERVICES = "serviceToParty/ac";
     public static final String REF_MASTER_AC_SERVICE = "master/serviceType/airConditioner/subService";
+    public static final String REF_MASTER_SERVERTIME = "master/mSetup/serverTime";
 
     public static void deletePath(DatabaseReference path, final ListenerModifyData listener) {
         path.setValue(null, new DatabaseReference.CompletionListener() {
@@ -363,7 +363,29 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                 .child(orderId);
 
     }
-/*
+
+    public static void Order_updateValue(String customerId, String orderId, String key, Object value, final ListenerModifyData listener) {
+        final Map<String, Object> keyVal = new HashMap<>();
+
+        String root = REF_ORDERS_CUSTOMER_AC_PENDING + "/" + customerId + "/" + orderId;
+        String node1 = root + "/" + key;
+        keyVal.put(node1, value);
+
+        FirebaseDatabase.getInstance().getReference().updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    if (listener != null)
+                        listener.onSuccess();
+                } else {
+                    if (listener != null)
+                        listener.onError(task.getException());
+                }
+            }
+        });
+    }
+
+    /*
     public static void Orders_getPendingMitra(String mitraId, String orderId, final ListenerGetOrder listener) {
 
         Order_getPendingMitraRef(mitraId, orderId)
@@ -489,7 +511,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         item.setCustomerName(orderBucket.getCustomerName());
         item.setMitraId(orderBucket.getPartyId());
         item.setOrderId(orderBucket.getUid());
-        item.setOrderTimestamp(orderBucket.getOrderTimestamp());    // this could be a problem
+        item.setOrderTimestamp(orderBucket.getBookingTimestamp());    // this could be a problem
         item.setMitraTimestamp(new Date().getTime());                // this could be a problem
 
         // the problem is orderbucket information is not completed yet because technicianId is null when orderstatus=CREATED
@@ -717,6 +739,53 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
             }
         });
 
+    }
+
+    public static DatabaseReference Template_CustomerProblemRef() {
+        return FirebaseDatabase.getInstance().getReference("master/template_cust_problem");
+    }
+
+    /**
+     * Cautions ! akan ada delay
+     */
+    public static void getTimestamp(final ListenerGetLong listener) {
+        if (listener == null)
+            return;
+
+        FirebaseDatabase.getInstance().getReference(REF_MASTER_SERVERTIME)
+                .setValue(ServerValue.TIMESTAMP).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+
+                    FirebaseDatabase.getInstance().getReference(REF_MASTER_SERVERTIME)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    if (!dataSnapshot.exists()) {
+                                        listener.onError(new RuntimeException("node timeserver not exists !"));
+                                        return;
+                                    }
+
+                                    try {
+                                        listener.onSuccess(dataSnapshot.getValue(Long.class));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        listener.onError(e);
+                                    }
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    listener.onError(databaseError.toException());
+                                }
+                            });
+
+                } else
+                    listener.onError(task.getException());
+            }
+        });
     }
 
     public static void TechnicianReg_isConflictJob(String mitraId, String techId, String orderId) {

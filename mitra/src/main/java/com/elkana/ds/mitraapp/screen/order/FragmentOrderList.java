@@ -2,11 +2,9 @@ package com.elkana.ds.mitraapp.screen.order;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,8 +16,8 @@ import android.widget.Toast;
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.screen.assign.ActivityScrollingAssignment;
 import com.elkana.ds.mitraapp.screen.map.ActivityTechOtwMap;
+import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.firebase.FBUtil;
-import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.FightInfo;
 import com.elkana.dslibrary.pojo.OrderBucket;
@@ -95,7 +93,7 @@ public class FragmentOrderList extends Fragment {
             @Override
             public void onItemSelected(OrderBucket order) {
 
-                if (Util.isExpiredOrder(order)) {
+                if (MitraUtil.isExpiredBooking(order)) {
                     Toast.makeText(getContext(), "Expired Order !!", Toast.LENGTH_SHORT).show();
                     return;
                 }

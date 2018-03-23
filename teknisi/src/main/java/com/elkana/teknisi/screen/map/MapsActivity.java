@@ -22,8 +22,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.listener.ListenerGetLong;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.OrderHeader;
@@ -34,6 +36,8 @@ import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.pojo.MobileSetup;
+import com.elkana.teknisi.screen.MainActivity;
+import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -81,6 +85,8 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
     private Location lastLoc;
     private CameraUpdate cameraCurrentPos, cameraAddress;
 
+    protected MobileSetup mobileSetup = null;
+
     private ValueEventListener alwaysListenOrderListener;
     private DatabaseReference alwaysListenOrderRef;
 
@@ -88,27 +94,20 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
     private Button btnStartWorking, btnStartOtw;
     private BottomSheetBehavior mBottomSheetBehavior1;
 
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-//        DatabaseReference ref = database.getReference(TeknisiUtil.REF_ASSIGNMENTS_PENDING)
-//                .child(mTechnicianId).child(mAssignmentId).child("assign");
-
-    }
-
     @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        mobileSetup = TeknisiUtil.getMobileSetup();
+
         if (getSupportActionBar() != null) {
 //            getSupportActionBar().setTitle(title);
 //            getSupportActionBar().setSubtitle(userFullName);
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(getString(R.string.title_activity_maps));
+//            getSupportActionBar().setTitle(getString(R.string.title_activity_maps));
         }
 
         tvACCount = findViewById(R.id.tvACCount);
@@ -229,74 +228,34 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
         btnStartOtw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Util.showDialogConfirmation(MapsActivity.this, "Mulai Perjalanan ?", getString(R.string.confirm_start_otw), new ListenerPositiveConfirmation() {
+
+                if (orderInfo == null) {
+                    return;
+                }
+
+                final AlertDialog alertDialog = Util.showProgressDialog(MapsActivity.this);
+                FBUtil.getTimestamp(new ListenerGetLong() {
                     @Override
-                    public void onPositive() {
+                    public void onSuccess(long now) {
+                        alertDialog.dismiss();
 
-                        final AlertDialog dialog = Util.showProgressDialog(MapsActivity.this);
+                        int minMinutesOtw = mobileSetup.getMin_minutes_otw();
+                        long minMillisOtw = minMinutesOtw * DateUtil.TIME_ONE_MINUTE_MILLIS;
 
-                        //1. cek dulu apa user cancel order ?
-                        final DatabaseReference orderRef = FBUtil.Order_getPendingCustomerRef(mCustomerId, mOrderId);
+                        long oneHourBeforeOtw = orderInfo.getBookingTimestamp() - minMillisOtw;
 
-                        orderRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (!dataSnapshot.exists()) {
-                                    dialog.dismiss();
-                                    return;
-                                }
+                        if (oneHourBeforeOtw > now) {
 
-                                OrderHeader obj = dataSnapshot.getValue(OrderHeader.class);
+                            Toast.makeText(MapsActivity.this, "Belum saatnya berangkat. Minimal " + minMinutesOtw + " Menit dari jam Layanan"
+                                    , Toast.LENGTH_LONG).show();
+                        } else {
+                            startOtw();
+                        }
+                    }
 
-                                if (obj.getStatusId().equals(EOrderStatus.FINISHED.name())) {
-                                    dialog.dismiss();
-                                    Util.showDialog(MapsActivity.this, "Status Berubah", "Maaf, Pelanggan mungkin telah membatalkan layanan.");
-                                    return;
-                                }
-
-                                //2. update status
-//                                also update orderbucket,FIELD APANYA YG DIUPDATE KAMPRETTTTTT !! BIKIN SUSAH GW DI MASA DEPAN SAJA !!!!!!!!!!!!!!!!!!!!!!
-                                Assignment_setStatus(mMitraId, mTechnicianId, mAssignmentId, mCustomerId, mOrderId, EOrderDetailStatus.OTW, new ListenerModifyData() {
-                                    @Override
-                                    public void onSuccess() {
-                                        btnStartOtw.setVisibility(View.GONE);
-                                        btnStartWorking.setVisibility(View.VISIBLE);
-                                        dialog.dismiss();
-
-                                        //turn on tracking
-                                        Realm r = Realm.getDefaultInstance();
-                                        try{
-                                            MobileSetup setup = r.where(MobileSetup.class).findFirst();
-
-                                            r.beginTransaction();
-                                            setup.setTrackingGps(true);
-                                            setup.setTrackingOrderId(mOrderId);
-
-                                            r.copyToRealmOrUpdate(setup);
-                                            r.commitTransaction();
-
-                                        }finally {
-                                            r.close();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onError(Exception e) {
-                                        dialog.dismiss();
-                                        Util.showDialog(MapsActivity.this, "Error", "Silakan coba lagi");
-                                        Log.e(TAG, e.getMessage());
-
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                dialog.dismiss();
-                                Log.e(TAG, databaseError.getMessage(), databaseError.toException());
-                            }
-                        });
-
+                    @Override
+                    public void onError(Exception e) {
+                        alertDialog.dismiss();
                     }
                 });
             }
@@ -324,12 +283,12 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                             r.close();
                         }
 
-                        final AlertDialog dialog =  Util.showProgressDialog(MapsActivity.this);
+                        final AlertDialog _dialog =  Util.showProgressDialog(MapsActivity.this);
 
                         Assignment_setStatus(mMitraId, mTechnicianId, mAssignmentId, mCustomerId, mOrderId, EOrderDetailStatus.WORKING, new ListenerModifyData() {
                                 @Override
                             public void onSuccess() {
-                                dialog.dismiss();
+                                _dialog.dismiss();
                                 long time = new Date().getTime();
 
                                 Map<String, Object> keyValAssignment = new HashMap<>();
@@ -357,7 +316,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
 
                             @Override
                             public void onError(Exception e) {
-                                dialog.dismiss();
+                                _dialog.dismiss();
                                 Log.e(TAG, e.getMessage());
                             }
                         });
@@ -371,6 +330,80 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+    }
+
+    private void startOtw() {
+        Util.showDialogConfirmation(MapsActivity.this, "Mulai Perjalanan ?", getString(R.string.confirm_start_otw), new ListenerPositiveConfirmation() {
+            @Override
+            public void onPositive() {
+
+                final AlertDialog _dialog = Util.showProgressDialog(MapsActivity.this);
+
+                //1. cek dulu apa user cancel order ?
+                final DatabaseReference orderRef = FBUtil.Order_getPendingCustomerRef(mCustomerId, mOrderId);
+
+                orderRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            _dialog.dismiss();
+                            return;
+                        }
+
+                        OrderHeader obj = dataSnapshot.getValue(OrderHeader.class);
+
+                        if (obj.getStatusId().equals(EOrderStatus.FINISHED.name())) {
+                            _dialog.dismiss();
+                            Util.showDialog(MapsActivity.this, "Status Berubah", "Maaf, Pelanggan mungkin telah membatalkan layanan.");
+                            return;
+                        }
+
+                        //2. update status
+//                                also update orderbucket,FIELD APANYA YG DIUPDATE KAMPRETTTTTT !! BIKIN SUSAH GW DI MASA DEPAN SAJA !!!!!!!!!!!!!!!!!!!!!!
+                        Assignment_setStatus(mMitraId, mTechnicianId, mAssignmentId, mCustomerId, mOrderId, EOrderDetailStatus.OTW, new ListenerModifyData() {
+                            @Override
+                            public void onSuccess() {
+                                btnStartOtw.setVisibility(View.GONE);
+                                btnStartWorking.setVisibility(View.VISIBLE);
+                                _dialog.dismiss();
+
+                                //turn on tracking
+                                Realm r = Realm.getDefaultInstance();
+                                try{
+                                    MobileSetup setup = r.where(MobileSetup.class).findFirst();
+
+                                    r.beginTransaction();
+                                    setup.setTrackingGps(true);
+                                    setup.setTrackingOrderId(mOrderId);
+
+                                    r.copyToRealmOrUpdate(setup);
+                                    r.commitTransaction();
+
+                                }finally {
+                                    r.close();
+                                }
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                _dialog.dismiss();
+                                Util.showDialog(MapsActivity.this, "Error", "Silakan coba lagi");
+                                Log.e(TAG, e.getMessage());
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        _dialog.dismiss();
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                    }
+                });
+
+            }
+        });
 
     }
 
@@ -520,20 +553,22 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                 if (!dataSnapshot.exists())
                     return;
 
-                OrderHeader obj = dataSnapshot.getValue(OrderHeader.class);
-                Log.e(TAG, "obj:" + obj.toString());
+                orderInfo = dataSnapshot.getValue(OrderHeader.class);
+//                OrderHeader obj = dataSnapshot.getValue(OrderHeader.class);
+                Log.e(TAG, "obj:" + orderInfo.toString());
 
-                tvACCount.setText("Jml AC: " + String.valueOf(obj.getJumlahAC()));
-                tvOrderId.setText("Order Id: " + obj.getUid());
-                tvCustomerName.setText(obj.getCustomerName());
-                tvDateOfService.setText("Tgl Service: " + Util.convertDateToString(new Date(obj.getTimestamp()), "dd-MMM-yyyy HH:mm"));
-                tvMitra.setText("Mitra: " + obj.getPartyName());
-                tvProblem.setText("Keterangan: " + obj.getProblem());
+                tvACCount.setText("Jml AC: " + String.valueOf(orderInfo.getJumlahAC()));
+                tvOrderId.setText("Order Id: " + orderInfo.getUid());
+                tvCustomerName.setText(orderInfo.getCustomerName());
+                tvDateOfService.setText("Tgl Service: " + DateUtil.displayTimeInJakarta(orderInfo.getBookingTimestamp(), "dd-MMM-yyyy HH:mm"));
+//                tvDateOfService.setText("Tgl Service: " + Util.convertDateToString(new Date(obj.getTimestamp()), "dd-MMM-yyyy HH:mm"));
+                tvMitra.setText("Mitra: " + orderInfo.getPartyName());
+                tvProblem.setText("Keterangan: " + orderInfo.getProblem());
 
                 btnStartOtw.setEnabled(true);
                 btnStartWorking.setEnabled(true);
 
-                switch (EOrderDetailStatus.convertValue(obj.getStatusDetailId())) {
+                switch (EOrderDetailStatus.convertValue(orderInfo.getStatusDetailId())) {
                     case ASSIGNED:
                         btnStartOtw.setVisibility(View.VISIBLE);
                         btnStartWorking.setVisibility(View.GONE);
@@ -545,9 +580,9 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                     case CANCELLED_BY_CUSTOMER:
                     case CANCELLED_BY_TIMEOUT:
                     case CANCELLED_BY_SERVER:
-                        tvDateCancel.setText("Jam Cancel: "+ DateUtil.formatDateToSimple(obj.getUpdatedTimestamp()));
+                        tvDateCancel.setText("Jam Cancel: "+ DateUtil.formatDateToSimple(orderInfo.getUpdatedTimestamp()));
                         tvDateCancel.setVisibility(View.VISIBLE);
-                        btnStartOtw.setText(obj.getStatusDetailId());
+                        btnStartOtw.setText(orderInfo.getStatusDetailId());
                         btnStartOtw.setEnabled(false);
                         btnStartWorking.setEnabled(false);
                         break;
@@ -556,7 +591,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
 //                        finish();
                 }
 
-                mCustomerPhone = obj.getPhone();
+                mCustomerPhone = orderInfo.getPhone();
             }
 
             @Override

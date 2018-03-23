@@ -211,7 +211,12 @@ public class FragmentSummaryOrder extends Fragment {
             sb.append(getString(R.string.prompt_hello, basicInfo.getName().toUpperCase())).append("\n");
 
             EOrderDetailStatus orderDetailStatus = EOrderDetailStatus.convertValue(orderHeader.getStatusDetailId());
-            sb.append(CustomerUtil.getMessageStatusDetail(getContext(), orderDetailStatus)).append("\n");
+
+            // overwrite message
+            if (orderDetailStatus == EOrderDetailStatus.PAYMENT) {
+                sb.append(getContext().getString(R.string.status_payment_amount, Util.convertLongToRupiah(orderHeader.getPleasePayAmount()))).append("\n");
+            } else
+                sb.append(CustomerUtil.getMessageStatusDetail(getContext(), orderDetailStatus)).append("\n");
 
             EOrderStatus orderStatus = EOrderStatus.convertValue(orderHeader.getStatusId());
 
@@ -270,7 +275,7 @@ public class FragmentSummaryOrder extends Fragment {
             tvServiceType.setText(getString(R.string.prompt_ac_serviceType) + ": " + CustomerUtil.getServiceTypeLabel(getContext(), orderHeader.getServiceType()));
 
             tvDateRequest.setText(getString(R.string.prompt_date_request) + ": " + Util.prettyTimestamp(getContext(), orderHeader.getCreatedTimestamp()));
-            tvDateService.setText(getString(R.string.prompt_date_service) + ": " + Util.prettyTimestamp(getContext(), orderHeader.getTimestamp()));
+            tvDateService.setText(getString(R.string.prompt_date_service) + ": " + Util.prettyTimestamp(getContext(), orderHeader.getBookingTimestamp()));
 
             tvAddress.setText(getString(R.string.prompt_cust_address) + ": " + orderHeader.getAddressId());
 
@@ -442,7 +447,7 @@ public class FragmentSummaryOrder extends Fragment {
 
                     Util.showDialogConfirmation(getContext()
                             , getString(R.string.title_cancel_order)
-                            , getString(R.string.message_cancel_order_confirmation_for_date, Util.prettyTimestamp(getContext(), orderHeader.getTimestamp()))
+                            , getString(R.string.message_cancel_order_confirmation_for_date, Util.prettyTimestamp(getContext(), orderHeader.getBookingTimestamp()))
                             , new ListenerPositiveConfirmation() {
                                 @Override
                                 public void onPositive() {
@@ -677,7 +682,7 @@ public class FragmentSummaryOrder extends Fragment {
 
             Util.showDialogConfirmation(getContext()
                     , getString(R.string.title_cancel_order)
-                    , getString(R.string.message_cancel_order_confirmation_for_date, Util.prettyTimestamp(getContext(), orderHeader.getTimestamp()))
+                    , getString(R.string.message_cancel_order_confirmation_for_date, Util.prettyTimestamp(getContext(), orderHeader.getBookingTimestamp()))
                     , new ListenerPositiveConfirmation() {
                         @Override
                         public void onPositive() {
@@ -763,8 +768,8 @@ public class FragmentSummaryOrder extends Fragment {
         orderHeaderPendingRef.addValueEventListener(mOrderHeaderPendingListener);
 
         // update kalo udah expired. ga perlu, dipindah di mitra saja
-        if (!Util.isExpiredOrder(orderHeader))
-            return;
+//        if (!Util.isExpiredBooking(orderHeader))
+//            return;
 
         /*
         // TODO: due to timeline, just update the status. when time is available, please handle by moving node to "finished"

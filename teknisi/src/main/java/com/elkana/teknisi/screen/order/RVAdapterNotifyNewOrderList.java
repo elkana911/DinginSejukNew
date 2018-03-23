@@ -74,7 +74,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                 MobileSetup mobileSetup = TeknisiUtil.getMobileSetup();
                 //disable krn msh testing new order
                 // hanya ambil yg belum expired. dikurangi 1 menit utk toleransi klik/koneksi. misal diinfo 10 menit timer, tp sebenere cuma dikasih 9 menit utk tampil di layar
-//                if (Util.isExpiredOrder(_obj.getOrderTimestamp(), mobileSetup.getExpiryLastOrderMinutes() - 1)) {
+//                if (Util.isExpiredBooking(_obj.getOrderTimestamp(), mobileSetup.getExpiryLastOrderMinutes() - 1)) {
                     // delete
 //                    FBUtil.TechnicianReg_DeleteNotifyNewOrder(mMitraId, mTechId, _obj.getOrderId(), null);
 //                    return;
@@ -157,7 +157,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
 //            ((MyViewHolder) holder).tvOrderRemaining.setText("Expired!!");
 //        }
 //
-//        if (Util.isExpiredOrder(obj.getTimestamp(), 0)) {
+//        if (Util.isExpiredBooking(obj.getTimestamp(), 0)) {
 //            ((MyViewHolder) holder).tvOrderRemaining.setText("Expired!!");
 //
 //            // TODO: update firebase db
@@ -215,8 +215,8 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
 //            sb.append("Alamat : ").append(data.getAddress()).append("\n");
             sb.append(data.getAddress()).append("\n");
             sb.append(data.getCustomerName()).append("\n");
-            sb.append("MitraTimestamp : ").append(DateUtil.displayTimeInJakarta(data.getMitraTimestamp(), "dd MMM yyyy HH:mm:ss")).append(data.getMitraTimestamp()).append("\n");
-            sb.append("Timestamp : ").append(DateUtil.displayTimeInJakarta(data.getTimestamp(), "dd MMM yyyy HH:mm:ss")). append(data.getTimestamp()).append("\n");
+//            sb.append("MitraTimestamp : ").append(DateUtil.displayTimeInJakarta(data.getMitraTimestamp(), "dd MMM yyyy HH:mm:ss")).append(data.getMitraTimestamp()).append("\n");
+//            sb.append("Timestamp : ").append(DateUtil.displayTimeInJakarta(data.getTimestamp(), "dd MMM yyyy HH:mm:ss")). append(data.getTimestamp()).append("\n");
 //            sb.append("Nama : ").append(data.getCustomerName()).append("\n");
             tvOrderInfo.setText(sb.toString());
 
@@ -340,7 +340,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
             // harusnya dari sisi teknisi dikurangi 1 menit
             long selisih = (obj.getTimestamp() - new Date().getTime());
 //            long selisih = (obj.getUpdaMitraTimestamp() - new Date().getTime());
-            final long expirationMillis = selisih + Const.TIME_TEN_MINUTE_MILLIS;
+            final long expirationMillis = selisih + DateUtil.TIME_TEN_MINUTE_MILLIS;
 //            final long expirationMillis = (obj.getTimestamp() - new Date().getTime()) + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
             String start = DateUtil.formatMillisToMinutesSeconds(expirationMillis);
 

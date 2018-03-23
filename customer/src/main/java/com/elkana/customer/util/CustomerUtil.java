@@ -53,6 +53,7 @@ public class CustomerUtil {
     public static final String REF_ORDERS_MITRA_AC_PENDING = REF_ORDERS_AC_PENDING + "/mitra";
 
     public static final String REF_MOVEMENTS= "movements";
+    public static final String REF_MASTER_SETUP = "master/mSetup/" + Const.CONFIG_AS_COSTUMER;
 
     public static void getOnlineDataToOffline() {
 
@@ -504,6 +505,33 @@ udah di taruh di lib
                 });
 //        }
 
+        // sync setup
+        database.getReference(CustomerUtil.REF_MASTER_SETUP)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final MobileSetup mobileSetup = dataSnapshot.getValue(MobileSetup.class);
+
+                        Realm r = Realm.getDefaultInstance();
+                        try {
+                            r.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    realm.copyToRealmOrUpdate(mobileSetup);
+                                }
+                            });
+
+                        } finally {
+                            r.close();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                    }
+                });
+
         //tokens ga boleh menyimpan token dari device lain. token secara default diperoleh di MyFirebaseInstanceIDService
 
     }
@@ -587,8 +615,8 @@ udah di taruh di lib
         }
     }
 
-//    public static boolean isExpiredOrder(OrderHeader order) {
-//        return Util.isExpiredOrder(order.getTimestamp(), getMobileSetup().getLastOrderMinutes());
+//    public static boolean isExpiredBooking(OrderHeader order) {
+//        return Util.isExpiredBooking(order.getTimestamp(), getMobileSetup().getLastOrderMinutes());
 //    }
 
 }

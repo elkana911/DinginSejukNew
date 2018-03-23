@@ -43,7 +43,7 @@
     <string name="prompt_vendor">Mitra</string>
     <string name="prompt_name">Nama</string>
     <string name="prompt_drag_pinpoint">Geser Pin...</string>
-    <string name="prompt_ac_count">Jumlah AC</string>
+    <string name="prompt_ac_count">Jumlah AC yang diservis</string>
     <string name="prompt_ac_serviceType">Jenis Servis</string>
     <string name="prompt_hello">Halo %1s,</string>
     <string name="prompt_choose_address">Pilih Alamat Terdaftar</string>
@@ -101,6 +101,7 @@
     <string name="status_otw">Teknisi sedang dalam perjalanan menuju alamat Anda.</string>
     <string name="status_working">Teknisi sedang mengerjakan Pesanan Anda.</string>
     <string name="status_payment">Mohon segera lakukan proses pembayaran kepada Teknisi.\nTerima Kasih :)</string>
+    <string name="status_payment_amount">Mohon segera lakukan proses pembayaran sebesar %1s kepada Teknisi.\nTerima Kasih :)</string>
     <string name="status_cancelled_by_server">Mohon maaf, Server telah membatalkan pesanan Anda.</string>
     <string name="status_cancelled_by_timeout">Mohon maaf, Pesanan Anda telah dibatalkan karena tidak ada tanggapan dari Mitra pilihan Anda.</string>
     <string name="status_paid">Layanan sudah selesai dan dibayar.</string>

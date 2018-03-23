@@ -16,6 +16,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.Date;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * Created by Eric on 12-Sep-16.
@@ -63,7 +65,25 @@ public class SyncMovementJob extends BroadcastReceiver {
             if (latitude.equals("0.0") || longitude.equals("0.0"))
                 return;
 
-            sync_Location(context, currentUser.getUid(), orderId, new Movement(latitude, longitude), false);
+            // kalo sama dgn posisi terakhir abaikan saja
+            RealmResults<Movement> allSorted = r.where(Movement.class).findAllSorted("id", Sort.DESCENDING);
+
+            Movement lastMovement = null;
+            if (allSorted.size() > 0) {
+                lastMovement = allSorted.first();
+            }
+
+            if (lastMovement != null && lastMovement.getLatitude().equals(latitude)
+                    && lastMovement.getLongitude().equals(longitude)) {
+                return;
+            }
+
+            lastMovement = new Movement(latitude, longitude);
+            r.beginTransaction();
+            r.copyToRealm(lastMovement);
+            r.commitTransaction();
+
+            sync_Location(context, currentUser.getUid(), orderId, lastMovement, false);
         }finally{
             r.close();
         }

@@ -1,10 +1,17 @@
 package com.elkana.dslibrary.pojo;
 
+import java.io.Serializable;
+
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by Eric on 09-Dec-17.
  */
 
-public class Movement {
+public class Movement extends RealmObject implements Serializable{
+    @PrimaryKey
+    private long id;    // as timestamp
     private String latitude;
     private String longitude;
 
@@ -14,6 +21,14 @@ public class Movement {
     public Movement(String latitude, String longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getLatitude() {
@@ -35,7 +50,8 @@ public class Movement {
     @Override
     public String toString() {
         return "Movement{" +
-                "latitude='" + latitude + '\'' +
+                "id=" + id +
+                ", latitude='" + latitude + '\'' +
                 ", longitude='" + longitude + '\'' +
                 '}';
     }

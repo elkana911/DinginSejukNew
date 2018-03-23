@@ -28,6 +28,7 @@ import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.job.SyncMovementJob;
 import com.elkana.teknisi.pojo.MitraReg;
+import com.elkana.teknisi.pojo.MobileSetup;
 import com.elkana.teknisi.screen.login.ActivityLogin;
 import com.elkana.teknisi.screen.order.ActivityNewOrder;
 import com.elkana.teknisi.screen.profile.ActivityProfile;
@@ -302,6 +303,33 @@ public class MainActivity extends FirebaseActivity
             }
         });
 //        mNotifyNewOrderRef = FBUtil.TechnicianReg_getNotifyNewOrder( mAuth.getCurrentUser().getUid());
+
+        // sync setup
+        database.getReference(TeknisiUtil.REF_MASTER_SETUP)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final MobileSetup mobileSetup = dataSnapshot.getValue(MobileSetup.class);
+
+                        Realm r = Realm.getDefaultInstance();
+                        try {
+                            r.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    realm.copyToRealmOrUpdate(mobileSetup);
+                                }
+                            });
+
+                        } finally {
+                            r.close();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                    }
+                });
 
         // download master data
         downloadMasterData();

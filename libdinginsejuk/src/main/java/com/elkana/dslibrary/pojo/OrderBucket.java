@@ -20,7 +20,7 @@ public class OrderBucket extends RealmObject implements Serializable {
     private String technicianName;
     private String statusDetailId;
     private int acCount;
-    private long orderTimestamp;
+    private long bookingTimestamp;
     private long updatedTimestamp;  // the time when server received order. bisa dipakai utk start timeout
     private String updatedBy;
 
@@ -88,12 +88,12 @@ public class OrderBucket extends RealmObject implements Serializable {
         this.statusDetailId = statusDetailId;
     }
 
-    public long getOrderTimestamp() {
-        return orderTimestamp;
+    public long getBookingTimestamp() {
+        return bookingTimestamp;
     }
 
-    public void setOrderTimestamp(long orderTimestamp) {
-        this.orderTimestamp = orderTimestamp;
+    public void setBookingTimestamp(long bookingTimestamp) {
+        this.bookingTimestamp = bookingTimestamp;
     }
 
     public int getAcCount() {
@@ -132,7 +132,7 @@ public class OrderBucket extends RealmObject implements Serializable {
                 ", technicianName='" + technicianName + '\'' +
                 ", statusDetailId='" + statusDetailId + '\'' +
                 ", acCount=" + acCount +
-                ", orderTimestamp=" + orderTimestamp +
+                ", bookingTimestamp=" + bookingTimestamp +
                 ", updatedTimestamp=" + updatedTimestamp +
                 ", updatedBy='" + updatedBy + '\'' +
                 '}';

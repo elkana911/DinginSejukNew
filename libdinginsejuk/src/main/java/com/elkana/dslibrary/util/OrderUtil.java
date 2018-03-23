@@ -15,11 +15,11 @@ public class OrderUtil {
         orderHeader.setRescheduleCounter(orderHeader.getRescheduleCounter() + 1);
         orderHeader.setDateOfService(Util.convertDateToString(newDate, "yyyyMMdd"));
         orderHeader.setTimeOfService(Util.convertDateToString(newDate, "HH:mm"));
-        orderHeader.setTimestamp(newDate.getTime());
+        orderHeader.setBookingTimestamp(newDate.getTime());
         orderHeader.setUpdatedBy(updatedBy);
         orderHeader.setUpdatedTimestamp(new Date().getTime());
 
-        orderBucket.setOrderTimestamp(orderHeader.getTimestamp());
+        orderBucket.setBookingTimestamp(orderHeader.getBookingTimestamp());
         orderBucket.setUpdatedBy(updatedBy);
         orderBucket.setUpdatedTimestamp(new Date().getTime());
 

@@ -1,8 +1,10 @@
 package com.elkana.dslibrary.util;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -12,6 +14,13 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class DateUtil {
+    public static final long TIME_ONE_MINUTE_MILLIS = 1 * 60 * 1000;
+    public static final long TIME_ONE_HOUR_MILLIS = 60 * TIME_ONE_MINUTE_MILLIS;
+    public static final long TIME_FIVE_MINUTE_MILLIS = 5 * TIME_ONE_MINUTE_MILLIS;
+    public static final long TIME_TEN_MINUTE_MILLIS = 2 * TIME_FIVE_MINUTE_MILLIS;
+    public static final long TIME_FIFTHEEN_MINUTE_MILLIS = 15 * TIME_ONE_MINUTE_MILLIS;
+    public static final long TIME_ONE_DAYS_MILLIS = 1 * 24 * TIME_ONE_HOUR_MILLIS;
+
     /**
      * <p>Checks if two dates are on the same day ignoring time.</p>
      * @param date1  the first date, not altered, not null
@@ -150,5 +159,56 @@ public class DateUtil {
         return ss;
 //        String ss = formatOutgoing.format(formatIncoming.parse("Tue Mar 03 00:00:00 WIB 2015"));
 
+    }
+
+    /**
+     * time is between 100 - 2400.
+     * any below 100 will be multiplied, so if 8, will be assume 8:00. if 83, will be asume 8:30
+     * 800 for 8:00
+     * 830 for 8:30.
+     * @param openTime
+     * @param closeTime
+     * @param minuteStep
+     * @return
+     */
+    public static String[] generateWorkingHours(int openTime, int closeTime, int minuteStep) {
+
+        int digitCount = Util.getDigitsCount(openTime);
+
+        if (digitCount == 1 || digitCount == 2)
+            openTime *= 100;
+        if (digitCount == 3)
+            openTime *= 10;
+
+        digitCount = Util.getDigitsCount(closeTime);
+        if (digitCount == 1 || digitCount == 2)
+            closeTime *= 100;
+        if (digitCount == 3)
+            closeTime *= 10;
+
+
+        List<String> list = new ArrayList<>();
+
+        int counterHour = openTime / 100;
+        int counterMin = openTime % 100;
+        int stopHour = closeTime / 100;
+        int stopMin = closeTime % 100;
+
+        while (counterHour <= stopHour){
+
+            if (counterMin >= 60){
+                counterMin = 0;
+                counterHour += 1;
+            }
+
+            list.add(String.format("%02d", counterHour) + ":" + String.format("%02d", counterMin));
+
+            if (counterHour >= stopHour && counterMin >= stopMin)
+                break;
+
+            counterMin += minuteStep;
+        }
+
+        return list.toArray(new String[list.size()]);
     }
 }

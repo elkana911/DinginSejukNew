@@ -401,31 +401,6 @@ public class Util {
                 && DateUtil.isBeforeDay(new Date(orderHeader.getTimestamp()), new Date());
     }
 */
-
-    /**
-     * 1 hour(60 minutes) from now
-     *
-     * @param timeMillisToCheck
-     * @param lastMinutes if 30, 30 minutes from now is expired
-     * @return
-     */
-    public static boolean isExpiredTime(long timeMillisToCheck, int lastMinutes) {
-        Date date = new Date(timeMillisToCheck);
-        // 2017-12-13 07:22
-
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        c.add(Calendar.MINUTE, lastMinutes);
-        // 2017-12-13  07:22 + minuteToleransi
-
-        if (date.getTime() < c.getTimeInMillis()) {
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
     public static String counter(String numeric, boolean add, int minValue, int maxValue, int step) {
         int x = new BigDecimal(numeric).intValue() + (add ? step : -step);
 
@@ -464,39 +439,6 @@ public class Util {
 
     public static boolean isPhoneValid(String phone) {
         return !TextUtils.isEmpty(phone) && phone.length() > 4;
-    }
-
-    // fungsi yg cukup bahaya. jgn dipake dulu. harusnya expiredtime bisa diprediksi, jgn 0
-    @Deprecated
-    public static boolean isExpiredOrder(OrderHeader orderHeader) {
-        EOrderDetailStatus status = EOrderDetailStatus.convertValue(orderHeader.getStatusDetailId());
-        if (status == EOrderDetailStatus.CREATED
-                || status == EOrderDetailStatus.ASSIGNED
-                || status == EOrderDetailStatus.UNHANDLED
-                /*|| status == EOrderDetailStatus.RESCHEDULED*/
-                || status == EOrderDetailStatus.UNKNOWN
-                ) {
-            return isExpiredTime(orderHeader.getTimestamp(), 30);   //hardcode 30
-
-        } else
-            return false;
-    }
-
-    // fungsi yg cukup bahaya. jgn dipake dulu
-    @Deprecated
-    public static boolean isExpiredOrder(OrderBucket orderBucket) {
-        EOrderDetailStatus status = EOrderDetailStatus.convertValue(orderBucket.getStatusDetailId());
-
-        if (status == EOrderDetailStatus.CREATED
-                || status == EOrderDetailStatus.ASSIGNED
-                || status == EOrderDetailStatus.UNHANDLED
-                /*|| status == EOrderDetailStatus.RESCHEDULED*/
-                || status == EOrderDetailStatus.UNKNOWN
-                ) {
-            return isExpiredTime(orderBucket.getOrderTimestamp(), 30);
-
-        } else
-            return false;
     }
 
     public static Map getFieldNamesAndValues(final Object valueObj) throws IllegalArgumentException,
@@ -553,5 +495,11 @@ public class Util {
         }
 
         return path;
+    }
+
+    public static int getDigitsCount(int value) {
+        int length = (int)(Math.log10(value)+1);
+
+        return length;
     }
 }

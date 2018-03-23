@@ -70,6 +70,9 @@ public class RVAdapterPayment extends RecyclerView.Adapter<RecyclerView.ViewHold
                     mList.add(obj);
                 }
 
+                // jika ada biaya tmabahan spt Layanan Segera dan Pajak dll
+
+
                 if (mListener != null)
                     mListener.onCalculateTotalFare(new Double(sum).longValue());
 

@@ -106,7 +106,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     final OrderBucket _orderBucket = postSnapshot.getValue(OrderBucket.class);
-                    Log.e(TAG, "DataChange:" + _orderBucket.toString());
+//                    Log.e(TAG, "DataChange:" + _orderBucket.toString());
 
                     EOrderDetailStatus detailStatus = EOrderDetailStatus.convertValue(_orderBucket.getStatusDetailId());
 
@@ -123,21 +123,17 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                         }
                     }
 
-
                     mList.add(_orderBucket);
-
-                    // if today's service, notify technicians ? disabled krn diganti teknik NotifyTechnician
-//                    if (!DateUtil.isToday(_obj.getTimestamp())) {
-//                        // fix status if created
-//                        if (EOrderDetailStatus.convertValue(_obj.getStatusDetailId()) == EOrderDetailStatus.CREATED) {
-//                            FBUtil.Order_SetStatus(mitraId, _obj.getCustomerId(), _obj.getUid(), null, EOrderDetailStatus.CANCELLED_BY_TIMEOUT, null);
-//                        }
-//                        continue;
-//                    }
 
                     // notify_new_order hanya berlaku kalau status msh created
                     if (detailStatus != EOrderDetailStatus.CREATED)
                         continue;
+
+                    //tp jg jgn kirim notifyneworder kalo expired
+                    if (MitraUtil.isExpiredBooking(_orderBucket)) {
+                        FBUtil.Order_SetStatus(mMitraId, _orderBucket.getCustomerId(), _orderBucket.getUid(), null, null, EOrderDetailStatus.CANCELLED_BY_TIMEOUT, String.valueOf(Const.USER_AS_MITRA), null);
+                        continue;
+                    }
 
                     // cek dulu jumlah teknisi terdaftar
                     final Realm _r = Realm.getDefaultInstance();
@@ -187,7 +183,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                             } else {
                                 // cek kalo udah expired dihapus aja
-                                if (Util.isExpiredOrder(_orderBucket)) {
+                                if (MitraUtil.isExpiredBooking(_orderBucket)) {
                                     FBUtil.TechnicianReg_deleteNotifyNewOrder(mitraId, techId, _orderBucket.getUid(), new ListenerModifyData() {
                                         @Override
                                         public void onSuccess() {
@@ -296,7 +292,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         if (detailStatus == EOrderDetailStatus.CREATED || detailStatus == EOrderDetailStatus.UNHANDLED || detailStatus == EOrderDetailStatus.ASSIGNED) {
 
-            if (Util.isExpiredOrder(obj)) {
+            if (MitraUtil.isExpiredBooking(obj)) {
                 ((MyViewHolder) holder).tvOrderRemaining.setText("Expired!!");
 
                 // TODO: update firebase db
@@ -369,9 +365,9 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
         public void setData(final OrderBucket data) {
             tvAddress.setText(data.getAddressByGoogle());
             tvCustomerName.setText(data.getCustomerName());
-            tvOrderTime.setText(Util.convertDateToString(new Date(data.getOrderTimestamp()), "dd MMM yyyy HH:mm"));
+            tvOrderTime.setText(Util.convertDateToString(new Date(data.getBookingTimestamp()), "dd MMM yyyy HH:mm"));
 
-//            if (Util.isExpiredOrder(obj.getTimestamp(), MitraUtil.getMobileSetup().getLastOrderMinutes())) {
+//            if (Util.isExpiredBooking(obj.getTimestamp(), MitraUtil.getMobileSetup().getLastOrderMinutes())) {
 //                obj.setStatusDetailId(EOrderDetailStatus.CANCELLED_BY_TIMEOUT.name());
 //            }
 
@@ -463,7 +459,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             else
                 selisih = obj.getUpdatedTimestamp() - now.getTime();
 
-            final long expirationMillis = selisih + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
+            final long expirationMillis = selisih + DateUtil.TIME_TEN_MINUTE_MILLIS + DateUtil.TIME_ONE_MINUTE_MILLIS;
 //            final long expirationMillis = (new Date().getTime() - obj.getOrderStartTimestamp()) + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
 //            final long expirationMillis = obj.getTimestamp() + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
 

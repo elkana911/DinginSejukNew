@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.elkana.ds.mitraapp.AFirebaseMitraActivity;
 import com.elkana.ds.mitraapp.R;
+import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.component.RealmSearchView;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetOrder;
@@ -61,8 +62,8 @@ public class ActivityScrollingAssignment extends AFirebaseMitraActivity{
                 dialog.dismiss();
                 tvCustomerAddress.setText(getString(R.string.label_customer_address, orderHeader.getAddressByGoogle()));
                 tvCustomerName.setText(orderHeader.getCustomerName());
-                tvOrderDate.setText(getString(R.string.label_order_date, Util.convertDateToString(new Date(orderHeader.getTimestamp()), "dd MMM yyyy HH:mm"))
-                        + (Util.isExpiredOrder(orderHeader) ? " (EXPIRED)" : "")
+                tvOrderDate.setText(getString(R.string.label_order_date, Util.convertDateToString(new Date(orderHeader.getBookingTimestamp()), "dd MMM yyyy HH:mm"))
+                        + (MitraUtil.isExpiredBooking(orderHeader) ? " (EXPIRED)" : "")
                 );
             }
 
@@ -146,7 +147,7 @@ public class ActivityScrollingAssignment extends AFirebaseMitraActivity{
 
                         final AlertDialog dialog = Util.showProgressDialog(ActivityScrollingAssignment.this);
 
-                        //TODO: should check MitraUtil.isExpiredOrder(obj)
+                        //TODO: should check MitraUtil.isExpiredBooking(obj)
                         // build assignment here
                         Assignment_create(obj.getTechId(), obj.getName(), mCustomerId, mOrderId, new ListenerModifyData() {
                             @Override

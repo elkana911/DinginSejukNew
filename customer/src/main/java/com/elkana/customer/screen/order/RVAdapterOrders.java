@@ -158,7 +158,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             ((MyViewHolder) holder).tvLabel.setText(ctx.getString(R.string.row_label_ac_service, obj.getJumlahAC()));
             ((MyViewHolder) holder).tvAddress.setText(obj.getAddressId());
-            ((MyViewHolder) holder).tvDateOfService.setText(ctx.getString(R.string.prompt_schedule) + ": " + Util.prettyTimestamp(ctx, obj.getTimestamp()));
+            ((MyViewHolder) holder).tvDateOfService.setText(ctx.getString(R.string.prompt_schedule) + ": " + Util.prettyTimestamp(ctx, obj.getBookingTimestamp()));
 
             Realm r = Realm.getDefaultInstance();
             try{

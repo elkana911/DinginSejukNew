@@ -14,13 +14,14 @@ public class MobileSetup extends RealmObject implements Serializable {
     private int id;
 
     private boolean gps_mandatory;
+    private long appLifeTime;
     private String theme_color_default;
     private String theme_color_default_inactive;
     private String theme_color_default_accent;
 
     private boolean trackingGps;
     private String trackingOrderId;
-    private int expiryLastOrderMinutes;   // menit yg diperlukan utk last order. harusnya sama utk semua aplikasi
+    private int min_minutes_otw;    //minimal teknisi baru boleh jalan (satuan menit)
     /**
      * time for an order will cancel automatically after no respond
      */
@@ -43,6 +44,14 @@ public class MobileSetup extends RealmObject implements Serializable {
 
     public void setGps_mandatory(boolean gps_mandatory) {
         this.gps_mandatory = gps_mandatory;
+    }
+
+    public long getAppLifeTime() {
+        return appLifeTime;
+    }
+
+    public void setAppLifeTime(long appLifeTime) {
+        this.appLifeTime = appLifeTime;
     }
 
     public String getTheme_color_default() {
@@ -93,12 +102,12 @@ public class MobileSetup extends RealmObject implements Serializable {
         this.timeout_cancel_minute = timeout_cancel_minute;
     }
 
-    public int getExpiryLastOrderMinutes() {
-        return expiryLastOrderMinutes;
+    public int getMin_minutes_otw() {
+        return min_minutes_otw;
     }
 
-    public void setExpiryLastOrderMinutes(int expiryLastOrderMinutes) {
-        this.expiryLastOrderMinutes = expiryLastOrderMinutes;
+    public void setMin_minutes_otw(int min_minutes_otw) {
+        this.min_minutes_otw = min_minutes_otw;
     }
 
     @Override
@@ -106,12 +115,13 @@ public class MobileSetup extends RealmObject implements Serializable {
         return "MobileSetup{" +
                 "id=" + id +
                 ", gps_mandatory=" + gps_mandatory +
+                ", appLifeTime=" + appLifeTime +
                 ", theme_color_default='" + theme_color_default + '\'' +
                 ", theme_color_default_inactive='" + theme_color_default_inactive + '\'' +
                 ", theme_color_default_accent='" + theme_color_default_accent + '\'' +
                 ", trackingGps=" + trackingGps +
                 ", trackingOrderId='" + trackingOrderId + '\'' +
-                ", expiryLastOrderMinutes=" + expiryLastOrderMinutes +
+                ", min_minutes_otw=" + min_minutes_otw +
                 ", timeout_cancel_minute=" + timeout_cancel_minute +
                 '}';
     }

@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
@@ -46,6 +47,7 @@ import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
+import com.elkana.dslibrary.util.NetUtil;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -60,9 +62,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -113,7 +118,6 @@ public class FragmentOrderACNew extends Fragment {
     MaterialSpinner spAddress;
 
     EditText etDate, etTime, etProblem, etCounter;
-
     public EditText etSelectMitra;
 
     TextView tvExtraCharge;
@@ -248,7 +252,62 @@ public class FragmentOrderACNew extends Fragment {
         btnProblemTemplate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "Unhandled ProblemTemplate", Toast.LENGTH_SHORT).show();
+                if (!NetUtil.isConnected(getContext())) {
+                    return;
+                }
+
+                final AlertDialog alertDialog = Util.showProgressDialog(getContext());
+
+                FBUtil.Template_CustomerProblemRef()
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (!getActivity().isDestroyed())
+                                    alertDialog.dismiss();
+
+                                final List<String> list = new ArrayList<>();
+                                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+
+                                    String obj = postSnapshot.getValue(String.class);
+
+                                    list.add(obj);
+                                }
+
+                                // setup the alert builder
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                builder.setTitle("Pilih Satu");
+
+                                String[] stockArr = new String[list.size()];
+                                stockArr = list.toArray(stockArr);
+
+                                builder.setItems(stockArr, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        String pick = list.get(which);
+
+                                        String buffer = etProblem.getText().toString().trim().toLowerCase();
+
+                                        if (buffer.contains(pick.toLowerCase())) {
+                                        } else {
+                                            etProblem.setText(buffer.length() < 1 ? pick : etProblem.getText().toString() + ", " + pick);
+                                        }
+                                    }
+                                });
+
+// create and show the alert dialog
+                                AlertDialog dialog = builder.create();
+                                dialog.show();
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                if (!getActivity().isDestroyed())
+                                    alertDialog.dismiss();
+
+                                Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                            }
+                        });
             }
         });
 
@@ -337,6 +396,48 @@ public class FragmentOrderACNew extends Fragment {
         etTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                final String mitra = etSelectMitra.getText().toString().trim();
+
+                if (TextUtils.isEmpty(mitra)) {
+                    Toast.makeText(getContext(), "Mitra not defined", Toast.LENGTH_SHORT).show();
+                    etSelectMitra.setError(getString(R.string.error_field_required));
+                    return;
+                }
+
+                int openTime, closeTime;
+                Realm _realm = Realm.getDefaultInstance();
+                try {
+                    Mitra mitraObj = CustomerUtil.lookUpMitra(_realm, mitra);
+
+                    openTime = mitraObj.getWorkingHourStart();
+                    closeTime = mitraObj.getWorkingHourEnd();
+
+                }finally {
+                    _realm.close();
+                }
+
+                final String[] time_services = DateUtil.generateWorkingHours(openTime, closeTime, 15);
+//                final String[] time_services = getContext().getResources().getStringArray(R.array.time_service);
+
+                // setup the alert builder
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Pilih Jam");
+
+                builder.setItems(time_services, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        String pick = time_services[which];
+
+                        etTime.setText(pick);
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+                /* cara kedua
 // Get Current Time
                 final Calendar c = Calendar.getInstance();
                 int mHour = c.get(Calendar.HOUR_OF_DAY);
@@ -356,6 +457,7 @@ public class FragmentOrderACNew extends Fragment {
                             }
                         }, mHour, mMinute, false);
                 timePickerDialog.show();
+                */
             }
         });
 
@@ -470,15 +572,16 @@ public class FragmentOrderACNew extends Fragment {
             spAddress.setSelection(0);
 //            spServiceCount.setSelection(2);
 //            etDate.setText("Hari Ini");   karena ada conversion
-            etTime.setText(Util.convertDateToString(new Date(), "HH:mm"));
         }
+        etTime.setText("09:00");
+//        etTime.setText(Util.convertDateToString(new Date(), "HH:mm"));
 
         // auto select
         selectAddressDefault();
         selectMitraDefault();
 
         Date nextWorkingDay = CustomerUtil.getWorkingDay(new Date(), 2);
-        etDate.setText(Util.prettyDate(getContext(),  nextWorkingDay, true));
+        etDate.setText(Util.prettyDate(getContext(), nextWorkingDay, true));
         kapanYYYYMMDD = Util.convertDateToString(nextWorkingDay, "yyyyMMdd");
 
 //        etTime.setText(CustomerUtil.getNextWorkingHour(2));
@@ -508,12 +611,12 @@ public class FragmentOrderACNew extends Fragment {
         }
 
         if (setDefaultAddress > -1) {
-            spAddress.setSelection(setDefaultAddress+1);
+            spAddress.setSelection(setDefaultAddress + 1);
         }
 
     }
 
-    private Mitra selectMitraDefault(){
+    private Mitra selectMitraDefault() {
         Realm realm = Realm.getDefaultInstance();
         try {
             Mitra mitraObj = realm.where(Mitra.class)
@@ -588,7 +691,7 @@ public class FragmentOrderACNew extends Fragment {
         selectAddressDefault();
     }
 
-    private void submitOrder(final OrderHeader orderHeader){
+    private void submitOrder(final OrderHeader orderHeader) {
         final AlertDialog dialog = Util.showProgressDialog(getContext(), "Booking process...");
 
         DatabaseReference orderPendingCustomerRef = database.getReference(CustomerUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
@@ -608,7 +711,7 @@ public class FragmentOrderACNew extends Fragment {
         orderBucket.setPartyId(orderHeader.getPartyId());
         orderBucket.setTechnicianId(orderHeader.getTechnicianId());
 //        orderBucket.setTechnicianName(orderHeader.getTechnicianId());
-        orderBucket.setOrderTimestamp(orderHeader.getTimestamp());
+        orderBucket.setBookingTimestamp(orderHeader.getBookingTimestamp());
         orderBucket.setUpdatedTimestamp(new Date().getTime());
         orderBucket.setUpdatedBy(String.valueOf(Const.USER_AS_COSTUMER));
 
@@ -626,7 +729,8 @@ public class FragmentOrderACNew extends Fragment {
             FirebaseDatabase.getInstance().getReference().updateChildren(keyValOrderHeader).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
-                    dialog.dismiss();
+                    if (!getActivity().isDestroyed())
+                        dialog.dismiss();
 
                     if (task.isSuccessful()) {
 
@@ -691,8 +795,6 @@ public class FragmentOrderACNew extends Fragment {
             }
 
         }
-        final String mitra = etSelectMitra.getText().toString().trim();
-
         if (TextUtils.isEmpty(kapan)) {
             etDate.setError(getString(R.string.error_field_required));
             focus = etDate;
@@ -715,6 +817,8 @@ public class FragmentOrderACNew extends Fragment {
             cancel = true;
         }
 
+        final String mitra = etSelectMitra.getText().toString().trim();
+
         if (TextUtils.isEmpty(mitra)) {
             Toast.makeText(getContext(), "Mitra not defined", Toast.LENGTH_SHORT).show();
             etSelectMitra.setError(getString(R.string.error_field_required));
@@ -727,6 +831,26 @@ public class FragmentOrderACNew extends Fragment {
             return;
         }
 
+
+        Realm r = Realm.getDefaultInstance();
+        try {
+            Mitra mitraObj = CustomerUtil.lookUpMitra(r, mitra);
+
+            long countCreatedOrder = r.where(OrderHeader.class)
+                    .equalTo("statusDetailId", EOrderDetailStatus.CREATED.name())
+                    .equalTo("partyId", mitraObj.getUid())
+                    .count();
+
+            int maxNewOrder = mobileSetup.getMax_new_order();
+
+            if (countCreatedOrder > maxNewOrder) {
+                Toast.makeText(getContext(), "Maaf, maksimal " + maxNewOrder + " layanan baru.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } finally{
+            r.close();
+        }
+
         final String finalAlamat = alamat;
         final String finalAlamatByGoogle = alamatByGoogle;
         final String finalLatitude = latitude;
@@ -734,13 +858,14 @@ public class FragmentOrderACNew extends Fragment {
         Util.showDialogConfirmation(getActivity(), "Booking Confirmation", "Booking Layanan sekarang ?", new ListenerPositiveConfirmation() {
             @Override
             public void onPositive() {
+
                 final OrderHeader orderHeader = new OrderHeader();
                 orderHeader.setCustomerId(mUserId);//jd tdk mungkin user yg sama bisa order 2x
                 orderHeader.setDateOfService(kapanYYYYMMDD);
                 orderHeader.setTimeOfService(jam);
-                orderHeader.setTimestamp(Util.convertStringToDate(kapanYYYYMMDD + jam, "yyyyMMddHH:mm").getTime());
-                orderHeader.setServiceType(DateUtil.isToday(orderHeader.getTimestamp()) ? 1 : 2);
-                orderHeader.setInvoiceNo(String.valueOf(orderHeader.getTimestamp()));
+                orderHeader.setBookingTimestamp(Util.convertStringToDate(kapanYYYYMMDD + jam, "yyyyMMddHH:mm").getTime());
+                orderHeader.setServiceType(DateUtil.isToday(orderHeader.getBookingTimestamp()) ? 1 : 2);
+                orderHeader.setInvoiceNo(String.valueOf(orderHeader.getBookingTimestamp()));
                 orderHeader.setStatusId(EOrderStatus.PENDING.name());
                 orderHeader.setStatusDetailId(EOrderDetailStatus.CREATED.name());
                 orderHeader.setAddressId(finalAlamat);
@@ -754,15 +879,15 @@ public class FragmentOrderACNew extends Fragment {
                 orderHeader.setUpdatedTimestamp(new Date().getTime());
                 orderHeader.setUpdatedBy(String.valueOf(Const.USER_AS_COSTUMER));
 
-                Realm realm = Realm.getDefaultInstance();
+                Realm _realm = Realm.getDefaultInstance();
                 try {
-                    Mitra mitraObj = CustomerUtil.lookUpMitra(realm, mitra);
+                    Mitra mitraObj = CustomerUtil.lookUpMitra(_realm, mitra);
 
                     orderHeader.setPartyId(mitraObj.getUid());
                     orderHeader.setPartyName(mitraObj.getName());
 
                     // final check constraint: cant have same address, same mitra and same day
-                    OrderHeader first = realm.where(OrderHeader.class)
+                    OrderHeader first = _realm.where(OrderHeader.class)
                             .equalTo("addressId", finalAlamat)
                             .equalTo("partyId", mitraObj.getUid())
                             .equalTo("dateOfService", kapanYYYYMMDD)
@@ -777,7 +902,7 @@ public class FragmentOrderACNew extends Fragment {
                     }
 
                     // get the rest
-                    BasicInfo basicInfo = realm.where(BasicInfo.class)
+                    BasicInfo basicInfo = _realm.where(BasicInfo.class)
                             .equalTo("uid", mUserId)
                             .findFirst();
 
@@ -786,7 +911,7 @@ public class FragmentOrderACNew extends Fragment {
 
 
                 } finally {
-                    realm.close();
+                    _realm.close();
                 }
 
                 submitOrder(orderHeader);

@@ -329,7 +329,7 @@ public class MainActivity extends FirebaseActivity
     @Override
     protected void onLoggedOn(final FirebaseUser user) {
 //        dont put any view logic here krn bisa dipanggil sebelum activity ready after login. let oncreate handle this
-        final AlertDialog dialog = Util.showProgressDialog(this, "Loading user information...");
+//        final AlertDialog dialog = Util.showProgressDialog(this, "Loading user information...");
 
         CustomerUtil.syncUserInformation(this.realm);
 
@@ -346,13 +346,11 @@ public class MainActivity extends FirebaseActivity
                             } catch (IllegalStateException e1) {
                                 e1.printStackTrace();
                             }
-                            dialog.dismiss();
 
                         }
                     });
                 } else {
                     prepareScreen(true);
-                    dialog.dismiss();
                 }
             }
         });

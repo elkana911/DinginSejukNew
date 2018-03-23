@@ -36,8 +36,8 @@ public class OrderHeader extends RealmObject implements Serializable {
     private String timeOfService;
     private String phone;
     private int rescheduleCounter;
-    private long timestamp; // gabungan dateOfService & timeOfService
-//    private long estimatePrice;
+    private long bookingTimestamp; // gabungan dateOfService & timeOfService
+    private long pleasePayAmount;
     private long createdTimestamp;
     private long updatedTimestamp;
     private String updatedBy;
@@ -82,12 +82,12 @@ public class OrderHeader extends RealmObject implements Serializable {
         this.statusDetailId = statusDetailId;
     }
 
-    public long getTimestamp() {
-        return timestamp;
+    public long getBookingTimestamp() {
+        return bookingTimestamp;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public void setBookingTimestamp(long bookingTimestamp) {
+        this.bookingTimestamp = bookingTimestamp;
     }
 
     public String getCustomerId() {
@@ -266,6 +266,14 @@ public class OrderHeader extends RealmObject implements Serializable {
         this.createdTimestamp = createdTimestamp;
     }
 
+    public long getPleasePayAmount() {
+        return pleasePayAmount;
+    }
+
+    public void setPleasePayAmount(long pleasePayAmount) {
+        this.pleasePayAmount = pleasePayAmount;
+    }
+
     @Override
     public String toString() {
         return "OrderHeader{" +
@@ -293,7 +301,8 @@ public class OrderHeader extends RealmObject implements Serializable {
                 ", timeOfService='" + timeOfService + '\'' +
                 ", phone='" + phone + '\'' +
                 ", rescheduleCounter=" + rescheduleCounter +
-                ", timestamp=" + timestamp +
+                ", bookingTimestamp=" + bookingTimestamp +
+                ", pleasePayAmount=" + pleasePayAmount +
                 ", createdTimestamp=" + createdTimestamp +
                 ", updatedTimestamp=" + updatedTimestamp +
                 ", updatedBy='" + updatedBy + '\'' +
