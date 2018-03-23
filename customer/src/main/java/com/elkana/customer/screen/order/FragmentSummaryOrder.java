@@ -78,7 +78,7 @@ public class FragmentSummaryOrder extends Fragment {
 
     private ValueEventListener mOrderHeaderPendingListener;
 
-    View llBlank, llNonBlank;
+    View llBlank, llNonBlank, cardInvoice;
 
     EditText etStatus, etRatingComments;
 
@@ -221,6 +221,7 @@ public class FragmentSummaryOrder extends Fragment {
             EOrderStatus orderStatus = EOrderStatus.convertValue(orderHeader.getStatusId());
 
             // any add-on requirements about order status
+            cardInvoice.setVisibility(View.GONE);
             btnCheckTechnicianGps.setVisibility(View.GONE);
             btnPayment.setVisibility(View.GONE);
             btnCancelOrder.setVisibility(View.INVISIBLE);
@@ -249,8 +250,10 @@ public class FragmentSummaryOrder extends Fragment {
                     break;
                 case PAYMENT:
 //                    btnPayment.setVisibility(View.VISIBLE);
+                    cardInvoice.setVisibility(View.VISIBLE);
                     break;
                 case PAID:
+                    cardInvoice.setVisibility(View.VISIBLE);
                     if (orderStatus == EOrderStatus.FINISHED) {
                         cardReview.setVisibility(View.GONE);
                         tvStatusDetil.setText(tvStatusDetil.getText() + "\n" + getString(R.string.message_review_given));
@@ -549,7 +552,7 @@ public class FragmentSummaryOrder extends Fragment {
 
                 Map<String, Object> keyVal = new HashMap<>();
                 keyVal.put("ratingByCustomer", rating);
-                keyVal.put("ratingComments", comments);
+                keyVal.put("ratingCustomerComments", comments);
                 keyVal.put("statusId", EOrderStatus.FINISHED.name());
 
                 orderHeaderPendingRef.updateChildren(keyVal).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -596,6 +599,7 @@ public class FragmentSummaryOrder extends Fragment {
         });
 
         cardReview = v.findViewById(R.id.cardReview);
+        cardInvoice = v.findViewById(R.id.cardInvoice);
 
         ratingBar = v.findViewById(R.id.ratingBar);
 

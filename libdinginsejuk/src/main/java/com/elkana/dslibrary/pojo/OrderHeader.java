@@ -30,7 +30,9 @@ public class OrderHeader extends RealmObject implements Serializable {
     private String longitude;
     private int jumlahAC;
     private int ratingByCustomer;   //0 - 50
-    private String ratingComments;
+    private int ratingByTechnician; //0 - 50
+    private String ratingCustomerComments;
+    private String ratingTechnicianComments;
     private String problem;
     private String dateOfService;
     private String timeOfService;
@@ -154,14 +156,6 @@ public class OrderHeader extends RealmObject implements Serializable {
         this.ratingByCustomer = ratingByCustomer;
     }
 
-    public String getRatingComments() {
-        return ratingComments;
-    }
-
-    public void setRatingComments(String ratingComments) {
-        this.ratingComments = ratingComments;
-    }
-
     public String getProblem() {
         return problem;
     }
@@ -274,6 +268,30 @@ public class OrderHeader extends RealmObject implements Serializable {
         this.pleasePayAmount = pleasePayAmount;
     }
 
+    public int getRatingByTechnician() {
+        return ratingByTechnician;
+    }
+
+    public void setRatingByTechnician(int ratingByTechnician) {
+        this.ratingByTechnician = ratingByTechnician;
+    }
+
+    public String getRatingCustomerComments() {
+        return ratingCustomerComments;
+    }
+
+    public void setRatingCustomerComments(String ratingCustomerComments) {
+        this.ratingCustomerComments = ratingCustomerComments;
+    }
+
+    public String getRatingTechnicianComments() {
+        return ratingTechnicianComments;
+    }
+
+    public void setRatingTechnicianComments(String ratingTechnicianComments) {
+        this.ratingTechnicianComments = ratingTechnicianComments;
+    }
+
     @Override
     public String toString() {
         return "OrderHeader{" +
@@ -295,7 +313,9 @@ public class OrderHeader extends RealmObject implements Serializable {
                 ", longitude='" + longitude + '\'' +
                 ", jumlahAC=" + jumlahAC +
                 ", ratingByCustomer=" + ratingByCustomer +
-                ", ratingComments='" + ratingComments + '\'' +
+                ", ratingByTechnician=" + ratingByTechnician +
+                ", ratingCustomerComments='" + ratingCustomerComments + '\'' +
+                ", ratingTechnicianComments='" + ratingTechnicianComments + '\'' +
                 ", problem='" + problem + '\'' +
                 ", dateOfService='" + dateOfService + '\'' +
                 ", timeOfService='" + timeOfService + '\'' +

@@ -132,4 +132,5 @@
     <string name="prompt_quantity_ac">Quantity</string>
     <string name="action_history_order">History</string>
     <string name="title_activity_achistory">History</string>
+    <string name="title_invoice">Invoice</string>
 </resources>

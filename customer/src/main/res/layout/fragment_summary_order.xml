@@ -86,7 +86,7 @@
 
             </LinearLayout>
 
-            <include android:id="@+id/cardReview" android:visibility="gone" layout="@layout/row_review"/>
+            <include android:id="@+id/cardReview" android:visibility="gone" layout="@layout/row_rating"/>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
@@ -151,6 +151,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:text="@string/action_call_vendor" />
+
+            <include android:id="@+id/cardInvoice" android:visibility="gone" layout="@layout/row_invoice"/>
 
 
             <LinearLayout
