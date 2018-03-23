@@ -16,7 +16,7 @@ public class OrderHeader extends RealmObject implements Serializable {
     private String invoiceNo;
     private String customerId;
     private String customerName;
-    private int serviceType;
+    private int serviceType;        // 1: quick service, 2 schedule service
     private String statusId;
     private String statusDetailId;
     private String partyId;         // why string ? for future reference could be unique string, even Mitra.id is a long

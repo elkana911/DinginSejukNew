@@ -120,6 +120,7 @@ public abstract class AFirebaseMitraActivity extends FirebaseActivity{
                 assignment.setOrderId(orderHeader.getUid());
                 assignment.setMitraId(orderHeader.getPartyId());
                 assignment.setMitraName(orderHeader.getPartyName());
+                assignment.setServiceType(orderHeader.getServiceType());
 
                 // unavoided timestamp using java.util.Date
                 assignment.setUpdatedTimestamp(new Date().getTime());

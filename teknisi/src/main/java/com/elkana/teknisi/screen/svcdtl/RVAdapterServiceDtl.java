@@ -1,6 +1,7 @@
 package com.elkana.teknisi.screen.svcdtl;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
@@ -31,7 +32,8 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
     private static final String TAG = RVAdapterServiceDtl.class.getSimpleName();
 
     private final int VIEW_TYPE_CELL = 1;
-    private final int VIEW_TYPE_FOOTER = 2;
+    private final int VIEW_TYPE_DLL = 2;
+    private final int VIEW_TYPE_FOOTER = 3;
 
     private Context mContext;
     private String mMitraId, mAssignmentId;
@@ -49,14 +51,41 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
 
         mAdapterSpinner = new AdapterServiceTypeSpinner(mContext, android.R.layout.simple_spinner_item, mMitraId);
 
+        if (mListener != null) {
+            mListener.onPrepareList(mList);
+
+            if (mList.size() > 0) {
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyDataSetChanged();
+                    }
+                });
+                /*
+                ActivityServiceDetail.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mInfo.setText(str);
+                    }
+                });
+                notifyDataSetChanged();
+                */
+            }
+        }
+
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_CELL) {
             View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.row_ac_item, parent, false);
-            return new MyViewHolder(itemView);
+                    .inflate(R.layout.row_ac_item_default, parent, false);
+            return new MyViewDefaultHolder(itemView);
+        } else
+        if (viewType == VIEW_TYPE_DLL) {
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.row_ac_item_dll, parent, false);
+            return new MyViewDllHolder(itemView);
         } else {
 
             View itemView = LayoutInflater.from(parent.getContext())
@@ -75,13 +104,26 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
 
         final ServiceItem row = mList.get(position);
 
-        ((MyViewHolder) holder).setData(row, position);
+        if (isServiceTypeIsDLL(row))
+            ((MyViewDllHolder) holder).setData(row, position);
+        else
+            ((MyViewDefaultHolder) holder).setData(row, position);
 
     }
 
     @Override
     public int getItemViewType(int position) {
-        return (position == mList.size()) ? VIEW_TYPE_FOOTER : VIEW_TYPE_CELL;
+        if (position == mList.size()) {
+            return VIEW_TYPE_FOOTER;
+        } else {
+            final ServiceItem row = mList.get(position);
+
+            if (isServiceTypeIsDLL(row))
+                return VIEW_TYPE_DLL;
+            else
+                return VIEW_TYPE_CELL;
+//                return (position == mList.size()) ? VIEW_TYPE_FOOTER : VIEW_TYPE_CELL;
+        }
     }
 
     @Override
@@ -93,6 +135,9 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
         return mList;
     }
 
+    private boolean isServiceTypeIsDLL(ServiceItem obj) {
+        return obj.getServiceTypeId() < 0;
+    }
 
     private void removeRow(ServiceItem row, int position) {
         if (mListener != null) {
@@ -116,7 +161,35 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
         return -1;
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewDllHolder extends RecyclerView.ViewHolder {
+        private EditText etServiceItem;
+        private FloatingActionButton fabDelete;
+        private TextView tvPrice;
+
+        public MyViewDllHolder(View itemView) {
+            super(itemView);
+
+            etServiceItem = itemView.findViewById(R.id.etServiceItem);
+            tvPrice = itemView.findViewById(R.id.tvPrice);
+            fabDelete = itemView.findViewById(R.id.fabDelete);
+        }
+
+        public void setData(final ServiceItem obj, final int position) {
+            etServiceItem.setText(obj.getServiceLabel());
+
+            Double sum = new Double(obj.getRate());
+            tvPrice.setText(Util.convertLongToRupiah(sum.longValue()));
+
+            fabDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+        }
+    }
+
+    class MyViewDefaultHolder extends RecyclerView.ViewHolder {
         private Spinner spServiceItem;
         private FloatingActionButton fabDelete;
         private EditText etPromoCode, etCounter;
@@ -124,7 +197,7 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
         private Button btnDataAC;
         private AppCompatImageView btnDecItem, btnIncItem;
 
-        public MyViewHolder(View itemView) {
+        public MyViewDefaultHolder(View itemView) {
             super(itemView);
 
             spServiceItem = itemView.findViewById(R.id.spServiceItem);
@@ -276,13 +349,13 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
                 @Override
                 public void onClick(View v) {
 
-                    ServiceItem item = new ServiceItem();
 
                     if (mListener != null)
                         mListener.onAddServiceDetail();
 
                     ServiceType serviceType = mAdapterSpinner.getItem(0);
 
+                    ServiceItem item = new ServiceItem();
                     item.setUid(new Date().getTime());
                     item.setCount(1);
                     item.setAssignmentId(mAssignmentId);

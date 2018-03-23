@@ -29,6 +29,7 @@ import com.elkana.dslibrary.listener.ListenerGetLong;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.OrderHeader;
+import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
@@ -69,6 +70,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
     public static final String PARAM_LONGITUDE_ID = "customer.longitude";
     public static final String PARAM_ADDRESS_ID = "customer.address";
     public static final String PARAM_MITRA_ID = "mitra.id";
+    public static final String PARAM_SERVICE_TYPE = "order.serviceType";
 
     // The minimum distance to change Updates in meters
     private static final long MIN_UPDATE_DISTANCE = 100; // 100 meters utk pergerakan driver
@@ -76,6 +78,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
     private static final long MIN_UPDATE_TIME = 1000 * 12;  // 12 seconds
     private static final float MAP_ZOOM_DEFAULT = 13;
     private String mTechnicianId, mAssignmentId, mOrderId, mCustomerId, mCustomerAddress, mCustomerPhone, mLatitude, mLongitude, mMitraId;
+    private int mServiceType;
 
     private OrderHeader orderInfo;
 
@@ -184,6 +187,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
         mCustomerAddress = getIntent().getStringExtra(PARAM_ADDRESS_ID);
         mOrderId = getIntent().getStringExtra(PARAM_ORDER_ID);
         mMitraId = getIntent().getStringExtra(PARAM_MITRA_ID);
+        mServiceType = getIntent().getIntExtra(PARAM_SERVICE_TYPE, Const.SERVICE_TYPE_SCHEDULED);
 
         if (Util.TESTING_MODE && mTechnicianId == null) {
             mCustomerId = "2Chlu5e44Ig95SkjQxVgGbVvysk2";
@@ -307,6 +311,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                                         data.putExtra(PARAM_ORDER_ID, mOrderId);
                                         data.putExtra(PARAM_TECHNICIAN_ID, mTechnicianId);
                                         data.putExtra(PARAM_MITRA_ID, mMitraId);
+                                        data.putExtra(PARAM_SERVICE_TYPE, mServiceType);
                                         setResult(RESULT_OK, data);
                                         finish();
                                     }

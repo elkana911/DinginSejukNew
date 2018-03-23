@@ -154,11 +154,11 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
 
 //
 //        if (EOrderDetailStatus.convertValue(obj.getStatusDetailId()) == EOrderDetailStatus.CANCELLED_BY_TIMEOUT) {
-//            ((MyViewHolder) holder).tvOrderRemaining.setText("Expired!!");
+//            ((MyViewDefaultHolder) holder).tvOrderRemaining.setText("Expired!!");
 //        }
 //
 //        if (Util.isExpiredBooking(obj.getTimestamp(), 0)) {
-//            ((MyViewHolder) holder).tvOrderRemaining.setText("Expired!!");
+//            ((MyViewDefaultHolder) holder).tvOrderRemaining.setText("Expired!!");
 //
 //            // TODO: update firebase db
 //

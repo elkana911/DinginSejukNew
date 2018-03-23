@@ -27,6 +27,7 @@ public class Assignment extends RealmObject implements Serializable {
     private long startDate; // diisi waktu mulai layanan
     private long endDate;   // diisi waktu menunggu pembayaran
     private long createdDate;
+    private int serviceType;
     private String mitraId;
     private String mitraName;
     private String statusDetailId;  //should synchron 1 way with orderHeader.statusDetailId
@@ -185,6 +186,14 @@ public class Assignment extends RealmObject implements Serializable {
         this.updatedBy = updatedBy;
     }
 
+    public int getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(int serviceType) {
+        this.serviceType = serviceType;
+    }
+
     @Override
     public String toString() {
         return "Assignment{" +
@@ -202,6 +211,7 @@ public class Assignment extends RealmObject implements Serializable {
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", createdDate=" + createdDate +
+                ", serviceType=" + serviceType +
                 ", mitraId='" + mitraId + '\'' +
                 ", mitraName='" + mitraName + '\'' +
                 ", statusDetailId='" + statusDetailId + '\'' +

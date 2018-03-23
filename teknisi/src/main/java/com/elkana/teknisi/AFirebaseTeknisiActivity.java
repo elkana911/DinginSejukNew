@@ -50,7 +50,7 @@ called by teknisi only
 
             Date today = new Date();
             FBUtil.Mitra_GetTechnicianRef(mitraId, technicianId)
-                    .child("jobs")
+                    .child("jobs_assigned")
                     .child(Util.convertDateToString(today, "yyyyMMdd"))
                     .child(String.valueOf(today.getTime()))
                     .setValue(orderId);

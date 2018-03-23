@@ -103,7 +103,7 @@ public class MainActivityFragment extends Fragment {
                     i.putExtra(ActivityServiceDetail.PARAM_ASSIGNMENT_ID, data.getStringExtra(MapsActivity.PARAM_ASSIGNMENT_ID));
                     i.putExtra(ActivityServiceDetail.PARAM_TECHNICIAN_ID, data.getStringExtra(MapsActivity.PARAM_TECHNICIAN_ID));
                     i.putExtra(ActivityServiceDetail.PARAM_MITRA_ID, data.getStringExtra(MapsActivity.PARAM_MITRA_ID));
-//                    i.putExtra(ActivityServiceDetail.PARAM_CUSTOMER_ID, data.getStringExtra(MapsActivity.PARAM_CUSTOMER_ID));
+                    i.putExtra(ActivityServiceDetail.PARAM_SERVICE_TYPE, data.getStringExtra(MapsActivity.PARAM_SERVICE_TYPE));//                    i.putExtra(ActivityServiceDetail.PARAM_CUSTOMER_ID, data.getStringExtra(MapsActivity.PARAM_CUSTOMER_ID));
 //                    i.putExtra(ActivityServiceDetail.PARAM_ORDER_ID, data.getStringExtra(MapsActivity.PARAM_ORDER_ID));
 
                     startActivityForResult(i, REQUESTCODE_SERVICE_DTL);
@@ -178,6 +178,7 @@ public class MainActivityFragment extends Fragment {
                                 i.putExtra(MapsActivity.PARAM_ADDRESS_ID, obj.getAddressId());
                                 i.putExtra(MapsActivity.PARAM_ORDER_ID, obj.getUid());
                                 i.putExtra(MapsActivity.PARAM_MITRA_ID, obj.getPartyId());
+                                i.putExtra(MapsActivity.PARAM_SERVICE_TYPE, obj.getServiceType());
 
                                 startActivityForResult(i, REQUESTCODE_MAP);
                                 break;
@@ -189,6 +190,7 @@ public class MainActivityFragment extends Fragment {
                                 i.putExtra(ActivityServiceDetail.PARAM_MITRA_ID, obj.getPartyId());
                                 i.putExtra(ActivityServiceDetail.PARAM_CUSTOMER_ID, obj.getCustomerId());
                                 i.putExtra(ActivityServiceDetail.PARAM_ORDER_ID, obj.getUid());
+                                i.putExtra(ActivityServiceDetail.PARAM_SERVICE_TYPE, obj.getServiceType());
 //                                i.putExtra(ActivityServiceDetail.PARAM_CUSTOMER_NAME, obj.getCustomerName());
 //                                i.putExtra(ActivityServiceDetail.PARAM_CUSTOMER_ADDRESS, obj.getAddressId());
 

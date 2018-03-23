@@ -209,7 +209,7 @@ public class ActivityScrollingAssignment extends AFirebaseMitraActivity{
                             value = {suspend=false, joinDate=1512225232276, jobs={20171203={1512343838050=-L-UGt2NFAsIOq2I5n5c}}, techId=i3p56IZtWHQYPBLxAIYlxEt5aKu1, name=Lia} }
 
                          */
-                        long orderTodayCount = postSnapshot.child("jobs").child(todayYYYYMMDD).getChildrenCount();
+                        long orderTodayCount = postSnapshot.child("jobs_assigned").child(todayYYYYMMDD).getChildrenCount();
                         _obj.setOrderTodayCount((int)orderTodayCount);
 
                         Log.e(TAG, _obj.toString());

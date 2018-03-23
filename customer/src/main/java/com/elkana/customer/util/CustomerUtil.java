@@ -52,7 +52,7 @@ public class CustomerUtil {
     public static final String REF_ORDERS_CUSTOMER_AC_PENDING = REF_ORDERS_AC_PENDING + "/customer";
     public static final String REF_ORDERS_MITRA_AC_PENDING = REF_ORDERS_AC_PENDING + "/mitra";
 
-    public static final String REF_MOVEMENTS= "movements";
+    public static final String REF_MOVEMENTS = "movements";
     public static final String REF_MASTER_SETUP = "master/mSetup/" + Const.CONFIG_AS_COSTUMER;
 
     public static void getOnlineDataToOffline() {
@@ -119,8 +119,14 @@ udah di taruh di lib
     }
 
     public static String getServiceTypeLabel(Context ctx, int serviceType) {
-        return serviceType < 2 ? ctx.getString(R.string.title_activity_ac_quickservice)
-                : ctx.getString(R.string.title_activity_ac_schedservice);
+        switch (serviceType) {
+            case Const.SERVICE_TYPE_QUICK:
+                return ctx.getString(R.string.title_activity_ac_quickservice);
+            case Const.SERVICE_TYPE_SCHEDULED:
+                return ctx.getString(R.string.title_activity_ac_schedservice);
+            default:
+                throw new RuntimeException("Unknown serviceType=" + serviceType);
+        }
     }
 
     public static String getMessageStatusDetail(Context ctx, EOrderDetailStatus status) {
@@ -170,18 +176,18 @@ udah di taruh di lib
 
     public static Mitra lookUpMitraByName(String name) {
         Realm r = Realm.getDefaultInstance();
-        try{
+        try {
             return lookUpMitra(r, name);
-        }finally {
+        } finally {
             r.close();
         }
     }
 
     public static Mitra lookUpMitraById(String mitraId) {
         Realm r = Realm.getDefaultInstance();
-        try{
+        try {
             return lookUpMitraById(r, mitraId);
-        }finally {
+        } finally {
             r.close();
         }
     }
@@ -205,14 +211,14 @@ udah di taruh di lib
                 if (dataSnapshot.exists()) {
 
                     Realm r = Realm.getDefaultInstance();
-                    try{
-                        for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                    try {
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                             Object _obj = postSnapshot.getValue();
                             Log.e(TAG, _obj.toString());
 
 //                        long childrenCount = postSnapshot.getChildrenCount();
 
-                            for (DataSnapshot _sub: postSnapshot.getChildren()) {
+                            for (DataSnapshot _sub : postSnapshot.getChildren()) {
 
                                 if (_sub.getKey().equals("basicInfo")) {
                                     Mitra __obj = _sub.getValue(Mitra.class);
@@ -226,7 +232,7 @@ udah di taruh di lib
                             }
                         }
 
-                    }finally {
+                    } finally {
                         r.close();
                     }
 
@@ -353,47 +359,47 @@ udah di taruh di lib
         FirebaseDatabase.getInstance().getReference(REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(customerId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
 
-                List<String> mitraList = new ArrayList<>();
+                        List<String> mitraList = new ArrayList<>();
 
-                if (dataSnapshot.exists()) {
-                    Realm r = Realm.getDefaultInstance();
-                    try {
-                        r.beginTransaction();
-                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                            OrderHeader _obj = postSnapshot.getValue(OrderHeader.class);
+                        if (dataSnapshot.exists()) {
+                            Realm r = Realm.getDefaultInstance();
+                            try {
+                                r.beginTransaction();
+                                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                    OrderHeader _obj = postSnapshot.getValue(OrderHeader.class);
 
-                            mitraList.add(_obj.getPartyId());
+                                    mitraList.add(_obj.getPartyId());
 
-                            r.copyToRealmOrUpdate(_obj);
-                            Log.e(TAG, _obj.toString());
+                                    r.copyToRealmOrUpdate(_obj);
+                                    Log.e(TAG, _obj.toString());
+                                }
+
+                                r.commitTransaction();
+                            } finally {
+                                r.close();
+                            }
                         }
 
-                        r.commitTransaction();
-                    } finally {
-                        r.close();
+                        if (mitraList.size() > 0) {
+                            recursiveGetPendingMitra(mitraList, mitraList.size() - 1, listener);
+                        } else {
+                            if (listener != null)
+                                listener.onPostSync(null);
+                        }
+
                     }
-                }
 
-                if (mitraList.size() > 0) {
-                    recursiveGetPendingMitra(mitraList, mitraList.size() - 1, listener);
-                } else {
-                    if (listener != null)
-                        listener.onPostSync(null);
-                }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        if (listener != null)
+                            listener.onPostSync(databaseError.toException());
 
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                if (listener != null)
-                    listener.onPostSync(databaseError.toException());
-
-                Log.e(TAG, databaseError.getMessage(), databaseError.toException());
-            }
-        });
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                    }
+                });
 
     }
 
@@ -427,7 +433,7 @@ udah di taruh di lib
 
     }
 
-    public static void syncUserInformation(Realm realm){
+    public static void syncUserInformation(Realm realm) {
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -453,12 +459,12 @@ udah di taruh di lib
                             final BasicInfo _obj = dataSnapshot.getValue(BasicInfo.class);
 
                             Realm r = Realm.getDefaultInstance();
-                            try{
+                            try {
                                 r.beginTransaction();
                                 r.copyToRealmOrUpdate(_obj);
                                 r.commitTransaction();
 
-                            }finally {
+                            } finally {
                                 r.close();
                             }
 
@@ -492,7 +498,7 @@ udah di taruh di lib
                             }
 
                             r.commitTransaction();
-                        }finally {
+                        } finally {
                             r.close();
                         }
 
@@ -604,13 +610,13 @@ udah di taruh di lib
 
     public static MobileSetup getMobileSetup() {
         Realm r = Realm.getDefaultInstance();
-        try{
+        try {
             MobileSetup first = r.where(MobileSetup.class).findFirst();
             if (first == null)
                 throw new NullPointerException("Unable to get table MobileSetup");
 
             return r.copyFromRealm(first);
-        }finally {
+        } finally {
             r.close();
         }
     }

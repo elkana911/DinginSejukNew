@@ -208,7 +208,7 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
                             .append(obj.getLongitude());
 
 //        https://maps.googleapis.com/maps/api/staticmap?size=600x300&markers=color:red|label:A|-6.24415,106.6357&zoom=15
-//            Picasso.with(mContext).load(map_static_url.toString()).networkPolicy(NetworkPolicy.OFFLINE).into(((MyViewHolder) holder).ivMap);
+//            Picasso.with(mContext).load(map_static_url.toString()).networkPolicy(NetworkPolicy.OFFLINE).into(((MyViewDefaultHolder) holder).ivMap);
                     Picasso.with(mContext).load(map_static_url.toString())
                             .fit()
 //                    .centerInside()

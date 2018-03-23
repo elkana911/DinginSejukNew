@@ -19,7 +19,7 @@ public class TechnicianReg extends RealmObject implements Serializable {
     private long joinDate;
     private String name;
     private boolean suspend;    // if absen, berlaku sehari ?
-    private int orderTodayCount;    // unused ?
+    private int orderTodayCount;    // dipakai wkt assign manual. utk menampung ada brp jobs yg diassign ke teknisi ini. tidak utk ditaruh di firebase makanya di @Exclude
 
     public TechnicianReg() {
     }

@@ -18,6 +18,7 @@ import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.mitra.Assignment;
+import com.elkana.dslibrary.pojo.mitra.ServiceType;
 import com.elkana.dslibrary.pojo.technician.ServiceItem;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
@@ -40,15 +41,16 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
     public static final String PARAM_ASSIGNMENT_ID = "assignment.id";
     public static final String PARAM_TECHNICIAN_ID = "tech.id";
     public static final String PARAM_CUSTOMER_ID = "customer.id";
-//    public static final String PARAM_CUSTOMER_NAME = "customer.name";
+    //    public static final String PARAM_CUSTOMER_NAME = "customer.name";
 //    public static final String PARAM_CUSTOMER_ADDRESS = "customer.address";
 //    public static final String PARAM_STARTSERVICE_TIME = "dateOfService";
     public static final String PARAM_MITRA_ID = "mitra.id";
     public static final String PARAM_ORDER_ID = "order.id";
+    public static final String PARAM_SERVICE_TYPE = "order.serviceType";
 
-//    public static final String PARAM_LATITUDE_ID = "customer.latitude";
+    //    public static final String PARAM_LATITUDE_ID = "customer.latitude";
+
 //    public static final String PARAM_LONGITUDE_ID = "customer.longitude";
-
     private static final int REQUESTCODE_SCREEN_DATA_AC = 33;
 
 
@@ -59,11 +61,12 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
     private RVAdapterServiceDtl mAdapter;
 //    private RealmSearchView search_view;
 
-    FloatingActionButton fabAddService;
+//    FloatingActionButton fabAddService;
     Button btnGo2Payment;
     TextView tvTotalFare, tvCustomerName, tvCustomerAddress, tvStartTime;
 
     private String mTechnicianId, mAssignmentId, mOrderId, mCustomerId, mCustomerAddress, mCustomerName, mMitraId, mStartTime;//, mLatitude, mLongitude;
+    private int mServiceType;
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -135,6 +138,7 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
         mTechnicianId = getIntent().getStringExtra(PARAM_TECHNICIAN_ID);
 //        mPartyId = getIntent().getStringExtra(PARAM_MITRA_ID);
         mMitraId = getIntent().getStringExtra(PARAM_MITRA_ID);
+        mServiceType = getIntent().getIntExtra(PARAM_SERVICE_TYPE, Const.SERVICE_TYPE_SCHEDULED);
 
 //        mCustomerId = getIntent().getStringExtra(PARAM_CUSTOMER_ID);
 //        mOrderId = getIntent().getStringExtra(PARAM_ORDER_ID);
@@ -156,6 +160,7 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
 //            mCustomerAddress = "gii bsg isuzu";
         }
 
+        /*
         fabAddService = findViewById(R.id.fabAddService);
         fabAddService.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,6 +179,7 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
                 mAdapter.notifyDataSetChanged();
             }
         });
+        */
 
         btnGo2Payment = findViewById(R.id.btnGo2Payment);
         btnGo2Payment.setOnClickListener(new View.OnClickListener() {
@@ -232,6 +238,7 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
         });
 
         mAdapter = new RVAdapterServiceDtl(this, mMitraId, mAssignmentId, new ListenerServiceDetail() {
+
             @Override
             public void onAddServiceDetail() {
 //                ServiceItem item = new ServiceItem();
@@ -246,6 +253,25 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
             public void onAddDataAC() {
                 Intent intent = new Intent(ActivityServiceDetail.this, ActivityDataAC.class);
                 startActivityForResult(intent, REQUESTCODE_SCREEN_DATA_AC);
+            }
+
+            @Override
+            public void onPrepareList(List<ServiceItem> mList) {
+
+                if (mServiceType == Const.SERVICE_TYPE_QUICK) {
+                    ServiceItem item = new ServiceItem();
+                    item.setUid(new Date().getTime());
+                    item.setUidNegative(Math.abs(item.getUid()));
+                    item.setCount(1);
+                    item.setAssignmentId(mAssignmentId);
+                    item.setPromoCode(null);
+
+                    item.setServiceTypeId(Const.SERVICE_TYPE_QUICK_SERVICE_CHARGE);
+                    item.setServiceLabel(Const.SERVICE_TYPE_QUICK_SERVICE_CHARGE_LABEL);
+                    item.setRate(25000);
+
+                    mList.add(item);
+                }
             }
         });
 
