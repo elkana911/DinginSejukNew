@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -31,6 +32,7 @@ import com.elkana.dslibrary.listener.ListenerSync;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
+import com.elkana.dslibrary.pojo.technician.ServiceItem;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
@@ -78,11 +80,14 @@ public class FragmentSummaryOrder extends Fragment {
 
     private ValueEventListener mOrderHeaderPendingListener;
 
-    View llBlank, llNonBlank, cardInvoice;
+    View llBlank, llNonBlank;
+    LinearLayout llInvoice;
+
+    private View cardInvoice;
 
     EditText etStatus, etRatingComments;
 
-    TextView tvStatusDetil, tvServiceType, tvDateService, tvDateRequest, tvMitra, tvAddress, tvProblem;
+    TextView tvStatusDetil, tvServiceType, tvDateService, tvDateRequest, tvMitra, tvAddress, tvProblem, tvBufferInvoice;
 
     Button btnCheckTechnicianGps, btnPayment, btnCancelOrder, btnReschedule;
 
@@ -249,10 +254,12 @@ public class FragmentSummaryOrder extends Fragment {
                 case WORKING:
                     break;
                 case PAYMENT:
+                    buildInvoice();
 //                    btnPayment.setVisibility(View.VISIBLE);
                     cardInvoice.setVisibility(View.VISIBLE);
                     break;
                 case PAID:
+                    buildInvoice();
                     cardInvoice.setVisibility(View.VISIBLE);
                     if (orderStatus == EOrderStatus.FINISHED) {
                         cardReview.setVisibility(View.GONE);
@@ -310,6 +317,79 @@ public class FragmentSummaryOrder extends Fragment {
         }
     }
 
+    private void buildInvoice() {
+
+        int childCount = llInvoice.getChildCount();
+
+        // trik refresh buffer
+        String lastOrderId = tvBufferInvoice.getText().toString();
+
+//        if (childCount > 0) {
+            // trik supaya ga reload berkali2, maka perlu variable
+            if (lastOrderId.equals(mSelectedOrderId)) {
+                return;
+            }
+//        }
+
+        llInvoice.removeAllViews();
+
+        String assignmentId, technicianId;
+        Realm r = Realm.getDefaultInstance();
+        try {
+            OrderHeader _orderHeader = r.where(OrderHeader.class).equalTo("uid", mSelectedOrderId).findFirst();
+            assignmentId = _orderHeader.getAssignmentId();
+            technicianId = _orderHeader.getTechnicianId();
+        }finally {
+            r.close();
+        }
+
+//        gawat, bisa berkali dipanggil
+        FBUtil.Assignment_getServiceItemsRef(technicianId, assignmentId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int i = 0;
+                double sum = 0;
+
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    ServiceItem _serviceItem = postSnapshot.getValue(ServiceItem.class);
+
+                    View inflatedLayout= getLayoutInflater().inflate(R.layout.row_invoice_item, null, false);
+
+                    i += 1;
+                    TextView tv1 = inflatedLayout.findViewById(R.id.tv1);
+                    tv1.setText("" + i + ".");
+
+                    TextView tv2 = inflatedLayout.findViewById(R.id.tv2);
+                    tv2.setText(_serviceItem.getServiceLabel());
+
+                    TextView tv3 = inflatedLayout.findViewById(R.id.tv3);
+                    tv3.setText(Util.convertLongToRupiah(new Double(_serviceItem.getRate()).longValue()));
+
+                    llInvoice.addView(inflatedLayout);
+
+                    sum += new Double(_serviceItem.getCount()) * _serviceItem.getRate();
+                }
+
+                //Total
+                View inflatedLayout= getLayoutInflater().inflate(R.layout.row_invoice_total_item, null, false);
+
+                TextView tvTotal = inflatedLayout.findViewById(R.id.tvTotal);
+                tvTotal.setText(Util.convertLongToRupiah(new Double(sum).longValue()));
+
+                llInvoice.addView(inflatedLayout);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        tvBufferInvoice.setText(mSelectedOrderId);
+
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -318,8 +398,10 @@ public class FragmentSummaryOrder extends Fragment {
 
         llBlank = v.findViewById(R.id.llBlank);
         llNonBlank = v.findViewById(R.id.llNonBlank);
+        llInvoice = v.findViewById(R.id.llInvoice);
 
         etStatus = v.findViewById(R.id.etStatus);
+        tvBufferInvoice = v.findViewById(R.id.tvBufferInvoice);
 
         tvStatusDetil = v.findViewById(R.id.tvStatusDetil);
         tvAddress = v.findViewById(R.id.tvAddress);

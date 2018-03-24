@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <View
+        android:id="@+id/line"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="3dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+    <TextView
+        android:layout_below="@+id/line"
+        android:layout_toStartOf="@+id/tvTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="0dp"
+        android:paddingEnd="16dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textStyle="bold"
+        android:text="Total" />
+
+    <TextView
+        android:id="@+id/tvTotal"
+        android:layout_below="@+id/line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textStyle="bold"
+        android:text="How are you today?"/>
+
+</RelativeLayout>
