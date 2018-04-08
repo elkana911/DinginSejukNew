@@ -7,6 +7,7 @@ import android.util.Log;
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.MobileSetup;
 import com.elkana.ds.mitraapp.pojo.NotifyTechnician;
+import com.elkana.dslibrary.pojo.mitra.JobsAssigned;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetAllData;
 import com.elkana.dslibrary.listener.ListenerModifyData;
@@ -21,6 +22,7 @@ import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.FirebaseToken;
 import com.elkana.dslibrary.pojo.user.UserAddress;
 import com.elkana.dslibrary.util.Const;
+import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -40,6 +42,9 @@ import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * Created by Eric on 23-Oct-17.
@@ -82,6 +87,7 @@ public class MitraUtil {
             realm.where(Mitra.class).findAll().deleteAllFromRealm();
 //            realm.where(TmpMitra.class).findAll().deleteAllFromRealm();
             realm.where(Assignment.class).findAll().deleteAllFromRealm();
+            realm.where(JobsAssigned.class).findAll().deleteAllFromRealm();
 //            realm.deleteAll(); bahaya krn mainmenu jg ikut kehapus
             realm.commitTransaction();
         } finally {
@@ -163,10 +169,12 @@ public class MitraUtil {
         return obj;
     }
 
-    public static List<TechnicianReg> getAllTechnicianReg() {
+    public static List<TechnicianReg> getAllTechnicianReg(boolean sortByScore) {
         Realm r = Realm.getDefaultInstance();
         try {
-            return r.copyFromRealm(r.where(TechnicianReg.class).findAll());
+            RealmResults<TechnicianReg> all = r.where(TechnicianReg.class).findAll();
+
+            return r.copyFromRealm(sortByScore ? all.sort("lastScore", Sort.DESCENDING) : all);
         } finally {
             r.close();
         }
@@ -213,32 +221,6 @@ public class MitraUtil {
         }
     }
 
-
-    /**
-     // fungsi yg cukup bahaya. hanya boleh dipake di mitra yg jamnya lebih akurat
-     * 1 hour(60 minutes) from now
-     *
-     * @param timeMillisToCheck
-     * @param lastMinutes if 30, 30 minutes from now is expired
-     * @return
-     */
-    public static boolean isExpiredTime(long timeMillisToCheck, int lastMinutes) {
-        Date date = new Date(timeMillisToCheck);
-        // 2017-12-13 07:22
-
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        c.add(Calendar.MINUTE, lastMinutes);
-        // 2017-12-13  07:22 + minuteToleransi
-
-        if (date.getTime() < c.getTimeInMillis()) {
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
     // fungsi yg cukup bahaya. hanya boleh dipake di mitra yg jamnya lebih akurat
     public static boolean isExpiredBooking(OrderHeader orderHeader) {
         EOrderDetailStatus status = EOrderDetailStatus.convertValue(orderHeader.getStatusDetailId());
@@ -248,7 +230,7 @@ public class MitraUtil {
                 /*|| status == EOrderDetailStatus.RESCHEDULED*/
                 || status == EOrderDetailStatus.UNKNOWN
                 ) {
-            return isExpiredTime(orderHeader.getBookingTimestamp(), 30);   //hardcode 30
+            return DateUtil.isExpiredTime(orderHeader.getBookingTimestamp(), 30) > 0;   //hardcode 30
 
         } else
             return false;
@@ -264,7 +246,7 @@ public class MitraUtil {
                 /*|| status == EOrderDetailStatus.RESCHEDULED*/
                 || status == EOrderDetailStatus.UNKNOWN
                 ) {
-            return isExpiredTime(orderBucket.getBookingTimestamp(), 30);
+            return DateUtil.isExpiredTime(orderBucket.getBookingTimestamp(), 30) > 0;
 
         } else
             return false;
@@ -317,7 +299,7 @@ public class MitraUtil {
     public static void syncServices(final ListenerGetAllData listener) {
 
         Realm r = Realm.getDefaultInstance();
-        try{
+        try {
             List<SubServiceType> _list = r.copyFromRealm(r.where(SubServiceType.class).findAll());
 
             // get local cache
@@ -325,7 +307,7 @@ public class MitraUtil {
                 listener.onSuccess(_list);
                 return;
             }
-        }finally {
+        } finally {
             r.close();
         }
 
@@ -536,8 +518,42 @@ public class MitraUtil {
                     }
                 });
 
+        //TODO: sync jobs_assigned & jobs_history
+
+
     }
 
 
+    public static List<TechnicianReg> getAllTechnicianRegByScoring(long bookingTimestamp) {
+        List<TechnicianReg> techList = getAllTechnicianReg(true);
 
+        List<TechnicianReg> priorityList = new ArrayList<>();
+
+        Realm r = Realm.getDefaultInstance();
+        try{
+            MobileSetup mSetup = r.where(MobileSetup.class).findFirst();
+
+            String waktuHariBooking = DateUtil.displayTimeInJakarta(bookingTimestamp, "yyyyMMdd");
+
+            for (TechnicianReg tech : techList) {
+                //1. cek max order
+                long _count = r.where(JobsAssigned.class)
+                        .equalTo("techId", tech.getTechId())
+                        .like("wkt", waktuHariBooking + "*")
+                        .count();
+
+                if (_count > mSetup.getMaxOrderPerTechnician()) {
+                    continue;
+                }
+
+                //2. nearby ?
+
+                priorityList.add(tech);
+            }
+        } finally {
+            r.close();
+        }
+
+        return priorityList;
+    }
 }

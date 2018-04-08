@@ -13,8 +13,9 @@ public class NotifyNewOrderItem {
     private String customerId;
     private String customerName;
     private long orderTimestamp;    // order timestamp
-    private long timestamp; // inserted timestamp
+//    private long timestamp; // inserted timestamp. diganti mitraTimestamp
     private long mitraTimestamp;    // dibuat utk timer dihitung dr waktunya mitra, supaya tetap sinkron dengan timer di teknisi
+    private int minuteExtra;    // buat timer. diisi dari server. defaultnya 10 menit. utk develop 5 menit cukup.
 
     public String getOrderId() {
         return orderId;
@@ -80,20 +81,20 @@ public class NotifyNewOrderItem {
         this.orderTimestamp = orderTimestamp;
     }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
     public long getMitraTimestamp() {
         return mitraTimestamp;
     }
 
     public void setMitraTimestamp(long mitraTimestamp) {
         this.mitraTimestamp = mitraTimestamp;
+    }
+
+    public int getMinuteExtra() {
+        return minuteExtra;
+    }
+
+    public void setMinuteExtra(int minuteExtra) {
+        this.minuteExtra = minuteExtra;
     }
 
     @Override
@@ -107,8 +108,8 @@ public class NotifyNewOrderItem {
                 ", customerId='" + customerId + '\'' +
                 ", customerName='" + customerName + '\'' +
                 ", orderTimestamp=" + orderTimestamp +
-                ", timestamp=" + timestamp +
                 ", mitraTimestamp=" + mitraTimestamp +
+                ", minuteExtra=" + minuteExtra +
                 '}';
     }
 }

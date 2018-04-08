@@ -3,7 +3,6 @@ package com.elkana.customer.screen.order;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -27,7 +26,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.elkana.customer.R;
@@ -35,7 +33,9 @@ import com.elkana.customer.exception.OrderAlreadyExists;
 import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.screen.register.SimpleAdapterUserAddress;
 import com.elkana.customer.util.CustomerUtil;
+import com.elkana.dslibrary.firebase.FBFunction_BasicCallableRecord;
 import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.listener.ListenerGetString;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
@@ -68,6 +68,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.functions.FirebaseFunctions;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -105,6 +106,8 @@ public class FragmentOrderACNew extends Fragment {
 
     protected List<TmpMitra> mitraInRange = new ArrayList<>();
     protected FirebaseDatabase database;
+    private FirebaseFunctions mFunctions;
+
     protected GoogleMap mMap;
     protected MobileSetup mobileSetup = null;
 
@@ -153,6 +156,7 @@ public class FragmentOrderACNew extends Fragment {
         }
 
         database = FirebaseDatabase.getInstance();
+        mFunctions = FirebaseFunctions.getInstance();
 
         mobileSetup = CustomerUtil.getMobileSetup();
 
@@ -405,6 +409,19 @@ public class FragmentOrderACNew extends Fragment {
                     return;
                 }
 
+                CustomerUtil.showDialogTimeOfService(getContext(), mitra, new ListenerGetString() {
+                    @Override
+                    public void onSuccess(String value) {
+                        etTime.setText(value);
+
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+
+                    }
+                });
+/*
                 int openTime, closeTime;
                 Realm _realm = Realm.getDefaultInstance();
                 try {
@@ -418,7 +435,6 @@ public class FragmentOrderACNew extends Fragment {
                 }
 
                 final String[] time_services = DateUtil.generateWorkingHours(openTime, closeTime, 15);
-//                final String[] time_services = getContext().getResources().getStringArray(R.array.time_service);
 
                 // setup the alert builder
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -436,7 +452,7 @@ public class FragmentOrderACNew extends Fragment {
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
-
+*/
                 /* cara kedua
 // Get Current Time
                 final Calendar c = Calendar.getInstance();
@@ -692,6 +708,77 @@ public class FragmentOrderACNew extends Fragment {
     }
 
     private void submitOrder(final OrderHeader orderHeader) {
+
+        final AlertDialog dialog = Util.showProgressDialog(getContext(), "Booking process...");
+
+        try {
+            mFunctions.getHttpsCallable(FBUtil.FUNCTION_CREATE_BOOKING)
+                    .call(FBUtil.convertObjectToKeyVal(null, orderHeader))
+                    .continueWith(new FBFunction_BasicCallableRecord())
+                    .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Map<String, Object>> task) {
+                            if (!getActivity().isDestroyed())
+                                dialog.dismiss();
+
+                            if (task.isSuccessful()) {
+
+                                String orderId = (String) task.getResult().get("orderKey");
+
+                                // fix empty uid
+                                orderHeader.setUid(orderId);
+                                // get order bucket
+                                FBUtil.Order_getPendingMitraRef(orderHeader.getPartyId(), orderId)
+                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                                if (!dataSnapshot.exists())
+                                                    return;
+
+                                                final OrderBucket orderBucket = dataSnapshot.getValue(OrderBucket.class);
+
+                                                Realm realm = Realm.getDefaultInstance();
+                                                try {
+                                                    // flushed
+                                                    realm.executeTransaction(new Realm.Transaction() {
+                                                        @Override
+                                                        public void execute(Realm realm) {
+                                                            realm.copyToRealmOrUpdate(orderHeader);
+                                                            realm.copyToRealmOrUpdate(orderBucket);
+                                                        }
+                                                    });
+
+                                                    if (mListener != null) {
+                                                        mListener.onOrderCreated(orderHeader);
+                                                    }
+
+                                                } finally {
+                                                    realm.close();
+                                                }
+
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+                                                Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                            } else {
+                                Log.e(TAG, task.getException().getMessage(), task.getException());
+                                Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void submitOrderOld(final OrderHeader orderHeader) {
+
         final AlertDialog dialog = Util.showProgressDialog(getContext(), "Booking process...");
 
         DatabaseReference orderPendingCustomerRef = database.getReference(CustomerUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
@@ -715,18 +802,16 @@ public class FragmentOrderACNew extends Fragment {
         orderBucket.setUpdatedTimestamp(new Date().getTime());
         orderBucket.setUpdatedBy(String.valueOf(Const.USER_AS_COSTUMER));
 
-
         try {
-
             String root = FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING + "/" + orderHeader.getCustomerId() + "/" + orderKey;
-            Map<String, Object> keyValOrderHeader = FBUtil.convertObjectToKeyVal(root, orderHeader);
-            keyValOrderHeader.put(root + "/createdTimestamp", ServerValue.TIMESTAMP);
+            Map<String, Object> keyValOrderUnion = FBUtil.convertObjectToKeyVal(root, orderHeader);
+            keyValOrderUnion.put(root + "/createdTimestamp", ServerValue.TIMESTAMP);
 
             Map<String, Object> keyValOrderBucket = FBUtil.convertObjectToKeyVal(FBUtil.REF_ORDERS_MITRA_AC_PENDING + "/" + orderHeader.getPartyId() + "/" + orderKey, orderBucket);
 
-            keyValOrderHeader.putAll(keyValOrderBucket);
+            keyValOrderUnion.putAll(keyValOrderBucket);
 
-            FirebaseDatabase.getInstance().getReference().updateChildren(keyValOrderHeader).addOnCompleteListener(new OnCompleteListener<Void>() {
+            FirebaseDatabase.getInstance().getReference().updateChildren(keyValOrderUnion).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (!getActivity().isDestroyed())
@@ -763,6 +848,7 @@ public class FragmentOrderACNew extends Fragment {
         }
     }
 
+//    Map<String, Object> keyValOrderHeader = FBUtil.convertObjectToKeyVal(root, orderHeader);
     private void trySubmitOrder() {
 
         boolean cancel = false;
@@ -837,14 +923,18 @@ public class FragmentOrderACNew extends Fragment {
             Mitra mitraObj = CustomerUtil.lookUpMitra(r, mitra);
 
             long countCreatedOrder = r.where(OrderHeader.class)
-                    .equalTo("statusDetailId", EOrderDetailStatus.CREATED.name())
                     .equalTo("partyId", mitraObj.getUid())
+                    .beginGroup()
+                    .equalTo("statusDetailId", EOrderDetailStatus.CREATED.name())
+                    .or()
+                    .equalTo("statusDetailId", EOrderDetailStatus.UNHANDLED.name())//bisa saja msh ditangani mitra meskipun tdk ada teknisi yg menangani
+                    .endGroup()
                     .count();
 
             int maxNewOrder = mobileSetup.getMax_new_order();
 
-            if (countCreatedOrder > maxNewOrder) {
-                Toast.makeText(getContext(), "Maaf, maksimal " + maxNewOrder + " layanan baru.", Toast.LENGTH_SHORT).show();
+            if (countCreatedOrder >= maxNewOrder) {
+                Toast.makeText(getContext(), "Maaf, hanya diperbolehkan membuat " + maxNewOrder + " pesanan baru.", Toast.LENGTH_LONG).show();
                 return;
             }
         } finally{
@@ -876,15 +966,13 @@ public class FragmentOrderACNew extends Fragment {
                 orderHeader.setJumlahAC(Integer.parseInt(etCounter.getText().toString()));
                 orderHeader.setProblem(problem);
                 orderHeader.setRescheduleCounter(0);
-                orderHeader.setUpdatedTimestamp(new Date().getTime());
+                orderHeader.setCreatedTimestamp(new Date().getTime());
+                orderHeader.setUpdatedTimestamp(orderHeader.getCreatedTimestamp());
                 orderHeader.setUpdatedBy(String.valueOf(Const.USER_AS_COSTUMER));
 
                 Realm _realm = Realm.getDefaultInstance();
                 try {
                     Mitra mitraObj = CustomerUtil.lookUpMitra(_realm, mitra);
-
-                    orderHeader.setPartyId(mitraObj.getUid());
-                    orderHeader.setPartyName(mitraObj.getName());
 
                     // final check constraint: cant have same address, same mitra and same day
                     OrderHeader first = _realm.where(OrderHeader.class)
@@ -900,6 +988,9 @@ public class FragmentOrderACNew extends Fragment {
                             return;
                         }
                     }
+
+                    orderHeader.setPartyId(mitraObj.getUid());
+                    orderHeader.setPartyName(mitraObj.getName());
 
                     // get the rest
                     BasicInfo basicInfo = _realm.where(BasicInfo.class)
@@ -920,6 +1011,7 @@ public class FragmentOrderACNew extends Fragment {
         });
 
     }
+
 
     /**
      * This interface must be implemented by activities that contain this

@@ -23,8 +23,6 @@ import android.view.View;
 import com.elkana.dslibrary.BuildConfig;
 import com.elkana.dslibrary.R;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
-import com.elkana.dslibrary.pojo.OrderBucket;
-import com.elkana.dslibrary.pojo.OrderHeader;
 
 import java.io.File;
 import java.io.IOException;

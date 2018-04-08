@@ -18,6 +18,7 @@ public class MobileSetup extends RealmObject implements Serializable {
     private String theme_color_default;
     private String theme_color_default_inactive;
     private String theme_color_default_accent;
+//    private int window_new_order_minutes;    //menit yg diperlukan utk timer kasih waktu buat order baru. pd prakteknya akan dikurangi 1 menit.
 
     private boolean trackingGps;
     private String trackingOrderId;
@@ -25,7 +26,7 @@ public class MobileSetup extends RealmObject implements Serializable {
     /**
      * time for an order will cancel automatically after no respond
      */
-    private int timeout_cancel_minute;
+    private int timeout_cancel_minute;  // ga jelas maksudnya apa sih
 
     public MobileSetup() {
     }
@@ -110,6 +111,14 @@ public class MobileSetup extends RealmObject implements Serializable {
         this.min_minutes_otw = min_minutes_otw;
     }
 
+//    public int getWindow_new_order_minutes() {
+//        return window_new_order_minutes;
+//    }
+
+//    public void setWindow_new_order_minutes(int window_new_order_minutes) {
+//        this.window_new_order_minutes = window_new_order_minutes;
+//    }
+
     @Override
     public String toString() {
         return "MobileSetup{" +
@@ -119,6 +128,7 @@ public class MobileSetup extends RealmObject implements Serializable {
                 ", theme_color_default='" + theme_color_default + '\'' +
                 ", theme_color_default_inactive='" + theme_color_default_inactive + '\'' +
                 ", theme_color_default_accent='" + theme_color_default_accent + '\'' +
+//                ", window_new_order_minutes=" + window_new_order_minutes +
                 ", trackingGps=" + trackingGps +
                 ", trackingOrderId='" + trackingOrderId + '\'' +
                 ", min_minutes_otw=" + min_minutes_otw +

@@ -34,7 +34,7 @@ public class OrderHeader extends RealmObject implements Serializable {
     private String ratingCustomerComments;
     private String ratingTechnicianComments;
     private String problem;
-    private String dateOfService;
+    private String dateOfService;   // yyyyMMdd
     private String timeOfService;
     private String phone;
     private int rescheduleCounter;
@@ -43,6 +43,9 @@ public class OrderHeader extends RealmObject implements Serializable {
     private long createdTimestamp;
     private long updatedTimestamp;
     private String updatedBy;
+
+    public OrderHeader() {
+    }
 
     public String getUid() {
         return uid;

@@ -183,6 +183,22 @@ public class TeknisiUtil {
 
     }
 
+    public static boolean isExpiredTime(long timestamp, int lastMinutes) {
+        Date date = new Date(timestamp);
+        // 2017-12-13 07:22
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.MINUTE, lastMinutes);
+        // 2017-12-13  07:22 + minuteToleransi
+
+        if (new Date().getTime() > c.getTimeInMillis()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static Date getWorkingDay(Date from, int offset) {
         Calendar c = Calendar.getInstance();
         c.setTime(from);

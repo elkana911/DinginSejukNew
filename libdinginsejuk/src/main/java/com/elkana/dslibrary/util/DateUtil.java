@@ -20,6 +20,7 @@ public class DateUtil {
     public static final long TIME_TEN_MINUTE_MILLIS = 2 * TIME_FIVE_MINUTE_MILLIS;
     public static final long TIME_FIFTHEEN_MINUTE_MILLIS = 15 * TIME_ONE_MINUTE_MILLIS;
     public static final long TIME_ONE_DAYS_MILLIS = 1 * 24 * TIME_ONE_HOUR_MILLIS;
+    public static final int TIME_ONE_HOUR_MINUTES = 60;
 
     /**
      * <p>Checks if two dates are on the same day ignoring time.</p>
@@ -134,12 +135,53 @@ public class DateUtil {
         return isSameDay(new Date(), new Date(timestamp));
     }
 
+    /**
+     // fungsi yg cukup bahaya. hanya boleh dipake di mitra yg jamnya lebih akurat
+     * 1 hour(60 minutes) from now
+     *
+     * @param timestamp
+     * @param lastMinutes if 30, 30 minutes from now is expired
+     * @return > 0 of how long time is expired(in milliseconds). < 1 if not expired.
+     */
+    public static long isExpiredTime(long timestamp, int lastMinutes) {
+//        Date date = new Date(timeMillisToCheck);
+//        // 2017-12-13 07:22
+//
+//        Calendar c = Calendar.getInstance();
+//        c.setTime(new Date());
+//        c.add(Calendar.MINUTE, lastMinutes);
+//        // 2017-12-13  07:22 + minuteToleransi
+//
+//        if (date.getTime() < c.getTimeInMillis()) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+        Date date = new Date(timestamp);
+        // 2017-12-13 07:22
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.MINUTE, lastMinutes);
+        // 2017-12-13  07:22 + minuteToleransi
+
+        long selisih = new Date().getTime() - c.getTimeInMillis();
+
+        return selisih;
+
+//        if (new Date().getTime() > c.getTimeInMillis()) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+    }
+
     public static String formatDateToSimple(long timestamp) {
         return Util.convertDateToString(new Date(timestamp), "dd MMM yyyy HH:mm:ss");
     }
 
     public static String formatMillisToMinutesSeconds(long millis) {
-        return String.format("%02d min, %02d sec",
+        return String.format("%02d : %02d",
                 TimeUnit.MILLISECONDS.toMinutes(millis),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))

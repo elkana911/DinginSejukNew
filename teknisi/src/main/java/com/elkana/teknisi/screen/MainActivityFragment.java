@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Assignment;
+import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
@@ -97,17 +98,16 @@ public class MainActivityFragment extends Fragment {
 
         switch (requestCode) {
             case REQUESTCODE_MAP:
-//                if (orderDetailStatus == EOrderDetailStatus.OTW) {
                 if (orderDetailStatus == EOrderDetailStatus.WORKING) {
                     Intent i = new Intent(getActivity(), ActivityServiceDetail.class);
                     i.putExtra(ActivityServiceDetail.PARAM_ASSIGNMENT_ID, data.getStringExtra(MapsActivity.PARAM_ASSIGNMENT_ID));
                     i.putExtra(ActivityServiceDetail.PARAM_TECHNICIAN_ID, data.getStringExtra(MapsActivity.PARAM_TECHNICIAN_ID));
                     i.putExtra(ActivityServiceDetail.PARAM_MITRA_ID, data.getStringExtra(MapsActivity.PARAM_MITRA_ID));
-                    i.putExtra(ActivityServiceDetail.PARAM_SERVICE_TYPE, data.getStringExtra(MapsActivity.PARAM_SERVICE_TYPE));//                    i.putExtra(ActivityServiceDetail.PARAM_CUSTOMER_ID, data.getStringExtra(MapsActivity.PARAM_CUSTOMER_ID));
-//                    i.putExtra(ActivityServiceDetail.PARAM_ORDER_ID, data.getStringExtra(MapsActivity.PARAM_ORDER_ID));
+                    i.putExtra(ActivityServiceDetail.PARAM_SERVICE_TYPE, data.getIntExtra(MapsActivity.PARAM_SERVICE_TYPE, Const.SERVICE_TYPE_SCHEDULED));
+                    i.putExtra(ActivityServiceDetail.PARAM_CUSTOMER_ID, data.getStringExtra(MapsActivity.PARAM_CUSTOMER_ID));
+                    i.putExtra(ActivityServiceDetail.PARAM_ORDER_ID, data.getStringExtra(MapsActivity.PARAM_ORDER_ID));
 
                     startActivityForResult(i, REQUESTCODE_SERVICE_DTL);
-//                    startActivity(i);
                 }
                 break;
             case REQUESTCODE_SERVICE_DTL:

@@ -27,11 +27,19 @@ import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.MobileSetup;
 import com.elkana.ds.mitraapp.screen.register.ActivityRegister;
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.util.Const;
+import com.elkana.dslibrary.util.SharedPrefUtil;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ServerValue;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ActivityLogin extends FirebaseActivity {
     private static final String TAG = ActivityLogin.class.getSimpleName();
@@ -181,8 +189,28 @@ public class ActivityLogin extends FirebaseActivity {
 
     @Override
     protected void onLoggedOn(FirebaseUser user) {
-        startActivity(new Intent(ActivityLogin.this, MainActivity.class));
-        finish();
+
+
+        final Map<String, Object> keyVal = new HashMap<>();
+        keyVal.put("token", new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
+        keyVal.put("updatedTimestamp", ServerValue.TIMESTAMP);
+        keyVal.put("email", user.getEmail());
+
+        final AlertDialog alertDialog = Util.showProgressDialog(this);
+        FBUtil.Mitra_GetSSORef(user.getUid())
+                .updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                alertDialog.dismiss();
+
+//                dont care
+//                if (task.isSuccessful()) {
+//                }
+                startActivity(new Intent(ActivityLogin.this, MainActivity.class));
+                finish();
+            }
+        });
+
     }
 
     /**
@@ -255,7 +283,6 @@ public class ActivityLogin extends FirebaseActivity {
                     });
                     snackbar.show();
                 } else {
-
                 }
             }
         });

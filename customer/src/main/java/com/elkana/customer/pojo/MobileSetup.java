@@ -23,8 +23,17 @@ public class MobileSetup extends RealmObject implements Serializable {
     private int vendor_radius_km;
     private int max_new_order;  // dibatasin maksimal order baru spy custmer ga nakal create order melulu
     private int unit_ac_max;
-    private int lastOrderMinutes;   // menit yg diperlukan utk last order. harusnya sama utk semua aplikasi
 
+    // menit yg diperlukan utk last order. harusnya sama utk semua aplikasi.
+    // tp ga jelas jg penamaannya, apa maksudnya dihitung dari order pertama seblum masuk order kedua
+    // atau maksudnya order buat expiration ? see timeout_cancel_minute
+//    private int lastOrderMinutes;
+
+    // utk menangani status UNHANDLED yg tidak ditanggapi oleh mitra. default 60 minutes
+    private int status_unhandled_minutes;
+
+    // utk membuang order card dari daftar list utk yg statusnya FINISHED
+    private int remove_order_age_hours;
     /**
      * time for an order will cancel automatically after no respond
      */
@@ -102,13 +111,13 @@ public class MobileSetup extends RealmObject implements Serializable {
         this.map_show_vendor_title = map_show_vendor_title;
     }
 
-    public int getLastOrderMinutes() {
-        return lastOrderMinutes;
-    }
+//    public int getLastOrderMinutes() {
+//        return lastOrderMinutes;
+//    }
 
-    public void setLastOrderMinutes(int lastOrderMinutes) {
-        this.lastOrderMinutes = lastOrderMinutes;
-    }
+//    public void setLastOrderMinutes(int lastOrderMinutes) {
+//        this.lastOrderMinutes = lastOrderMinutes;
+//    }
 
     public long getAppLifeTime() {
         return appLifeTime;
@@ -120,6 +129,22 @@ public class MobileSetup extends RealmObject implements Serializable {
 
     public void setMax_new_order(int max_new_order) {
         this.max_new_order = max_new_order;
+    }
+
+    public int getStatus_unhandled_minutes() {
+        return status_unhandled_minutes;
+    }
+
+    public void setStatus_unhandled_minutes(int status_unhandled_minutes) {
+        this.status_unhandled_minutes = status_unhandled_minutes;
+    }
+
+    public int getRemove_order_age_hours() {
+        return remove_order_age_hours;
+    }
+
+    public void setRemove_order_age_hours(int remove_order_age_hours) {
+        this.remove_order_age_hours = remove_order_age_hours;
     }
 
     @Override
@@ -135,7 +160,9 @@ public class MobileSetup extends RealmObject implements Serializable {
                 ", vendor_radius_km=" + vendor_radius_km +
                 ", max_new_order=" + max_new_order +
                 ", unit_ac_max=" + unit_ac_max +
-                ", lastOrderMinutes=" + lastOrderMinutes +
+//                ", lastOrderMinutes=" + lastOrderMinutes +
+                ", status_unhandled_minutes=" + status_unhandled_minutes +
+                ", remove_order_age_hours=" + remove_order_age_hours +
                 ", timeout_cancel_minute=" + timeout_cancel_minute +
                 '}';
     }

@@ -20,9 +20,13 @@ public class OrderBucket extends RealmObject implements Serializable {
     private String technicianName;
     private String statusDetailId;
     private int acCount;
+    private int minuteExtra;    //buat timer. diisi dari server
     private long bookingTimestamp;
     private long updatedTimestamp;  // the time when server received order. bisa dipakai utk start timeout
     private String updatedBy;
+
+    public OrderBucket() {
+    }
 
     public String getUid() {
         return uid;
@@ -104,6 +108,14 @@ public class OrderBucket extends RealmObject implements Serializable {
         this.acCount = acCount;
     }
 
+    public int getMinuteExtra() {
+        return minuteExtra;
+    }
+
+    public void setMinuteExtra(int minuteExtra) {
+        this.minuteExtra = minuteExtra;
+    }
+
     public long getUpdatedTimestamp() {
         return updatedTimestamp;
     }
@@ -132,6 +144,7 @@ public class OrderBucket extends RealmObject implements Serializable {
                 ", technicianName='" + technicianName + '\'' +
                 ", statusDetailId='" + statusDetailId + '\'' +
                 ", acCount=" + acCount +
+                ", minuteExtra=" + minuteExtra +
                 ", bookingTimestamp=" + bookingTimestamp +
                 ", updatedTimestamp=" + updatedTimestamp +
                 ", updatedBy='" + updatedBy + '\'' +

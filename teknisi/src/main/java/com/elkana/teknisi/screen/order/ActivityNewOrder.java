@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.mitra.NotifyNewOrderItem;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.util.Util;
@@ -58,8 +59,18 @@ public class ActivityNewOrder extends FirebaseActivity {
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(RESULT_CANCELED);
-                finish();
+//                if (mAdapter != null && mAdapter.getItemCount() > 0) {
+//                    Util.showDialogConfirmation(ActivityNewOrder.this, null, "Tutup & Bersihkan notifikasi pesanan ?", new ListenerPositiveConfirmation() {
+//                        @Override
+//                        public void onPositive() {
+//                            setResult(RESULT_CANCELED);
+//                            finish();
+//                        }
+//                    });
+//                } else {
+                    setResult(RESULT_CANCELED);
+                    finish();
+//                }
             }
         });
 

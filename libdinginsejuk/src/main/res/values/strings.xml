@@ -67,6 +67,7 @@
     <string name="prompt_vendor">Vendor</string>
     <string name="prompt_phone">Phone</string>
     <string name="prompt_hello">Hello %1s,</string>
+    <string name="prompt_sorry">Sorry %1s,</string>
     <string name="prompt_choose_address">Choose Your Address</string>
     <string name="prompt_schedule">Schedule</string>
     <string name="prompt_email">Email</string>

@@ -133,6 +133,10 @@ public class FragmentOrderList extends Fragment {
 
             @Override
             public void onChangeTech(final OrderBucket data) {
+                // per 8 apr 2018 dicancel dulu, krn kalo assign teknisi yg sama malah double assignment
+                // jd utk sementara ga bisa change tech
+                if (true)
+                    return;
                 Util.showDialogConfirmation(getActivity(), "Change Technician", "Yakin ganti/pindah teknisi ?", new ListenerPositiveConfirmation() {
                     @Override
                     public void onPositive() {

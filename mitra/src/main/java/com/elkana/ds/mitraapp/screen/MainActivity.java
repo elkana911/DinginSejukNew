@@ -376,7 +376,7 @@ public class MainActivity extends AFirebaseMitraActivity
             public void onSuccess() {
                 // delete fight, dipindah setelah sukses delete all notify order
 
-                List<TechnicianReg> allTechnicianReg = MitraUtil.getAllTechnicianReg();
+                List<TechnicianReg> allTechnicianReg = MitraUtil.getAllTechnicianReg(true);
 
                 FBUtil.TechnicianRegs_recursiveDeleteAllNotifyNewOrder(mAuth.getCurrentUser().getUid(), fightInfo.getOrderId(), allTechnicianReg, allTechnicianReg.size() - 1, new ListenerModifyData() {
                     @Override

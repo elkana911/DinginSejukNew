@@ -71,12 +71,12 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                 NotifyNewOrderItem _obj = dataSnapshot.getValue(NotifyNewOrderItem.class);
                 Log.e(TAG, ">>>>>child added " + _obj);
 
-                MobileSetup mobileSetup = TeknisiUtil.getMobileSetup();
+//                MobileSetup mobileSetup = TeknisiUtil.getMobileSetup();
                 //disable krn msh testing new order
                 // hanya ambil yg belum expired. dikurangi 1 menit utk toleransi klik/koneksi. misal diinfo 10 menit timer, tp sebenere cuma dikasih 9 menit utk tampil di layar
-//                if (Util.isExpiredBooking(_obj.getOrderTimestamp(), mobileSetup.getExpiryLastOrderMinutes() - 1)) {
+//                if (TeknisiUtil.isExpiredTime(_obj.getMitraTimestamp(), mobileSetup.getWindow_new_order_minutes() - 1)) {
                     // delete
-//                    FBUtil.TechnicianReg_DeleteNotifyNewOrder(mMitraId, mTechId, _obj.getOrderId(), null);
+//                    FBUtil.TechnicianReg_deleteNotifyNewOrder(mMitraId, mTechId, _obj.getOrderId(), null);
 //                    return;
 //                }
 
@@ -107,7 +107,9 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                     changed = true;
                     break;
                 }
-                notifyDataSetChanged();
+
+                if (changed)
+                    notifyDataSetChanged();
 
                 if (changed && mListener != null)
                     mListener.onOrderRemoved(_obj);
@@ -337,19 +339,16 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
             if (timer != null)
                 return;
 
-            // harusnya dari sisi teknisi dikurangi 1 menit
-            long selisih = (obj.getTimestamp() - new Date().getTime());
-//            long selisih = (obj.getUpdaMitraTimestamp() - new Date().getTime());
-            final long expirationMillis = selisih + DateUtil.TIME_TEN_MINUTE_MILLIS;
-//            final long expirationMillis = (obj.getTimestamp() - new Date().getTime()) + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
-            String start = DateUtil.formatMillisToMinutesSeconds(expirationMillis);
+            long startMillis = obj.getMitraTimestamp() + (obj.getMinuteExtra() * DateUtil.TIME_ONE_MINUTE_MILLIS);
 
-//            final long expirationMillis = (new Date().getTime() - obj.getTimestamp());
+            final long expirationMillis = startMillis - new Date().getTime();
+//            String start = DateUtil.formatMillisToMinutesSeconds(expirationMillis);
 
             timer = new CountDownTimer(expirationMillis, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
-                    String ss = Util.convertDateToString(new Date(millisUntilFinished), "mm:ss");
+                    String ss = DateUtil.formatMillisToMinutesSeconds(millisUntilFinished);
+//                    String ss = Util.convertDateToString(new Date(millisUntilFinished), "mm:ss");
                     tvCounter.setText(ss);
 
                     if (expirationMillis < (5 * 1000)) {

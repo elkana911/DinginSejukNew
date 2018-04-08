@@ -117,6 +117,7 @@
 
     <string name="status_created">Saat ini Mitra sedang mencarikan spesialis untuk membantu Anda.</string>
     <string name="status_unhandled">Saat ini Mitra sedang mencarikan spesialis untuk membantu Anda.</string>
+    <string name="status_unhandled_timeout">Kami belum dapat memenuhi layanan Anda, Silakan cek kembali jadwal Servis.</string>
     <string name="status_assigned">Mitra sudah mendapatkan Teknisi yang tepat untuk membantu Anda.</string>
     <string name="status_otw">Teknisi sedang dalam perjalanan menuju alamat Anda.</string>
     <string name="status_working">Teknisi sedang mengerjakan Pesanan Anda.</string>
@@ -124,7 +125,9 @@
     <string name="status_payment_amount">Mohon segera lakukan proses pembayaran sebesar %1s kepada Teknisi.\nTerima Kasih :)</string>
     <string name="status_cancelled_by_server">Mohon maaf, Server telah membatalkan pesanan Anda.</string>
     <string name="status_cancelled_by_timeout">Mohon maaf, Pesanan Anda telah dibatalkan karena tidak ada tanggapan dari Mitra pilihan Anda. Mohon cek kembali pesanan Anda.</string>
+    <string name="status_cancelled_by_customer">Anda telah membatalkan pesanan.</string>
     <string name="status_paid">Layanan sudah selesai dan dibayar.</string>
+
 
 
 </resources>

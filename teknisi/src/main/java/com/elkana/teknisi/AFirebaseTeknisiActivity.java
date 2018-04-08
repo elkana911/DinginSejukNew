@@ -49,11 +49,12 @@ called by teknisi only
         if (newStatus == EOrderDetailStatus.ASSIGNED || newStatus == EOrderDetailStatus.OTW) {
 
             Date today = new Date();
-            FBUtil.Mitra_GetTechnicianRef(mitraId, technicianId)
-                    .child("jobs_assigned")
-                    .child(Util.convertDateToString(today, "yyyyMMdd"))
-                    .child(String.valueOf(today.getTime()))
-                    .setValue(orderId);
+            //dipindah ke sisi server spy tanggal ga dimanipulasi
+//            FBUtil.Mitra_GetTechnicianRef(mitraId, technicianId)
+//                    .child("jobs_assigned")
+//                    .child(Util.convertDateToString(today, "yyyyMMddHHmm"))
+//                    .child(String.valueOf(today.getTime()))
+//                    .setValue(orderId);
         }
 
         FBUtil.Assignment_getPendingRef(technicianId, assignmentId)

@@ -8,8 +8,10 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,8 +26,11 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.elkana.customer.R;
+import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.util.CustomerUtil;
+import com.elkana.dslibrary.firebase.FBFunction_BasicCallableRecord;
 import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.listener.ListenerGetString;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.listener.ListenerSync;
@@ -34,15 +39,19 @@ import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.technician.ServiceItem;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
+import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.NetUtil;
 import com.elkana.dslibrary.util.Util;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.functions.FirebaseFunctions;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -75,6 +84,7 @@ public class FragmentSummaryOrder extends Fragment {
     private String kapanYYYYMMDD;
 
     private DatabaseReference orderHeaderPendingRef;
+    private FirebaseFunctions mFunctions;
 
     private OnFragmentSOInteractionListener mListener;
 
@@ -87,7 +97,7 @@ public class FragmentSummaryOrder extends Fragment {
 
     EditText etStatus, etRatingComments;
 
-    TextView tvStatusDetil, tvServiceType, tvDateService, tvDateRequest, tvMitra, tvAddress, tvProblem, tvBufferInvoice;
+    TextView tvStatusDetil, tvServiceType, tvDateService, tvDateRequest, tvMitra, tvTechnician, tvAddress, tvProblem, tvBufferInvoice;
 
     Button btnCheckTechnicianGps, btnPayment, btnCancelOrder, btnReschedule;
 
@@ -100,6 +110,8 @@ public class FragmentSummaryOrder extends Fragment {
 
     private String mSelectedUserId;
     private String mSelectedOrderId;
+    private String lastServiceDate;
+    private String lastMitra;
 
     public FragmentSummaryOrder() {
         // Required empty public constructor
@@ -124,6 +136,9 @@ public class FragmentSummaryOrder extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mFunctions = FirebaseFunctions.getInstance();
+
         if (getArguments() != null) {
 //            mUserId = getArguments().getString(ARG_PARAM1);
 //            mOrderId = getArguments().getString(ARG_PARAM2);
@@ -178,6 +193,7 @@ public class FragmentSummaryOrder extends Fragment {
     private OrderHeader displaySummaryOrder(String userId, String orderId) {
         final Realm realm = Realm.getDefaultInstance();
         try {
+            MobileSetup config = realm.where(MobileSetup.class).findFirst();
 
             RealmQuery<OrderHeader> query = realm.where(OrderHeader.class).equalTo("customerId", userId);
 
@@ -232,6 +248,7 @@ public class FragmentSummaryOrder extends Fragment {
             btnCancelOrder.setVisibility(View.INVISIBLE);
             btnReschedule.setVisibility(View.INVISIBLE);
             btnReschedule.setEnabled(true);
+            cardReview.setVisibility(View.GONE);
             switch (orderDetailStatus) {
                 case CREATED:
                     //berhubung msh ada timer maka tidak bisa dicancel/reschedule
@@ -239,6 +256,16 @@ public class FragmentSummaryOrder extends Fragment {
 //                    btnReschedule.setVisibility(View.VISIBLE);
                     break;
                 case UNHANDLED:
+
+                    // too long ?
+                    long _expiredTime = DateUtil.isExpiredTime(orderHeader.getUpdatedTimestamp(), config.getStatus_unhandled_minutes());
+
+                    if (_expiredTime > 0) {
+                        sb.setLength(0);
+                        sb.append(getString(R.string.prompt_sorry, basicInfo.getName().toUpperCase())).append("\n");
+                        sb.append(getString(R.string.status_unhandled_timeout)).append("\n");
+                    }
+
                     btnCancelOrder.setVisibility(View.VISIBLE);
                     btnReschedule.setVisibility(View.VISIBLE);
                     break;
@@ -262,7 +289,6 @@ public class FragmentSummaryOrder extends Fragment {
                     buildInvoice();
                     cardInvoice.setVisibility(View.VISIBLE);
                     if (orderStatus == EOrderStatus.FINISHED) {
-                        cardReview.setVisibility(View.GONE);
                         tvStatusDetil.setText(tvStatusDetil.getText() + "\n" + getString(R.string.message_review_given));
                     } else {
                         cardReview.setVisibility(View.VISIBLE);
@@ -285,7 +311,9 @@ public class FragmentSummaryOrder extends Fragment {
             tvServiceType.setText(getString(R.string.prompt_ac_serviceType) + ": " + CustomerUtil.getServiceTypeLabel(getContext(), orderHeader.getServiceType()));
 
             tvDateRequest.setText(getString(R.string.prompt_date_request) + ": " + Util.prettyTimestamp(getContext(), orderHeader.getCreatedTimestamp()));
-            tvDateService.setText(getString(R.string.prompt_date_service) + ": " + Util.prettyTimestamp(getContext(), orderHeader.getBookingTimestamp()));
+
+            lastServiceDate = Util.prettyTimestamp(getContext(), orderHeader.getBookingTimestamp());
+            tvDateService.setText(getString(R.string.prompt_date_service) + ": " + lastServiceDate);
 
             tvAddress.setText(getString(R.string.prompt_cust_address) + ": " + orderHeader.getAddressId());
 
@@ -295,12 +323,21 @@ public class FragmentSummaryOrder extends Fragment {
 
                     Mitra mitraObj = CustomerUtil.lookUpMitraById(realm, orderHeader.getPartyId());
 
+                    lastMitra = null;
                     if (mitraObj != null) {
                         tvMitra.setText(getString(R.string.prompt_vendor) + ": " + mitraObj.getName() + ", " + mitraObj.getAddressLabel() + ", Ph: " + mitraObj.getPhone1());
+
+                        lastMitra = mitraObj.getName();
                     }
 
                 }
             });
+
+            tvTechnician.setVisibility(View.INVISIBLE);
+            if (!TextUtils.isEmpty(orderHeader.getTechnicianName())) {
+                tvTechnician.setText(getString(R.string.prompt_technician) + ": " + orderHeader.getTechnicianName());
+                tvTechnician.setVisibility(View.VISIBLE);
+            }
 
             StringBuffer problem = new StringBuffer();
             problem.append(getString(R.string.summary_ac_problem, orderHeader.getJumlahAC(), orderHeader.getProblem()));
@@ -409,6 +446,7 @@ public class FragmentSummaryOrder extends Fragment {
         tvDateRequest = v.findViewById(R.id.tvDateRequest);
         tvDateService = v.findViewById(R.id.tvDateService);
         tvMitra = v.findViewById(R.id.tvMitra);
+        tvTechnician = v.findViewById(R.id.tvTechnician);
         tvProblem = v.findViewById(R.id.tvProblem);
 
         btnPayment = v.findViewById(R.id.btnPayment);
@@ -451,7 +489,23 @@ public class FragmentSummaryOrder extends Fragment {
                 etTime.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (lastMitra == null)
+                            return;
+
+                        CustomerUtil.showDialogTimeOfService(getContext(), lastMitra, new ListenerGetString() {
+                            @Override
+                            public void onSuccess(String value) {
+                                etTime.setText(value);
+
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+
+                            }
+                        });
 // Get Current Time
+                        /* cara kedua
                         final Calendar c = Calendar.getInstance();
                         int mHour = c.get(Calendar.HOUR_OF_DAY);
                         int mMinute = c.get(Calendar.MINUTE);
@@ -470,12 +524,13 @@ public class FragmentSummaryOrder extends Fragment {
                                     }
                                 }, mHour, mMinute, false);
                         timePickerDialog.show();
+                        */
                     }
                 });
 
 
                 Util.showDialogConfirmation(getContext(), getString(R.string.title_reschedule_order)
-                        , "Silakan isi jadwal yang baru..."
+                        , "Silakan isi jadwal yang baru selain hari:\n" + lastServiceDate
                         , view
                         , new ListenerPositiveConfirmation() {
                             @Override
@@ -494,108 +549,7 @@ public class FragmentSummaryOrder extends Fragment {
         btnCancelOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!NetUtil.isConnected(getContext())) {
-                    Toast.makeText(getContext(), "Not Connected", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (mSelectedOrderId == null) {
-                    Toast.makeText(getContext(), "Order Id Not Assigned. Unable to cancel", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                final Realm realm = Realm.getDefaultInstance();
-                try {
-                    final OrderHeader orderHeader = realm.where(OrderHeader.class)
-                            .equalTo("customerId", mSelectedUserId)
-                            .equalTo("uid", mSelectedOrderId)
-                            .findFirst();
-
-                    if (orderHeader == null)
-                        return;
-
-                    final EOrderDetailStatus orderStatus = EOrderDetailStatus.convertValue(orderHeader.getStatusDetailId());
-
-                    if (orderStatus == EOrderDetailStatus.CREATED
-                            || orderStatus == EOrderDetailStatus.ASSIGNED
-                            || orderStatus == EOrderDetailStatus.UNHANDLED
-                            ) {
-                    } else {
-                        Util.showDialog(getContext(), null, getString(R.string.error_technician_otw));
-                        return;
-                    }
-
-                    final OrderHeader orderHeaderCopy = realm.copyFromRealm(orderHeader);
-                    orderHeaderCopy.setStatusDetailId(EOrderDetailStatus.CANCELLED_BY_CUSTOMER.name());
-                    orderHeaderCopy.setStatusId(EOrderStatus.FINISHED.name());
-                    orderHeaderCopy.setUpdatedTimestamp(new Date().getTime());
-
-                    Util.showDialogConfirmation(getContext()
-                            , getString(R.string.title_cancel_order)
-                            , getString(R.string.message_cancel_order_confirmation_for_date, Util.prettyTimestamp(getContext(), orderHeader.getBookingTimestamp()))
-                            , new ListenerPositiveConfirmation() {
-                                @Override
-                                public void onPositive() {
-                                    final AlertDialog alertDialog = Util.showProgressDialog(getActivity(), "Proses pembatalan order...");
-
-                                    FBUtil.Orders_cancel(orderHeaderCopy, EOrderDetailStatus.CANCELLED_BY_CUSTOMER, new ListenerModifyData() {
-                                        @Override
-                                        public void onSuccess() {
-                                            if (!getActivity().isDestroyed())
-                                                alertDialog.dismiss();
-
-                                            Realm _r = Realm.getDefaultInstance();
-                                            try {
-                                                _r.beginTransaction();
-                                                _r.copyToRealmOrUpdate(orderHeaderCopy);
-                                                _r.commitTransaction();
-
-                                                if (mListener != null) {
-                                                    mListener.onOrderCancelled(orderHeaderCopy.getServiceType(), orderHeaderCopy.getInvoiceNo());
-                                                }
-
-                                            } finally {
-                                                _r.close();
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onError(Exception e) {
-                                            if (!getActivity().isDestroyed())
-                                                alertDialog.dismiss();
-
-                                            if (getContext() != null)
-                                                Util.showErrorDialog(getContext(), "Cancel Order Error", "Sorry, Batal Order tidak dapat dilakukan.\n" + e.getMessage());
-
-                                        }
-                                    });
-
-                                    /*
-                                    orderHeaderPendingRef.setValue(orderHeaderCopy).addOnSuccessListener(getActivity(), new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Realm _r = Realm.getDefaultInstance();
-                                            try {
-                                                _r.beginTransaction();
-                                                _r.copyToRealmOrUpdate(orderHeaderCopy);
-                                                _r.commitTransaction();
-
-                                                if (mListener != null) {
-                                                    mListener.onOrderCancelled(orderHeaderCopy.getServiceType(), orderHeaderCopy.getInvoiceNo());
-                                                }
-
-                                            } finally {
-                                                _r.close();
-                                            }
-                                        }
-                                    });*/
-                                }
-                            });
-
-                } finally {
-                    realm.close();
-                }
-
+                cancelOrder();
             }
         });
 
@@ -696,6 +650,7 @@ public class FragmentSummaryOrder extends Fragment {
         tvDateService.setTypeface(fontFace);
         tvProblem.setTypeface(fontFace);
         tvMitra.setTypeface(fontFace);
+        tvTechnician.setTypeface(fontFace);
         tvAddress.setTypeface(fontFace);
 
 //        AppCompatImageView ivNoOrder = (AppCompatImageView) v.findViewById(R.id.ivNoOrder);
@@ -753,7 +708,7 @@ public class FragmentSummaryOrder extends Fragment {
             }
 
             if (orderHeader.getRescheduleCounter() > 0) {
-                Util.showErrorDialog(getActivity(), "Reschedule Limit", "Maaf, tidak diperkenankan Reschedule untukm booking yayang sama.");
+                Util.showErrorDialog(getActivity(), "Reschedule Limit", "Maaf, tidak diperkenankan Reschedule untukm booking yang sama.");
                 return;
             }
 
@@ -767,8 +722,9 @@ public class FragmentSummaryOrder extends Fragment {
             }
 
             Util.showDialogConfirmation(getContext()
-                    , getString(R.string.title_cancel_order)
-                    , getString(R.string.message_cancel_order_confirmation_for_date, Util.prettyTimestamp(getContext(), orderHeader.getBookingTimestamp()))
+                    , getString(R.string.title_reschedule_order)
+                    , getString(R.string.message_reschedule_order_confirmation)
+//                    , getString(R.string.message_cancel_order_confirmation_for_date, Util.prettyTimestamp(getContext(), orderHeader.getBookingTimestamp()))
                     , new ListenerPositiveConfirmation() {
                         @Override
                         public void onPositive() {
@@ -777,23 +733,41 @@ public class FragmentSummaryOrder extends Fragment {
 
                             final OrderBucket orderBucketCopy = realm.copyFromRealm(orderBucket);
 
+                            final Map<String, Object> _keyVal = new HashMap<>();
+                            _keyVal.put("customerId", orderHeader.getCustomerId() );
+                            _keyVal.put("orderId", orderHeader.getUid());
+                            _keyVal.put("newDateInLong", newDate.getTime());
+
+                            mFunctions.getHttpsCallable(FBUtil.FUNCTION_RESCHEDULE_BOOKING)
+                                    .call(_keyVal)
+                                    .continueWith(new FBFunction_BasicCallableRecord())
+                                    .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Map<String, Object>> task) {
+                                            if (task.isSuccessful()) {
+                                                Realm _r = Realm.getDefaultInstance();
+                                                try {
+                                                    _r.beginTransaction();
+                                                    _r.copyToRealmOrUpdate(orderHeaderCopy);
+                                                    _r.copyToRealmOrUpdate(orderBucketCopy);
+                                                    _r.commitTransaction();
+
+                                                    if (mListener != null) {
+                                                        mListener.onOrderRescheduled(orderHeaderCopy.getServiceType(), orderHeaderCopy.getInvoiceNo());
+                                                    }
+
+                                                } finally {
+                                                    _r.close();
+                                                }
+                                            } else {
+                                                Toast.makeText(getContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+/*
                             FBUtil.Orders_reschedule(orderHeaderCopy, orderBucketCopy, newDate, new ListenerModifyData() {
                                 @Override
                                 public void onSuccess() {
-                                    Realm _r = Realm.getDefaultInstance();
-                                    try {
-                                        _r.beginTransaction();
-                                        _r.copyToRealmOrUpdate(orderHeaderCopy);
-                                        _r.copyToRealmOrUpdate(orderBucketCopy);
-                                        _r.commitTransaction();
-
-                                        if (mListener != null) {
-                                            mListener.onOrderRescheduled(orderHeaderCopy.getServiceType(), orderHeaderCopy.getInvoiceNo());
-                                        }
-
-                                    } finally {
-                                        _r.close();
-                                    }
 
                                 }
 
@@ -802,26 +776,8 @@ public class FragmentSummaryOrder extends Fragment {
 
                                 }
                             });
+*/
 
-//                            FBUtil.Order_SetStatus(orderHeaderCopy.getPartyId(), orderHeaderCopy.getCustomerId(), orderHeaderCopy.getUid(), null, EOrderDetailStatus.CREATED, String.valueOf(Const.USER_AS_COSTUMER), new ListenerModifyData() {
-//                                @Override
-//                                public void onSuccess() {
-//                                }
-//
-//                                @Override
-//                                public void onError(Exception e) {
-//                                    if (getContext() != null)
-//                                        Util.showErrorDialog(getContext(), "Reschedule Order Error", "Sorry, Jadwal ulang Order tidak dapat dilakukan.\n" + e.getMessage());
-//                                }
-//                            });
-
-//                            orderHeaderPendingRef
-//                                    .setValue(orderHeaderCopy)
-//                                    .addOnSuccessListener(getActivity(), new OnSuccessListener<Void>() {
-//                                @Override
-//                                public void onSuccess(Void aVoid) {
-//                                }
-//                            });
                         }
                     });
 
@@ -914,6 +870,129 @@ public class FragmentSummaryOrder extends Fragment {
 
     public void reInitiate(OrderHeader order) {
         reInitiate(order.getCustomerId(), order.getUid());
+    }
+
+    private void cancelOrder() {
+        if (!NetUtil.isConnected(getContext())) {
+            Toast.makeText(getContext(), "Not Connected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (mSelectedOrderId == null) {
+            Toast.makeText(getContext(), "Order Id Not Assigned. Unable to cancel", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final Realm realm = Realm.getDefaultInstance();
+        try {
+            final OrderHeader orderHeader = realm.where(OrderHeader.class)
+                    .equalTo("customerId", mSelectedUserId)
+                    .equalTo("uid", mSelectedOrderId)
+                    .findFirst();
+
+            if (orderHeader == null)
+                return;
+
+            final EOrderDetailStatus orderStatus = EOrderDetailStatus.convertValue(orderHeader.getStatusDetailId());
+
+            if (orderStatus == EOrderDetailStatus.CREATED
+                    || orderStatus == EOrderDetailStatus.ASSIGNED
+                    || orderStatus == EOrderDetailStatus.UNHANDLED
+                    ) {
+            } else {
+                Util.showDialog(getContext(), null, getString(R.string.error_technician_otw));
+                return;
+            }
+
+            final OrderHeader orderHeaderCopy = realm.copyFromRealm(orderHeader);
+            orderHeaderCopy.setStatusDetailId(EOrderDetailStatus.CANCELLED_BY_CUSTOMER.name());
+            orderHeaderCopy.setStatusId(EOrderStatus.FINISHED.name());
+            orderHeaderCopy.setUpdatedTimestamp(new Date().getTime());
+
+            Util.showDialogConfirmation(getContext()
+                    , getString(R.string.title_cancel_order)
+                    , getString(R.string.message_cancel_order_confirmation_for_date, Util.prettyTimestamp(getContext(), orderHeader.getBookingTimestamp()))
+                    , new ListenerPositiveConfirmation() {
+                        @Override
+                        public void onPositive() {
+                            final AlertDialog alertDialog = Util.showProgressDialog(getActivity(), "Proses pembatalan order...");
+
+                            final Map<String, Object> _keyVal = new HashMap<>();
+                            _keyVal.put("customerId", orderHeader.getCustomerId() );
+                            _keyVal.put("orderId", orderHeader.getUid());
+
+                            mFunctions.getHttpsCallable(FBUtil.FUNCTION_CANCEL_BOOKING)
+                                .call(_keyVal)
+                                .continueWith(new FBFunction_BasicCallableRecord())
+                                .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Map<String, Object>> task) {
+                                        if (!getActivity().isDestroyed())
+                                            alertDialog.dismiss();
+
+                                        if (!task.isSuccessful()) {
+                                            if (getContext() != null)
+                                                Util.showErrorDialog(getContext(), "Cancel Order Error", task.getException().getMessage());
+
+                                            return;
+                                        }
+
+                                        Realm _r = Realm.getDefaultInstance();
+                                        try {
+                                            _r.beginTransaction();
+                                            _r.copyToRealmOrUpdate(orderHeaderCopy);
+                                            _r.commitTransaction();
+
+                                            if (mListener != null) {
+                                                mListener.onOrderCancelled(orderHeaderCopy.getServiceType(), orderHeaderCopy.getInvoiceNo());
+                                            }
+
+                                        } finally {
+                                            _r.close();
+                                        }
+                                    }
+                                });
+/*
+                            FBUtil.Orders_cancel(orderHeaderCopy, EOrderDetailStatus.CANCELLED_BY_CUSTOMER, new ListenerModifyData() {
+                                @Override
+                                public void onSuccess() {
+                                    if (!getActivity().isDestroyed())
+                                        alertDialog.dismiss();
+
+                                    Realm _r = Realm.getDefaultInstance();
+                                    try {
+                                        _r.beginTransaction();
+                                        _r.copyToRealmOrUpdate(orderHeaderCopy);
+                                        _r.commitTransaction();
+
+                                        if (mListener != null) {
+                                            mListener.onOrderCancelled(orderHeaderCopy.getServiceType(), orderHeaderCopy.getInvoiceNo());
+                                        }
+
+                                    } finally {
+                                        _r.close();
+                                    }
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    if (!getActivity().isDestroyed())
+                                        alertDialog.dismiss();
+
+                                    if (getContext() != null)
+                                        Util.showErrorDialog(getContext(), "Cancel Order Error", "Sorry, Batal Order tidak dapat dilakukan.\n" + e.getMessage());
+
+                                }
+                            });*/
+
+                        }
+                    });
+
+        } finally {
+            realm.close();
+        }
+
+
     }
 
     /**

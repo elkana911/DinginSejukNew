@@ -7,7 +7,6 @@ import android.os.CountDownTimer;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +22,6 @@ import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
-import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
@@ -77,7 +75,6 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
     };*/
 
 
-
     public RVAdapterOrderList(Context ctx, final String mitraId, final ListenerOrderList listener) {
         mContext = ctx;
 
@@ -104,6 +101,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                     return;
                 }
 
+                Date today = new Date();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     final OrderBucket _orderBucket = postSnapshot.getValue(OrderBucket.class);
 //                    Log.e(TAG, "DataChange:" + _orderBucket.toString());
@@ -116,32 +114,55 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                             detailStatus == EOrderDetailStatus.CANCELLED_BY_SERVER ||
                             detailStatus == EOrderDetailStatus.PAID
                             ) {
+
+                        if (detailStatus == EOrderDetailStatus.PAID) {
+                            //catet jobs as history. this job full stop status and should not be moved anywhere
+                            // to avoid updating Firebase on every changes, we need realm to store
+                            FBUtil.Mitra_jobAsHistory(_orderBucket);
+                        } else if (detailStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT
+                                || detailStatus == EOrderDetailStatus.CANCELLED_BY_SERVER
+                                || detailStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER) {
+                            FBUtil.Mitra_jobAsCancelled(_orderBucket);
+                        }
+
                         Date _updatedDate = new Date(_orderBucket.getUpdatedTimestamp());
-                        Date _today = new Date();
-                        if (DateUtil.isBeforeDay(_updatedDate, _today)) {
+                        if (DateUtil.isBeforeDay(_updatedDate, today)) {
                             continue;
                         }
                     }
 
-                    mList.add(_orderBucket);
+                    if (detailStatus == EOrderDetailStatus.OTW) {
+                        //catet jobs sbg assigned. this job will be moved into jobs_history if not cancelled. otherwise will be moved into jobs_cancelled
+                        // to avoid updating Firebase on every changes, we need realm to store
 
+                        FBUtil.Mitra_jobAsAssigned(_orderBucket);
+                    }
+
+                    mList.add(_orderBucket);
+/*
                     // notify_new_order hanya berlaku kalau status msh created
                     if (detailStatus != EOrderDetailStatus.CREATED)
                         continue;
 
                     //tp jg jgn kirim notifyneworder kalo expired
-                    if (MitraUtil.isExpiredBooking(_orderBucket)) {
-                        FBUtil.Order_SetStatus(mMitraId, _orderBucket.getCustomerId(), _orderBucket.getUid(), null, null, EOrderDetailStatus.CANCELLED_BY_TIMEOUT, String.valueOf(Const.USER_AS_MITRA), null);
+//                    if (MitraUtil.isExpiredBooking(_orderBucket)) {
+//                        FBUtil.Order_SetStatus(mMitraId, _orderBucket.getCustomerId(), _orderBucket.getUid(), null, null, EOrderDetailStatus.CANCELLED_BY_TIMEOUT, String.valueOf(Const.USER_AS_MITRA), null);
+//                        continue;
+//                    }
+
+                    // moved into cloud function
+                    if (true)
                         continue;
-                    }
 
                     // cek dulu jumlah teknisi terdaftar
+                    List<TechnicianReg> targets = MitraUtil.getAllTechnicianRegByScoring(_orderBucket.getBookingTimestamp());
+
                     final Realm _r = Realm.getDefaultInstance();
                     try {
 
                         // TODO: urutin by scoring tertinggi
 
-                        for (TechnicianReg reg : MitraUtil.getAllTechnicianReg()) {
+                        for (TechnicianReg reg : targets) {
                             final String techId = reg.getTechId();
 
                             NotifyTechnician notifyTechnician = _r.where(NotifyTechnician.class)
@@ -212,7 +233,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                     } finally {
                         _r.close();
                     }
-
+*/
                 }
 
                 if (mList.size() > 0)
@@ -245,20 +266,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         orders4MitraRef.addValueEventListener(mOrderBucketListener);
 
-//        lstHolders = new ArrayList<>();
-//        startUpdateTimer();
     }
-
-    /*
-    private void startUpdateTimer() {
-        Timer tmr = new Timer();
-        tmr.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                mHandler.post(updateRemainingTimeRunnable);
-            }
-        }, 1000, 1000);
-    }*/
 
     public void cleanUpListener() {
         if (mOrderBucketListener != null) {
@@ -285,7 +293,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
         EOrderDetailStatus detailStatus = EOrderDetailStatus.convertValue(obj.getStatusDetailId());
 
         if (detailStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT) {
-            ((MyViewHolder) holder).tvOrderRemaining.setText("Expired!!");
+            ((MyViewHolder) holder).tvCounter.setText("Expired!!");
 
 //            return;
         }
@@ -293,7 +301,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (detailStatus == EOrderDetailStatus.CREATED || detailStatus == EOrderDetailStatus.UNHANDLED || detailStatus == EOrderDetailStatus.ASSIGNED) {
 
             if (MitraUtil.isExpiredBooking(obj)) {
-                ((MyViewHolder) holder).tvOrderRemaining.setText("Expired!!");
+                ((MyViewHolder) holder).tvCounter.setText("Expired!!");
 
                 // TODO: update firebase db
 
@@ -316,7 +324,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
     class MyViewHolder extends RecyclerView.ViewHolder {
         public EOrderDetailStatus lastStatus;
 
-        public TextView tvAddress, tvCustomerName, tvHandledBy, tvOrderTime, tvOrderStatus, tvOrderRemaining, tvNo;
+        public TextView tvAddress, tvCustomerName, tvHandledBy, tvOrderTime, tvOrderStatus, tvCounter, tvNo;
         public View view;
         public ImageView ivIconStatus;
         public Button btnCallTech, btnCallCust, btnChangeTech;
@@ -350,9 +358,9 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvOrderTime.setCompoundDrawablePadding(10);
             tvOrderTime.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(itemView.getContext(), R.drawable.ic_access_time_black_24dp, android.R.color.holo_blue_dark), null, null, null);
 
-            tvOrderRemaining = itemView.findViewById(R.id.tvOrderRemaining);
-            tvOrderRemaining.setCompoundDrawablePadding(10);
-            tvOrderRemaining.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(itemView.getContext(), R.drawable.ic_timer_black_24dp, android.R.color.holo_blue_dark), null, null, null);
+            tvCounter = itemView.findViewById(R.id.tvOrderRemaining);
+            tvCounter.setCompoundDrawablePadding(10);
+            tvCounter.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(itemView.getContext(), R.drawable.ic_timer_black_24dp, android.R.color.holo_blue_dark), null, null, null);
 
             ivIconStatus = itemView.findViewById(R.id.ivIconStatus);
 
@@ -382,7 +390,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvHandledBy.setText(data.getTechnicianName() == null ? "Unhandled" : data.getTechnicianName());
 
             tvOrderStatus.setTextColor(ContextCompat.getColor(mContext, android.R.color.primary_text_light));
-            tvOrderRemaining.setVisibility(View.GONE);
+            tvCounter.setVisibility(View.GONE);
 
             btnCallTech.setVisibility(View.VISIBLE);
             btnChangeTech.setVisibility(View.INVISIBLE);
@@ -392,12 +400,12 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                 case ASSIGNED:
                     resIcon = R.drawable.ic_assignment_ind_black_24dp;
                     tvHandledBy.setText("Awaiting " + data.getTechnicianName() + " to Start Working...");
-                    btnChangeTech.setVisibility(View.VISIBLE);
+//                    btnChangeTech.setVisibility(View.VISIBLE);
                     break;
                 case UNHANDLED:
                     resIcon = R.drawable.ic_assignment_late_black_24dp;
                     tvOrderStatus.setTextColor(ContextCompat.getColor(mContext, android.R.color.holo_red_light));
-                    tvOrderRemaining.setVisibility(View.VISIBLE);
+                    tvCounter.setVisibility(View.VISIBLE);
                     btnCallTech.setVisibility(View.INVISIBLE);
                     break;
                 case OTW:
@@ -420,7 +428,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                     break;
                 default:
                     resIcon = R.drawable.ic_fiber_new_black_24dp;
-                    tvOrderRemaining.setVisibility(View.VISIBLE);
+                    tvCounter.setVisibility(View.VISIBLE);
                     btnCallTech.setVisibility(View.INVISIBLE);
             }
             if (resIcon > -1) {
@@ -448,10 +456,21 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
         // start timer dimulai sejak new order masuk, jika dalam 15 menit ga ada yg ambil masuk ke status UNHANDLED
         // caranya cek apakah ada assignment fight-nya, jika tdk ada maka status menjadi unhandled
         // btw, countdown timer hanya berlaku utk layanan segera, bukan layanan terjadwal ?
-        public void startTimer(final OrderBucket obj){
+        public void startTimer(final OrderBucket obj) {
+
+            // spy tdk infinite loop
+            if (timer != null) {
+                return;
+            }
 
             // one minute adalah gap bahwa tdk ada teknisi yg accept
             // ntah knp new Date bisa kalah duluan sama obj.getupdatedtimestamp
+
+            long startMillis = obj.getUpdatedTimestamp() + (obj.getMinuteExtra() * DateUtil.TIME_ONE_MINUTE_MILLIS);
+
+            final long expirationMillis = startMillis - new Date().getTime();
+
+            /*
             Date now = new Date();
             long selisih;
             if (obj.getUpdatedTimestamp() < now.getTime())
@@ -462,22 +481,18 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             final long expirationMillis = selisih + DateUtil.TIME_TEN_MINUTE_MILLIS + DateUtil.TIME_ONE_MINUTE_MILLIS;
 //            final long expirationMillis = (new Date().getTime() - obj.getOrderStartTimestamp()) + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
 //            final long expirationMillis = obj.getTimestamp() + Const.TIME_TEN_MINUTE_MILLIS + Const.TIME_ONE_MINUTE_MILLIS;
-
-            // spy tdk infinite loop
-            if (timer != null) {
-                return;
-            }
+*/
             timer = new CountDownTimer(expirationMillis, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
                     String ss = DateUtil.formatMillisToMinutesSeconds(millisUntilFinished);
 //                    String ss = Util.convertDateToString(new Date(millisUntilFinished), "mm:ss");
-                    tvOrderRemaining.setText("Broadcast technicians [" + ss + "]");
+                    tvCounter.setText("Broadcast technicians [" + ss + "]");
 
                     if (expirationMillis < (5 * 1000)) {
-                        tvOrderRemaining.setTextColor(ContextCompat.getColor(mContext, android.R.color.holo_red_light));
+                        tvCounter.setTextColor(ContextCompat.getColor(mContext, android.R.color.holo_red_light));
                     }
-//                    tvOrderRemaining.setText(DateUtil.formatDateToSimple(millisUntilFinished));
+//                    tvCounter.setText(DateUtil.formatDateToSimple(millisUntilFinished));
                 }
 
 
@@ -495,7 +510,8 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                             String _uid = obj.getUid();
 
                             if (_itemUid.equals(_uid)) {
-                                masihAda = true; break;
+                                masihAda = true;
+                                break;
                             }
                         }
                     } catch (Exception e) {
@@ -507,13 +523,13 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                     if (!masihAda)
                         return;
 
-                    if (lastStatus != EOrderDetailStatus.CREATED )
+                    if (lastStatus != EOrderDetailStatus.CREATED)
                         return;
 
-                    tvOrderRemaining.setText("No Technicians accept the offer.");
+                    tvCounter.setText("No Technicians accept the offer.");
 
-                    // TODO: harusnya hny update kalo ada di MList
-                    FBUtil.Order_SetStatus(mMitraId, obj.getCustomerId(), obj.getUid(), null, null, EOrderDetailStatus.UNHANDLED, String.valueOf(Const.USER_AS_MITRA), null);
+                    // dipindah ke cloud. jd timer disini cuma display doankg
+//                    FBUtil.Order_SetStatus(mMitraId, obj.getCustomerId(), obj.getUid(), null, null, EOrderDetailStatus.UNHANDLED, String.valueOf(Const.USER_AS_MITRA), null);
                 }
             }.start();
 

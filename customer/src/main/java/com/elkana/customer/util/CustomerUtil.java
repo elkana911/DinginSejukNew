@@ -1,11 +1,14 @@
 package com.elkana.customer.util;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.elkana.customer.R;
 import com.elkana.customer.pojo.MobileSetup;
+import com.elkana.dslibrary.listener.ListenerGetString;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerSync;
 import com.elkana.dslibrary.pojo.OrderBucket;
@@ -15,6 +18,7 @@ import com.elkana.dslibrary.pojo.mitra.TmpMitra;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.UserAddress;
 import com.elkana.dslibrary.util.Const;
+import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.NetUtil;
@@ -620,6 +624,44 @@ udah di taruh di lib
             r.close();
         }
     }
+
+    public static void showDialogTimeOfService(Context ctx, String mitraName, final ListenerGetString listener) {
+
+        int openTime, closeTime;
+        Realm _realm = Realm.getDefaultInstance();
+        try {
+            Mitra mitraObj = CustomerUtil.lookUpMitra(_realm, mitraName);
+
+            openTime = mitraObj.getWorkingHourStart();
+            closeTime = mitraObj.getWorkingHourEnd();
+
+        }finally {
+            _realm.close();
+        }
+
+        final String[] time_services = DateUtil.generateWorkingHours(openTime, closeTime, 15);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+        builder.setTitle("Pilih Jam");
+
+        builder.setItems(time_services, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                if (listener == null)
+                    return;
+                String pick = time_services[which];
+
+                listener.onSuccess(pick);
+//                etTime.setText(pick);
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+
 
 //    public static boolean isExpiredBooking(OrderHeader order) {
 //        return Util.isExpiredBooking(order.getTimestamp(), getMobileSetup().getLastOrderMinutes());

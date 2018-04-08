@@ -11,6 +11,9 @@ import com.elkana.dslibrary.listener.ListenerGetOrder;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
+import com.elkana.dslibrary.pojo.mitra.JobsAssigned;
+import com.elkana.dslibrary.pojo.mitra.JobsCancelled;
+import com.elkana.dslibrary.pojo.mitra.JobsHistory;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.mitra.NotifyNewOrderItem;
 import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
@@ -38,6 +41,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.realm.Realm;
+
 /**
  * Created by Eric on 03-Mar-18.
  */
@@ -56,6 +61,35 @@ public class FBUtil {
 
     public static final String REF_MASTER_AC_SERVICE = "master/serviceType/airConditioner/subService";
     public static final String REF_MASTER_SERVERTIME = "master/mSetup/serverTime";
+
+    public static final String FUNCTION_CREATE_BOOKING = "createBooking";
+    public static final String FUNCTION_CANCEL_BOOKING = "cancelBooking";
+    public static final String FUNCTION_RESCHEDULE_BOOKING = "rescheduleBooking";
+
+    public static void IsPathExists(String completePath, final ListenerDataExists listener) {
+        IsPathExists(FirebaseDatabase.getInstance().getReference(completePath), listener);
+    }
+
+    public static void IsPathExists(DatabaseReference path, final ListenerDataExists listener) {
+        path.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (listener == null)
+                    return;
+
+                if (dataSnapshot.exists())
+                    listener.onFound();
+                else
+                    listener.onNotFound();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                if (listener != null)
+                    listener.onError(databaseError.toException());
+            }
+        });
+    }
 
     public static void deletePath(DatabaseReference path, final ListenerModifyData listener) {
         path.setValue(null, new DatabaseReference.CompletionListener() {
@@ -187,19 +221,16 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
     }
 
     /**
-     *
      * @param mitraId
      * @param customerId
      * @param orderId
      * @param assignmentId
-     * @param techId biasanya selalu ada kalau assignmentId != null
+     * @param techId       biasanya selalu ada kalau assignmentId != null
      * @param newStatus
      * @param updatedBy
      * @param listener
      */
     public static void Order_SetStatus(final String mitraId, final String customerId, final String orderId, final String assignmentId, String techId, EOrderDetailStatus newStatus, String updatedBy, final ListenerModifyData listener) {
-
-        //TODO: harusnya check dulu apakah order msh exist spy tdk timbul data hantu
 
         final Map<String, Object> keyValOrder = new HashMap<>();
 //        keyValOrder.put("statusDetailId", newStatus.name());
@@ -244,16 +275,34 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
 //                keyValOrder.put(root + "/statusId", EOrderStatus.FINISHED.name());
         }
 
-        FirebaseDatabase.getInstance().getReference().updateChildren(keyValOrder).addOnCompleteListener(new OnCompleteListener<Void>() {
+        //TODO: harusnya check dulu apakah order msh exist spy tdk timbul data hantu
+        IsPathExists(REF_ORDERS_CUSTOMER_AC_PENDING + "/" + customerId + "/" + orderId, new ListenerDataExists() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    if (listener != null)
-                        listener.onSuccess();
-                } else {
-                    if (listener != null)
-                        listener.onError(task.getException());
-                }
+            public void onFound() {
+                FirebaseDatabase.getInstance().getReference().updateChildren(keyValOrder).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            if (listener != null)
+                                listener.onSuccess();
+                        } else {
+                            if (listener != null)
+                                listener.onError(task.getException());
+                        }
+                    }
+                });
+
+
+            }
+
+            @Override
+            public void onNotFound() {
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+
             }
         });
 
@@ -271,6 +320,12 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         return FirebaseDatabase.getInstance().getReference(REF_MITRA_AC)
                 .child(mitraId)
                 .child("services");
+    }
+
+    public static DatabaseReference Mitra_GetSSORef(String mitraId) {
+        return FirebaseDatabase.getInstance().getReference(REF_MITRA_AC)
+                .child(mitraId)
+                .child("sso");
     }
 
     public static void Mitra_getAllMitra(final ListenerGetAllData listener) {
@@ -319,7 +374,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.exists()) {
-                                listener.onError(new RuntimeException("Order Pending Customer not found !"));
+                            listener.onError(new RuntimeException("Order Pending Customer not found !"));
 
                             return;
                         }
@@ -331,7 +386,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         if (!dataSnapshot.exists()) {
-                                                listener.onError(new RuntimeException("Order Pending Mitra not found !"));
+                                            listener.onError(new RuntimeException("Order Pending Mitra not found !"));
 
                                             return;
                                         }
@@ -343,7 +398,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
 
                                     @Override
                                     public void onCancelled(DatabaseError databaseError) {
-                                            listener.onError(databaseError.toException());
+                                        listener.onError(databaseError.toException());
                                     }
                                 });
 
@@ -351,7 +406,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-                            listener.onError(databaseError.toException());
+                        listener.onError(databaseError.toException());
                     }
                 });
 
@@ -423,7 +478,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         } else {
 
             if (listener != null)
-                listener.onError(new RuntimeException("To cancel Order, status must either Cancel by Customer or Cancel by Server"));
+                listener.onError(new RuntimeException("To cancel Order, the expected status must either Cancel by Customer or Cancel by Server"));
 
             return;
         }
@@ -436,6 +491,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         String techId = orderHeader.getTechnicianId();
 
         String updatedBy = (newStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER) ? String.valueOf(Const.USER_AS_COSTUMER) : String.valueOf(Const.USER_AS_MITRA);
+
 
         Order_SetStatus(orderHeader.getPartyId(), orderHeader.getCustomerId(), orderHeader.getUid(), assignmentId, techId, newStatus, updatedBy, new ListenerModifyData() {
             @Override
@@ -456,7 +512,6 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
 
             }
         });
-
     }
 
     public static void Orders_reschedule(final OrderHeader oldOrderHeader, final OrderBucket oldOrderBucket, final Date newDate, final ListenerModifyData listener) {
@@ -695,17 +750,17 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                     || field.getName().equals("timestamp")) {
 
                 if (TextUtils.isEmpty(path)) {
-                    keyValOrder.put(field.getName() , ServerValue.TIMESTAMP);
+                    keyValOrder.put(field.getName(), ServerValue.TIMESTAMP);
                 } else {
-                    keyValOrder.put(path + "/" + field.getName() , ServerValue.TIMESTAMP);
+                    keyValOrder.put(path + "/" + field.getName(), ServerValue.TIMESTAMP);
                 }
 
             } else {
 
                 if (TextUtils.isEmpty(path)) {
-                    keyValOrder.put(field.getName() , field.get(obj));
+                    keyValOrder.put(field.getName(), field.get(obj));
                 } else {
-                    keyValOrder.put(path + "/" + field.getName() , field.get(obj));
+                    keyValOrder.put(path + "/" + field.getName(), field.get(obj));
                 }
             }
         }
@@ -794,5 +849,191 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
 
         // cek di assignment
 
+    }
+
+    public static void Mitra_jobAsAssigned(final OrderBucket orderBucket) {
+        Realm _r = Realm.getDefaultInstance();
+        try {
+
+            final String _wkt = Util.convertDateToString(new Date(orderBucket.getBookingTimestamp()), "yyyyMMddHHmm");
+            JobsAssigned jobsAssigned = _r.where(JobsAssigned.class)
+                    .equalTo("techId", orderBucket.getTechnicianId())
+                    .equalTo("orderId", orderBucket.getUid())
+                    .equalTo("wkt", _wkt)
+                    .findFirst();
+
+            if (jobsAssigned == null) {
+
+                Mitra_GetTechnicianRef(orderBucket.getPartyId(), orderBucket.getTechnicianId())
+                        .child("jobs_assigned")
+                        .child(_wkt)
+                        .setValue(orderBucket.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (!task.isSuccessful())
+                            return;
+
+                        Realm __r = Realm.getDefaultInstance();
+                        try {
+                            JobsAssigned _jobs = new JobsAssigned();
+                            _jobs.setId(new Date().getTime());
+                            _jobs.setOrderId(orderBucket.getUid());
+                            _jobs.setTechId(orderBucket.getTechnicianId());
+                            _jobs.setWkt(_wkt);
+
+                            __r.beginTransaction();
+                            __r.copyToRealmOrUpdate(_jobs);
+                            __r.commitTransaction();
+                        } finally {
+                            __r.close();
+                        }
+                    }
+                });
+            }
+        } finally {
+            _r.close();
+        }
+
+    }
+
+    public static void Mitra_jobAsCancelled(final OrderBucket orderBucket) {
+        Realm _r = Realm.getDefaultInstance();
+        try {
+
+            final String _wkt = Util.convertDateToString(new Date(orderBucket.getBookingTimestamp()), "yyyyMMddHHmm");
+
+            JobsCancelled jobsHistory = _r.where(JobsCancelled.class)
+                    .equalTo("techId", orderBucket.getTechnicianId())
+                    .equalTo("orderId", orderBucket.getUid())
+                    .equalTo("wkt", _wkt)
+                    .findFirst();
+
+            if (jobsHistory == null) {
+
+                Mitra_GetTechnicianRef(orderBucket.getPartyId(), orderBucket.getTechnicianId())
+                        .child("jobs_cancelled")
+                        .child(_wkt)
+                        .setValue(orderBucket.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (!task.isSuccessful())
+                            return;
+
+                        //hapus job_assigned krena berarti sudah dikerjakan ? utk sementara disabled dulu krn msh perlu utk analisa scoring dan bentrok
+//                                            FBUtil.Mitra_GetTechnicianRef(mMitraId, _orderBucket.getTechnicianId())
+//                                                    .child("jobs_assigned")
+//                                                    .child(_wkt)
+//                                                    .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                                @Override
+//                                                public void onComplete(@NonNull Task<Void> task) {
+//                                                    if (task.isSuccessful()) {
+//                                                        Realm ___r = Realm.getDefaultInstance();
+//                                                        try{
+//                                                            ___r.beginTransaction();
+//                                                            ___r.where(JobsAssigned.class)
+//                                                                    .equalTo("techId", _orderBucket.getTechnicianId())
+//                                                                    .equalTo("orderId", _orderBucket.getUid())
+//                                                                    .equalTo("wkt", _wkt)
+//                                                                    .findAll().deleteAllFromRealm();
+//                                                            ___r.commitTransaction();
+//                                                        }finally {
+//                                                            ___r.close();
+//                                                        }
+//                                                    }
+//                                                }
+//                                            });
+
+
+                        Realm __r = Realm.getDefaultInstance();
+                        try {
+                            JobsCancelled _jobs = new JobsCancelled();
+                            _jobs.setId(new Date().getTime());
+                            _jobs.setOrderId(orderBucket.getUid());
+                            _jobs.setTechId(orderBucket.getTechnicianId());
+                            _jobs.setWkt(_wkt);
+
+                            __r.beginTransaction();
+                            __r.copyToRealmOrUpdate(_jobs);
+                            __r.commitTransaction();
+                        } finally {
+                            __r.close();
+                        }
+                    }
+                });
+            }
+        } finally {
+            _r.close();
+        }
+
+    }
+
+    public static void Mitra_jobAsHistory(final OrderBucket orderBucket) {
+        Realm _r = Realm.getDefaultInstance();
+        try {
+
+            final String _wkt = Util.convertDateToString(new Date(orderBucket.getBookingTimestamp()), "yyyyMMddHHmm");
+
+            JobsHistory jobsHistory = _r.where(JobsHistory.class)
+                    .equalTo("techId", orderBucket.getTechnicianId())
+                    .equalTo("orderId", orderBucket.getUid())
+                    .equalTo("wkt", _wkt)
+                    .findFirst();
+
+            if (jobsHistory == null) {
+
+                Mitra_GetTechnicianRef(orderBucket.getPartyId(), orderBucket.getTechnicianId())
+                        .child("jobs_history")
+                        .child(_wkt)
+                        .setValue(orderBucket.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (!task.isSuccessful())
+                            return;
+
+                        //hapus job_assigned krena berarti sudah dikerjakan ? utk sementara disabled dulu krn msh perlu utk analisa scoring dan bentrok
+//                                            FBUtil.Mitra_GetTechnicianRef(mMitraId, _orderBucket.getTechnicianId())
+//                                                    .child("jobs_assigned")
+//                                                    .child(_wkt)
+//                                                    .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                                @Override
+//                                                public void onComplete(@NonNull Task<Void> task) {
+//                                                    if (task.isSuccessful()) {
+//                                                        Realm ___r = Realm.getDefaultInstance();
+//                                                        try{
+//                                                            ___r.beginTransaction();
+//                                                            ___r.where(JobsAssigned.class)
+//                                                                    .equalTo("techId", _orderBucket.getTechnicianId())
+//                                                                    .equalTo("orderId", _orderBucket.getUid())
+//                                                                    .equalTo("wkt", _wkt)
+//                                                                    .findAll().deleteAllFromRealm();
+//                                                            ___r.commitTransaction();
+//                                                        }finally {
+//                                                            ___r.close();
+//                                                        }
+//                                                    }
+//                                                }
+//                                            });
+
+
+                        Realm __r = Realm.getDefaultInstance();
+                        try {
+                            JobsHistory _jobs = new JobsHistory();
+                            _jobs.setId(new Date().getTime());
+                            _jobs.setOrderId(orderBucket.getUid());
+                            _jobs.setTechId(orderBucket.getTechnicianId());
+                            _jobs.setWkt(_wkt);
+
+                            __r.beginTransaction();
+                            __r.copyToRealmOrUpdate(_jobs);
+                            __r.commitTransaction();
+                        } finally {
+                            __r.close();
+                        }
+                    }
+                });
+            }
+        } finally {
+            _r.close();
+        }
     }
 }

@@ -60,6 +60,7 @@
                     android:id="@+id/tvMitra"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="invisible"
                     android:gravity="end"
                     android:text="Mitra"
                     android:textSize="12sp" />

@@ -12,9 +12,11 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.elkana.customer.R;
+import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
+import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.Util;
@@ -68,7 +70,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
         fontFace = Typeface.createFromAsset(this.ctx.getAssets(),
                 "fonts/DinDisplayProLight.otf");
 
-        getDataLocal();
+//        getDataLocal();   disable utk menghindari dipanggil 2x ?
 
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
@@ -119,10 +121,27 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
         try{
             RealmResults<OrderHeader> all = r.where(OrderHeader.class)
                     .equalTo("customerId", mCustomerId)
-                    .notEqualTo("statusId", EOrderStatus.FINISHED.name())
+//                    .notEqualTo("statusId", EOrderStatus.FINISHED.name())
                     .findAll();
 
-            mList.addAll(r.copyFromRealm(all));
+            MobileSetup config = r.where(MobileSetup.class).findFirst();
+
+            for (int i = 0; i < all.size(); i++){
+                OrderHeader obj = all.get(i);
+
+                EOrderStatus status = EOrderStatus.convertValue(obj.getStatusId());
+
+                if (status == EOrderStatus.FINISHED) {
+
+                    long _expiredTime = DateUtil.isExpiredTime(obj.getUpdatedTimestamp(), config.getRemove_order_age_hours() * DateUtil.TIME_ONE_HOUR_MINUTES);
+
+                    if (_expiredTime > 0)
+                        continue;
+                }
+                mList.add(obj);
+            }
+
+//            mList.addAll(r.copyFromRealm(all));
         }finally {
             r.close();
         }
@@ -155,72 +174,8 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else {
 
             final OrderHeader obj = mList.get(position);
+            ((MyViewHolder) holder).setData(obj);
 
-            ((MyViewHolder) holder).tvLabel.setText(ctx.getString(R.string.row_label_ac_service, obj.getJumlahAC()));
-            ((MyViewHolder) holder).tvAddress.setText(obj.getAddressId());
-            ((MyViewHolder) holder).tvDateOfService.setText(ctx.getString(R.string.prompt_schedule) + ": " + Util.prettyTimestamp(ctx, obj.getBookingTimestamp()));
-
-            Realm r = Realm.getDefaultInstance();
-            try{
-
-                Mitra mitra = CustomerUtil.lookUpMitraById(r, obj.getPartyId());
-//                Mitra mitra = CustomerUtil.lookUpMitra(r, Long.parseLong(obj.getPartyId()));
-
-                if (mitra != null) {
-                    ((MyViewHolder) holder).tvMitra.setText(ctx.getString(R.string.row_order_mitra, mitra.getName()));
-                }
-
-
-                EOrderDetailStatus orderStatus = EOrderDetailStatus.convertValue(obj.getStatusDetailId());
-
-                ((MyViewHolder) holder).tvStatus.setText(CustomerUtil.getMessageStatusDetail(ctx, orderStatus));
-
-            }finally {
-                r.close();
-            }
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mListener != null)
-                        mListener.onItemOrderSelected(obj);
-                }
-            });
-            ((MyViewHolder) holder).fabCancelOrder.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mListener != null)
-                        mListener.onCancelOrder(obj);
-
-                }
-            });
-
-            /*
-            ((MyViewHolder) holder).tvLabelAddress.setText(obj.getAddress());
-
-            ((MyViewHolder) holder).btnDelete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    new AlertDialog.Builder(ctx)
-                            .setTitle(ctx.getString(R.string.title_delete_address))
-                            .setMessage(obj.getAddress())
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    mList.remove(position);
-
-                                    notifyDataSetChanged();
-                                }
-                            })
-                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                }
-                            })
-                            .show();
-                }
-            });
-            */
         }
 
     }
@@ -263,6 +218,83 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //            btnCancelOrder.setImageResource(R.drawable.ic_indeterminate_check_box_black_24dp);
 //            btnCancelOrder.setColorFilter(Color.parseColor("#000000"));
             fabCancelOrder = itemView.findViewById(R.id.fabCancelOrder);
+
+        }
+
+        public void setData(final OrderHeader data){
+            tvLabel.setText(ctx.getString(R.string.row_label_ac_service, data.getJumlahAC()));
+            tvAddress.setText(data.getAddressId());
+            tvDateOfService.setText(ctx.getString(R.string.prompt_schedule) + ": " + Util.prettyTimestamp(ctx, data.getBookingTimestamp()));
+
+            Realm r = Realm.getDefaultInstance();
+            try{
+
+                Mitra mitra = CustomerUtil.lookUpMitraById(r, data.getPartyId());
+//                Mitra mitra = CustomerUtil.lookUpMitra(r, Long.parseLong(obj.getPartyId()));
+
+                if (mitra != null) {
+                    tvMitra.setText(ctx.getString(R.string.row_order_mitra, mitra.getName()));
+                }
+
+
+                EOrderDetailStatus orderStatus = EOrderDetailStatus.convertValue(data.getStatusDetailId());
+
+                MobileSetup config = r.where(MobileSetup.class).findFirst();
+                // too long ?
+                long _expiredTime = DateUtil.isExpiredTime(data.getUpdatedTimestamp(), config.getStatus_unhandled_minutes());
+
+                if (orderStatus == EOrderDetailStatus.UNHANDLED && _expiredTime > 0) {
+                    tvStatus.setText(ctx.getString(R.string.status_unhandled_timeout));
+                } else
+                    tvStatus.setText(CustomerUtil.getMessageStatusDetail(ctx, orderStatus));
+
+            }finally {
+                r.close();
+            }
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mListener != null)
+                        mListener.onItemOrderSelected(data);
+                }
+            });
+            fabCancelOrder.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mListener != null)
+                        mListener.onCancelOrder(data);
+
+                }
+            });
+
+            /*
+            ((MyViewHolder) holder).tvLabelAddress.setText(obj.getAddress());
+
+            ((MyViewHolder) holder).btnDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new AlertDialog.Builder(ctx)
+                            .setTitle(ctx.getString(R.string.title_delete_address))
+                            .setMessage(obj.getAddress())
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    mList.remove(position);
+
+                                    notifyDataSetChanged();
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            })
+                            .show();
+                }
+            });
+            */
 
         }
     }

@@ -20,6 +20,7 @@ public class TechnicianReg extends RealmObject implements Serializable {
     private String name;
     private boolean suspend;    // if absen, berlaku sehari ?
     private int orderTodayCount;    // dipakai wkt assign manual. utk menampung ada brp jobs yg diassign ke teknisi ini. tidak utk ditaruh di firebase makanya di @Exclude
+    private int lastScore;  //0 - infinite
 
     public TechnicianReg() {
     }
@@ -56,6 +57,14 @@ public class TechnicianReg extends RealmObject implements Serializable {
         this.suspend = suspend;
     }
 
+    public int getLastScore() {
+        return lastScore;
+    }
+
+    public void setLastScore(int lastScore) {
+        this.lastScore = lastScore;
+    }
+
     @Exclude
     public int getOrderTodayCount() {
         return orderTodayCount;
@@ -73,6 +82,7 @@ public class TechnicianReg extends RealmObject implements Serializable {
                 ", name='" + name + '\'' +
                 ", suspend=" + suspend +
                 ", orderTodayCount=" + orderTodayCount +
+                ", lastScore=" + lastScore +
                 '}';
     }
 }

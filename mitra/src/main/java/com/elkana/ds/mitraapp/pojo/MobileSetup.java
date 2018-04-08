@@ -19,7 +19,9 @@ public class MobileSetup extends RealmObject implements Serializable {
     private String theme_color_default_inactive;
     private String theme_color_default_accent;
 
-    private int lastOrderMinutes;   // menit yg diperlukan utk last order. harusnya sama utk semua aplikasi
+//    private int lastOrderMinutes;   // menit yg diperlukan utk last order. harusnya sama utk semua aplikasi
+    private boolean singleInstance; // true to avoid application logged in on multiple device
+    private int maxOrderPerTechnician;
 
     /**
      * time for an order will cancel automatically after no respond
@@ -74,13 +76,13 @@ public class MobileSetup extends RealmObject implements Serializable {
         this.theme_color_default_accent = theme_color_default_accent;
     }
 
-    public int getLastOrderMinutes() {
-        return lastOrderMinutes;
-    }
-
-    public void setLastOrderMinutes(int lastOrderMinutes) {
-        this.lastOrderMinutes = lastOrderMinutes;
-    }
+//    public int getLastOrderMinutes() {
+//        return lastOrderMinutes;
+//    }
+//
+//    public void setLastOrderMinutes(int lastOrderMinutes) {
+//        this.lastOrderMinutes = lastOrderMinutes;
+//    }
 
     public int getTimeout_cancel_minute() {
         return timeout_cancel_minute;
@@ -90,15 +92,34 @@ public class MobileSetup extends RealmObject implements Serializable {
         this.timeout_cancel_minute = timeout_cancel_minute;
     }
 
+    public boolean isSingleInstance() {
+        return singleInstance;
+    }
+
+    public void setSingleInstance(boolean singleInstance) {
+        this.singleInstance = singleInstance;
+    }
+
+    public int getMaxOrderPerTechnician() {
+        return maxOrderPerTechnician;
+    }
+
+    public void setMaxOrderPerTechnician(int maxOrderPerTechnician) {
+        this.maxOrderPerTechnician = maxOrderPerTechnician;
+    }
+
     @Override
     public String toString() {
         return "MobileSetup{" +
                 "id=" + id +
                 ", gps_mandatory=" + gps_mandatory +
+                ", appLifeTime=" + appLifeTime +
                 ", theme_color_default='" + theme_color_default + '\'' +
                 ", theme_color_default_inactive='" + theme_color_default_inactive + '\'' +
                 ", theme_color_default_accent='" + theme_color_default_accent + '\'' +
-                ", lastOrderMinutes=" + lastOrderMinutes +
+//                ", lastOrderMinutes=" + lastOrderMinutes +
+                ", singleInstance=" + singleInstance +
+                ", maxOrderPerTechnician=" + maxOrderPerTechnician +
                 ", timeout_cancel_minute=" + timeout_cancel_minute +
                 '}';
     }
