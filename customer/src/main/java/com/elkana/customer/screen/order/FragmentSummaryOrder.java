@@ -567,10 +567,9 @@ public class FragmentSummaryOrder extends Fragment {
                     if (orderHeader == null)
                         return;
 
-                    Intent intent = new Intent(getActivity(), ActivityTechOtwMap.class);
-                    intent.putExtra(ActivityTechOtwMap.PARAM_ORDER_ID, orderHeader.getUid());
-                    intent.putExtra(ActivityTechOtwMap.PARAM_TECH_NAME, orderHeader.getTechnicianName());
-                    startActivity(intent);
+                    if (mListener != null) {
+                        mListener.onClickCheckTechnicianGps(orderHeader.getUid(), orderHeader.getTechnicianName());
+                    }
 
                 } finally {
                     realm.close();
@@ -1012,5 +1011,7 @@ public class FragmentSummaryOrder extends Fragment {
         void onOrderCancelled(int serviceType, String invoiceNo);
 
         void onOrderRescheduled(int serviceType, String invoiceNo);
+
+        void onClickCheckTechnicianGps(String orderId, String technicianName);
     }
 }

@@ -37,10 +37,7 @@ public class SyncMovementJob extends BroadcastReceiver {
 
     }
 
-
-    @Override
-    public void onReceive(final Context context, Intent intent) {
-
+    public static void markLocation(Context ctx) {
         String orderId;
         Realm r = Realm.getDefaultInstance();
         try{
@@ -57,7 +54,7 @@ public class SyncMovementJob extends BroadcastReceiver {
                 return;
             }
 
-            final double[] gps = Location.getGPS(context);
+            final double[] gps = Location.getGPS(ctx);
 
             String latitude = String.valueOf(gps[0]);
             String longitude = String.valueOf(gps[1]);
@@ -83,7 +80,7 @@ public class SyncMovementJob extends BroadcastReceiver {
             r.copyToRealm(lastMovement);
             r.commitTransaction();
 
-            sync_Location(context, currentUser.getUid(), orderId, lastMovement, false);
+            sync_Location(ctx, currentUser.getUid(), orderId, lastMovement, false);
         }finally{
             r.close();
         }
@@ -96,5 +93,10 @@ public class SyncMovementJob extends BroadcastReceiver {
 //            }
 //        }
 
+    }
+
+    @Override
+    public void onReceive(final Context context, Intent intent) {
+        markLocation(context);
     }
 }

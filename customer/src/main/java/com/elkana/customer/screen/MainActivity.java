@@ -25,6 +25,7 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.elkana.customer.R;
 import com.elkana.customer.screen.login.ActivityLogin;
+import com.elkana.customer.screen.order.ActivityTechOtwMap;
 import com.elkana.customer.screen.order.FragmentMitraListInRange;
 import com.elkana.customer.screen.order.FragmentOrderACNew;
 import com.elkana.customer.screen.order.FragmentOrderList;
@@ -68,6 +69,7 @@ public class MainActivity extends FirebaseActivity
     private static final int PAGE_ORDER_LIST = 0;
     private static final int PAGE_ORDER_DETAIL = 1;
     private static final int PAGE_SERVICE_CHOICE = 2;
+    protected int lastPageIndex = -1;
 
     private boolean disableSwipeScreen = true;
 
@@ -342,7 +344,8 @@ public class MainActivity extends FirebaseActivity
                         @Override
                         public void onPostSync(Exception e) {
                             try {
-                                prepareScreen(true);
+                                // disable. soalnya kalo cek posisi teknisi akibatnya bisa change page ke page pertama
+//                                prepareScreen(true);
                             } catch (IllegalStateException e1) {
                                 e1.printStackTrace();
                             }
@@ -497,6 +500,7 @@ public class MainActivity extends FirebaseActivity
 //            bottomNavigation.setVisibility(orderCount > 0 ? View.VISIBLE : View.GONE);
         }
 
+        lastPageIndex = pageIndex;
     }
 
     @Override
@@ -561,6 +565,16 @@ public class MainActivity extends FirebaseActivity
         snackbar.show();
 
         onGoToScreen(PAGE_ORDER_LIST, true, true);
+    }
+
+    @Override
+    public void onClickCheckTechnicianGps(String orderId, String technicianName) {
+
+        Intent intent = new Intent(this, ActivityTechOtwMap.class);
+        intent.putExtra(ActivityTechOtwMap.PARAM_ORDER_ID, orderId);
+        intent.putExtra(ActivityTechOtwMap.PARAM_TECH_NAME, technicianName);
+        startActivity(intent);
+
     }
 
     @Override

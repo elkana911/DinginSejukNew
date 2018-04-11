@@ -23,9 +23,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.elkana.dslibrary.activity.FirebaseActivity;
-import com.elkana.dslibrary.firebase.FBUtil;
-import com.elkana.dslibrary.listener.ListenerGetLong;
-import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.screen.MainActivity;
 import com.elkana.teknisi.R;
@@ -41,7 +38,7 @@ public class ActivityLogin extends FirebaseActivity {
 
 //    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 411;
 //    public static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE = 412;
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA = 413;
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA_STORAGE = 413;
 
     View coordinatorLayout;
     EditText mPassword;
@@ -60,8 +57,10 @@ public class ActivityLogin extends FirebaseActivity {
         ActivityCompat.requestPermissions(this, new String[]{
                         android.Manifest.permission.ACCESS_FINE_LOCATION
                         , android.Manifest.permission.CALL_PHONE
-                        , Manifest.permission.CAMERA},
-                MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA);
+                        , Manifest.permission.CAMERA
+                        , Manifest.permission.WRITE_EXTERNAL_STORAGE
+                },
+                MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA_STORAGE);
 
     }
 
@@ -168,10 +167,11 @@ public class ActivityLogin extends FirebaseActivity {
                 return;
             }
             */
-            case MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA: {
+            case MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA_STORAGE: {
                 if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED
                         && grantResults[2] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[3] == PackageManager.PERMISSION_GRANTED
                         ) {
 //                    signIn();
                 } else {

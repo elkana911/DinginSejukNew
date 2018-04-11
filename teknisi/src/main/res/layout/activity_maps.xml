@@ -193,6 +193,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:tint="@android:color/white"
+                        app:elevation="2dp"
                         app:fabSize="mini"
                         app:srcCompat="@drawable/ic_sms_black_24dp" />
 
@@ -210,6 +211,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:tint="@android:color/white"
+                        app:elevation="2dp"
                         app:fabSize="mini"
                         app:srcCompat="@drawable/ic_phone_black_24dp" />
 

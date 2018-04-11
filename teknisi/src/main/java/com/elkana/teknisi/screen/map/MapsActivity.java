@@ -36,6 +36,7 @@ import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
+import com.elkana.teknisi.job.SyncMovementJob;
 import com.elkana.teknisi.pojo.MobileSetup;
 import com.elkana.teknisi.screen.MainActivity;
 import com.elkana.teknisi.util.TeknisiUtil;
@@ -385,6 +386,8 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                                     r.copyToRealmOrUpdate(setup);
                                     r.commitTransaction();
 
+                                    // TODO: send first coordinate !
+                                    SyncMovementJob.markLocation(MapsActivity.this);
                                 }finally {
                                     r.close();
                                 }

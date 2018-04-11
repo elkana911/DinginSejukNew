@@ -4,8 +4,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -23,7 +21,6 @@ import com.elkana.customer.screen.AFirebaseActivity;
 import com.elkana.customer.screen.MainActivity;
 import com.elkana.customer.screen.intro.ActivityIntro;
 import com.elkana.customer.screen.register.ActivityRegister;
-import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -32,7 +29,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class ActivityLogin extends AFirebaseActivity {
     private static final String TAG = ActivityLogin.class.getSimpleName();
-    private static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA = 413;
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA_STORAGE = 413;
 
     AutoCompleteTextView mEmailView;
     EditText mPassword;
@@ -44,8 +41,10 @@ public class ActivityLogin extends AFirebaseActivity {
         ActivityCompat.requestPermissions(this, new String[]{
                         android.Manifest.permission.ACCESS_FINE_LOCATION
                         ,android.Manifest.permission.CALL_PHONE
-                        , Manifest.permission.CAMERA},
-                MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA);
+                        , android.Manifest.permission.CAMERA
+                        , android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                },
+                MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA_STORAGE);
 
     }
 
@@ -98,10 +97,11 @@ public class ActivityLogin extends AFirebaseActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA:
+            case MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA_STORAGE:
                 if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED
                         && grantResults[2] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[3] == PackageManager.PERMISSION_GRANTED
                         ) {
 //                    signIn();
                 } else {

@@ -955,7 +955,8 @@ public class FragmentOrderACNew extends Fragment {
                 orderHeader.setTimeOfService(jam);
                 orderHeader.setBookingTimestamp(Util.convertStringToDate(kapanYYYYMMDD + jam, "yyyyMMddHH:mm").getTime());
                 orderHeader.setServiceType(DateUtil.isToday(orderHeader.getBookingTimestamp()) ? Const.SERVICE_TYPE_QUICK : Const.SERVICE_TYPE_SCHEDULED);
-                orderHeader.setInvoiceNo(String.valueOf(orderHeader.getBookingTimestamp()));
+                orderHeader.setInvoiceNo(String.valueOf(orderHeader.getCreatedTimestamp()));
+//                orderHeader.setInvoiceNo(String.valueOf(orderHeader.getBookingTimestamp()));
                 orderHeader.setStatusId(EOrderStatus.PENDING.name());
                 orderHeader.setStatusDetailId(EOrderDetailStatus.CREATED.name());
                 orderHeader.setAddressId(finalAlamat);

@@ -70,7 +70,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
         fontFace = Typeface.createFromAsset(this.ctx.getAssets(),
                 "fonts/DinDisplayProLight.otf");
 
-//        getDataLocal();   disable utk menghindari dipanggil 2x ?
+        getDataLocal();   //jgn disable meskpipun risikonya dipanggil 2x. spy tdk flicker
 
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
