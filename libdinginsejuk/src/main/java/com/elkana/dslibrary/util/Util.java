@@ -16,12 +16,15 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
 import android.telephony.TelephonyManager;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.EditText;
 
 import com.elkana.dslibrary.BuildConfig;
 import com.elkana.dslibrary.R;
+import com.elkana.dslibrary.listener.ListenerGetString;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 
 import java.io.File;
@@ -223,6 +226,36 @@ public class Util {
         dialog.show();
 
         return dialog;
+    }
+
+    public static void showInputDialog(Context ctx, String title, final ListenerGetString listener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+        builder.setTitle(title);
+
+// Set up the input
+        final EditText input = new EditText(ctx);
+// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+//        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+// Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                if (listener != null)
+                    listener.onSuccess(input.getText().toString());
+//                m_Text = input.getText().toString();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 
     public static void showDialog(Context ctx, String title, String message) {

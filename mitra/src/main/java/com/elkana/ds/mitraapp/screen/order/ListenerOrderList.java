@@ -13,4 +13,6 @@ public interface ListenerOrderList {
     void onRefresh();
 
     void onNewOrderCameIn(OrderBucket orderBucket);
+
+    void onCancelOrder(OrderBucket data);
 }

@@ -2,13 +2,14 @@ package com.elkana.customer.screen.order;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.os.CountDownTimer;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.elkana.customer.R;
@@ -16,6 +17,7 @@ import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
+import com.elkana.dslibrary.util.ColorUtil;
 import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
@@ -26,6 +28,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
@@ -47,27 +50,27 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private ValueEventListener mValueEventListener;
 
-    private Context ctx;
+    private Context mContext;
     private String mCustomerId;
     private List<OrderHeader> mList = new ArrayList<>();
     private ListenerOrderList mListener;
 
     /*
     public RVAdapterOrders(Context context, List<OrderHeader> list, ListenerOrderList listener) {
-        this.ctx = context;
+        this.mContext = context;
         this.mListener = listener;
 
         this.mList.addAll(list);
     }*/
 
     public RVAdapterOrders(Context context, DatabaseReference ref, String customerId, ListenerOrderList listener) {
-        this.ctx = context;
+        mContext = context;
 
         mDatabaseReference = ref;
         mListener = listener;
         mCustomerId = customerId;
 
-        fontFace = Typeface.createFromAsset(this.ctx.getAssets(),
+        fontFace = Typeface.createFromAsset(this.mContext.getAssets(),
                 "fonts/DinDisplayProLight.otf");
 
         getDataLocal();   //jgn disable meskpipun risikonya dipanggil 2x. spy tdk flicker
@@ -176,6 +179,13 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
             final OrderHeader obj = mList.get(position);
             ((MyViewHolder) holder).setData(obj);
 
+            EOrderDetailStatus detailStatus = EOrderDetailStatus.convertValue(obj.getStatusDetailId());
+
+            if (detailStatus == EOrderDetailStatus.CREATED)
+                // masih experiment
+                ((MyViewHolder) holder).startTimer(obj);
+            else
+                ((MyViewHolder) holder).stopTimer(obj);
         }
 
     }
@@ -198,21 +208,26 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView tvLabel, tvAddress, tvStatus, tvMitra, tvDateOfService;
+        public TextView tvLabel, tvAddress, tvStatus, tvMitra, tvDateOfService, tvTimer;
 //        public ImageButton btnCancelOrder;
         public FloatingActionButton fabCancelOrder;
+
+        private boolean showTimer;
+
+        CountDownTimer timer;
 
         public MyViewHolder(View itemView) {
             super(itemView);
 
             tvLabel = itemView.findViewById(R.id.tvLabel);
             tvLabel.setTypeface(fontFace);
-//            tvLabelAddress.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(ctx, R.drawable.ic_home_black_24dp, android.R.color.white), null, null, null);
+//            tvLabelAddress.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(mContext, R.drawable.ic_home_black_24dp, android.R.color.white), null, null, null);
             tvMitra = itemView.findViewById(R.id.tvMitra);
             tvAddress = itemView.findViewById(R.id.tvAddress);
             tvStatus = itemView.findViewById(R.id.tvStatus);
             tvStatus.setTypeface(fontFace);
             tvDateOfService = itemView.findViewById(R.id.tvDateOfService);
+            tvTimer = itemView.findViewById(R.id.tvTimer);
 
 //            btnCancelOrder = (ImageButton) itemView.findViewById(R.id.btnCancelOrder);
 //            btnCancelOrder.setImageResource(R.drawable.ic_indeterminate_check_box_black_24dp);
@@ -222,9 +237,9 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         public void setData(final OrderHeader data){
-            tvLabel.setText(ctx.getString(R.string.row_label_ac_service, data.getJumlahAC()));
+            tvLabel.setText(mContext.getString(R.string.row_label_ac_service, data.getJumlahAC()));
             tvAddress.setText(data.getAddressId());
-            tvDateOfService.setText(ctx.getString(R.string.prompt_schedule) + ": " + Util.prettyTimestamp(ctx, data.getBookingTimestamp()));
+            tvDateOfService.setText(mContext.getString(R.string.prompt_schedule) + ": " + Util.prettyTimestamp(mContext, data.getBookingTimestamp()));
 
             Realm r = Realm.getDefaultInstance();
             try{
@@ -233,9 +248,8 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //                Mitra mitra = CustomerUtil.lookUpMitra(r, Long.parseLong(obj.getPartyId()));
 
                 if (mitra != null) {
-                    tvMitra.setText(ctx.getString(R.string.row_order_mitra, mitra.getName()));
+                    tvMitra.setText(mContext.getString(R.string.row_order_mitra, mitra.getName()));
                 }
-
 
                 EOrderDetailStatus orderStatus = EOrderDetailStatus.convertValue(data.getStatusDetailId());
 
@@ -244,10 +258,14 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 long _expiredTime = DateUtil.isExpiredTime(data.getUpdatedTimestamp(), config.getStatus_unhandled_minutes());
 
                 if (orderStatus == EOrderDetailStatus.UNHANDLED && _expiredTime > 0) {
-                    tvStatus.setText(ctx.getString(R.string.status_unhandled_timeout));
+                    tvStatus.setText(mContext.getString(R.string.status_unhandled_timeout));
                 } else
-                    tvStatus.setText(CustomerUtil.getMessageStatusDetail(ctx, orderStatus));
+                    tvStatus.setText(CustomerUtil.getMessageStatusDetail(mContext, orderStatus));
 
+
+                showTimer = config.isShow_timer();
+
+//                tvTimer.setVisibility(View.INVISIBLE);  // kondisi awal
             }finally {
                 r.close();
             }
@@ -274,8 +292,8 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ((MyViewHolder) holder).btnDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    new AlertDialog.Builder(ctx)
-                            .setTitle(ctx.getString(R.string.title_delete_address))
+                    new AlertDialog.Builder(mContext)
+                            .setTitle(mContext.getString(R.string.title_delete_address))
                             .setMessage(obj.getAddress())
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
@@ -297,12 +315,57 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
             */
 
         }
+
+        public void startTimer(OrderHeader obj) {
+            if (timer != null) {
+                return;
+            }
+
+            // if somehow customer have a right to cancel, lets say 60 minutes
+            long startMillis = obj.getUpdatedTimestamp() + (obj.getLife_per_status_minute() * DateUtil.TIME_ONE_MINUTE_MILLIS);
+
+            final long expirationMillis = startMillis - new Date().getTime();
+
+            timer = new CountDownTimer(expirationMillis, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    String ss = DateUtil.formatMillisToMinutesSeconds(millisUntilFinished);
+//                    String ss = Util.convertDateToString(new Date(millisUntilFinished), "mm:ss");
+                    tvTimer.setText(ss);
+
+                    if (expirationMillis < (5 * 1000)) {
+                        ColorUtil.setTextColorAsRed(mContext, tvTimer);
+                    }
+                }
+
+
+                @Override
+                public void onFinish() {
+                    if (mList.size() < 1)
+                        return;
+
+                    // dipindah ke cloud. jd timer disini cuma display doankg
+//                    FBUtil.Order_SetStatus(mMitraId, obj.getCustomerId(), obj.getUid(), null, null, EOrderDetailStatus.UNHANDLED, String.valueOf(Const.USER_AS_MITRA), null);
+                }
+            }.start();
+
+            if (showTimer)
+                tvTimer.setVisibility(View.VISIBLE);
+        }
+
+        public void stopTimer(OrderHeader obj) {
+            if (timer == null)
+                return;
+
+            timer.cancel();
+
+//            tvTimer.setVisibility(View.INVISIBLE); mau cek dulu stop sesuai gak
+        }
     }
 
     class MyAddOrderHolder extends RecyclerView.ViewHolder {
 //        public Button btn;
         public FloatingActionButton fab;
-
 
         public MyAddOrderHolder(View itemView) {
             super(itemView);
@@ -310,7 +373,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
             fab = itemView.findViewById(R.id.fabAddService);
             /*
             btn = itemView.findViewById(R.id.btnAddService);
-            btn.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(ctx, R.drawable.ic_add_black_24dp, android.R.color.black), null, null, null);
+            btn.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(mContext, R.drawable.ic_add_black_24dp, android.R.color.black), null, null, null);
 
 
             btn.setOnClickListener(new View.OnClickListener() {

@@ -966,7 +966,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         }
 
     }
-
+    // sementara ga bisa dipindah ke cloud krn status PAID hanya dilakukan oleh customer
     public static void Mitra_jobAsHistory(final OrderBucket orderBucket) {
         Realm _r = Realm.getDefaultInstance();
         try {

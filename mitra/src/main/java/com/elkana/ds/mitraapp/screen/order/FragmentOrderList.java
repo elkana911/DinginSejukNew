@@ -1,8 +1,10 @@
 package com.elkana.ds.mitraapp.screen.order;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,17 +19,24 @@ import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.screen.assign.ActivityScrollingAssignment;
 import com.elkana.ds.mitraapp.screen.map.ActivityTechOtwMap;
 import com.elkana.ds.mitraapp.util.MitraUtil;
+import com.elkana.dslibrary.firebase.FBFunction_BasicCallableRecord;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.FightInfo;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.functions.FirebaseFunctions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -54,6 +63,8 @@ public class FragmentOrderList extends Fragment {
 
     private OnFragmentOrderListInteractionListener mListener;
     private RVAdapterOrderList mAdapter;
+
+    private FirebaseFunctions mFunctions;
 
     // listen to assignment fight
     DatabaseReference assignmentFightRef;
@@ -88,6 +99,8 @@ public class FragmentOrderList extends Fragment {
             mParamMitraId = getArguments().getString(ARG_MITRA_ID);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        mFunctions = FirebaseFunctions.getInstance();
 
         mAdapter = new RVAdapterOrderList(getContext(), mParamMitraId, new ListenerOrderList() {
             @Override
@@ -158,6 +171,52 @@ public class FragmentOrderList extends Fragment {
 
             @Override
             public void onNewOrderCameIn(OrderBucket orderBucket) {
+
+            }
+
+            @Override
+            public void onCancelOrder(OrderBucket data) {
+                final AlertDialog alertDialog = Util.showProgressDialog(getActivity(), "Proses pembatalan order dari " + data.getCustomerName());
+
+                final Map<String, Object> _keyVal = new HashMap<>();
+                _keyVal.put("customerId", data.getCustomerId() );
+                _keyVal.put("orderId", data.getUid());
+                _keyVal.put("cancelStatus", EOrderDetailStatus.CANCELLED_BY_SERVER.name());
+                _keyVal.put("cancelReason", data.getStatusComment());
+
+                mFunctions.getHttpsCallable(FBUtil.FUNCTION_CANCEL_BOOKING)
+                        .call(_keyVal)
+                        .continueWith(new FBFunction_BasicCallableRecord())
+                        .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Map<String, Object>> task) {
+                                if (!getActivity().isDestroyed())
+                                    alertDialog.dismiss();
+
+                                if (!task.isSuccessful()) {
+                                    if (getContext() != null) {
+                                        Log.e(TAG, task.getException().getMessage(), task.getException());
+                                        Util.showErrorDialog(getContext(), "Cancel Order Error", task.getException().getMessage());
+                                    }
+
+                                    return;
+                                }
+/*
+                                Realm _r = Realm.getDefaultInstance();
+                                try {
+                                    _r.beginTransaction();
+                                    _r.copyToRealmOrUpdate(orderHeaderCopy);
+                                    _r.commitTransaction();
+
+                                    if (mListener != null) {
+                                        mListener.onOrderCancelled(orderHeaderCopy.getServiceType(), orderHeaderCopy.getInvoiceNo());
+                                    }
+
+                                } finally {
+                                    _r.close();
+                                }*/
+                            }
+                        });
 
             }
         });

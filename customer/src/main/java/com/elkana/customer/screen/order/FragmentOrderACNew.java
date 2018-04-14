@@ -864,6 +864,8 @@ public class FragmentOrderACNew extends Fragment {
         final String jam = etTime.getText().toString().trim();
         final String problem = etProblem.getText().toString().trim();
 
+        final long bookingTimestamp = Util.convertStringToDate(kapanYYYYMMDD + jam, "yyyyMMddHH:mm").getTime();
+
         Object addressObj = spAddress.getSelectedItem();
         String alamat = "";
         String alamatByGoogle = "";
@@ -912,6 +914,16 @@ public class FragmentOrderACNew extends Fragment {
             cancel = true;
         }
 
+        // minimal 2 jam dari sekarang
+        if (mobileSetup.getMinimal_booking_hour() < 2)  //buat jaga2 kalo data kosong
+            mobileSetup.setMinimal_booking_hour(2);
+
+        if (bookingTimestamp < (new Date().getTime() + (mobileSetup.getMinimal_booking_hour() * DateUtil.TIME_ONE_HOUR_MILLIS))) {
+            Toast.makeText(getContext(), "Mohon pilih di jam lainnya.", Toast.LENGTH_SHORT).show();
+            focus = etTime;
+            cancel = true;
+        }
+
         if (cancel) {
             focus.requestFocus();
             return;
@@ -924,11 +936,12 @@ public class FragmentOrderACNew extends Fragment {
 
             long countCreatedOrder = r.where(OrderHeader.class)
                     .equalTo("partyId", mitraObj.getUid())
-                    .beginGroup()
-                    .equalTo("statusDetailId", EOrderDetailStatus.CREATED.name())
-                    .or()
-                    .equalTo("statusDetailId", EOrderDetailStatus.UNHANDLED.name())//bisa saja msh ditangani mitra meskipun tdk ada teknisi yg menangani
-                    .endGroup()
+                    .equalTo("statusId", EOrderStatus.PENDING.name())
+//                    .beginGroup()
+//                    .equalTo("statusDetailId", EOrderDetailStatus.CREATED.name())
+//                    .or()
+//                    .equalTo("statusDetailId", EOrderDetailStatus.UNHANDLED.name())//bisa saja msh ditangani mitra meskipun tdk ada teknisi yg menangani
+//                    .endGroup()
                     .count();
 
             int maxNewOrder = mobileSetup.getMax_new_order();
@@ -953,10 +966,8 @@ public class FragmentOrderACNew extends Fragment {
                 orderHeader.setCustomerId(mUserId);//jd tdk mungkin user yg sama bisa order 2x
                 orderHeader.setDateOfService(kapanYYYYMMDD);
                 orderHeader.setTimeOfService(jam);
-                orderHeader.setBookingTimestamp(Util.convertStringToDate(kapanYYYYMMDD + jam, "yyyyMMddHH:mm").getTime());
+                orderHeader.setBookingTimestamp(bookingTimestamp);
                 orderHeader.setServiceType(DateUtil.isToday(orderHeader.getBookingTimestamp()) ? Const.SERVICE_TYPE_QUICK : Const.SERVICE_TYPE_SCHEDULED);
-                orderHeader.setInvoiceNo(String.valueOf(orderHeader.getCreatedTimestamp()));
-//                orderHeader.setInvoiceNo(String.valueOf(orderHeader.getBookingTimestamp()));
                 orderHeader.setStatusId(EOrderStatus.PENDING.name());
                 orderHeader.setStatusDetailId(EOrderDetailStatus.CREATED.name());
                 orderHeader.setAddressId(finalAlamat);
@@ -970,6 +981,10 @@ public class FragmentOrderACNew extends Fragment {
                 orderHeader.setCreatedTimestamp(new Date().getTime());
                 orderHeader.setUpdatedTimestamp(orderHeader.getCreatedTimestamp());
                 orderHeader.setUpdatedBy(String.valueOf(Const.USER_AS_COSTUMER));
+                orderHeader.setInvoiceNo(String.valueOf(orderHeader.getCreatedTimestamp()));
+//                orderHeader.setInvoiceNo(String.valueOf(orderHeader.getBookingTimestamp()));
+
+                orderHeader.setLife_per_status_minute(mobileSetup.getLife_per_status_minute());
 
                 Realm _realm = Realm.getDefaultInstance();
                 try {

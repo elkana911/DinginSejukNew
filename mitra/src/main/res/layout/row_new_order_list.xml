@@ -95,6 +95,13 @@
                     android:visibility="invisible"
                     android:text="Change Tech"/>
                 <Button
+                    android:id="@+id/btnCancelOrder"
+                    android:layout_centerHorizontal="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible"
+                    android:text="Cancel Order"/>
+                <Button
                     android:id="@+id/btnCallTech"
                     android:layout_below="@id/btnChangeTech"
                     android:layout_alignParentStart="true"

@@ -68,8 +68,13 @@ public class ActivityNewOrder extends FirebaseActivity {
 //                        }
 //                    });
 //                } else {
-                    setResult(RESULT_CANCELED);
-                    finish();
+                Util.showDialogConfirmation(ActivityNewOrder.this, null, "Tutup Layar ini ?", new ListenerPositiveConfirmation() {
+                    @Override
+                    public void onPositive() {
+                        setResult(RESULT_CANCELED);
+                        finish();
+                    }
+                });
 //                }
             }
         });
@@ -96,10 +101,10 @@ public class ActivityNewOrder extends FirebaseActivity {
 
             @Override
             public void onAccept(NotifyNewOrderItem data) {
-//                if (mAdapter.getItemCount() < 2) {
-//                    setResult(RESULT_OK);
-//                    finish();
-//                }
+                if (mAdapter.getItemCount() < 2) {
+                    setResult(RESULT_OK);
+                    finish();
+                }
 
             }
 

@@ -19,6 +19,7 @@ public class OrderHeader extends RealmObject implements Serializable {
     private int serviceType;        // 1: quick service, 2 schedule service
     private String statusId;
     private String statusDetailId;
+    private String statusComment;   // diperlukan jika Server cancel dan customer diberikan alasan mengapa di cancel
     private String partyId;         // why string ? for future reference could be unique string, even Mitra.id is a long
     private String partyName;
     private String technicianId;    // why string ? for future reference could be unique string
@@ -31,6 +32,7 @@ public class OrderHeader extends RealmObject implements Serializable {
     private int jumlahAC;
     private int ratingByCustomer;   //0 - 50
     private int ratingByTechnician; //0 - 50
+    private int life_per_status_minute; // waktu yg diperlukan utk status baru(any status) sebelum dinyatakan CANCELLED_BY_TIMER. hanya berlaku utk status sebelum PAYMENT
     private String ratingCustomerComments;
     private String ratingTechnicianComments;
     private String problem;
@@ -85,6 +87,14 @@ public class OrderHeader extends RealmObject implements Serializable {
 
     public void setStatusDetailId(String statusDetailId) {
         this.statusDetailId = statusDetailId;
+    }
+
+    public String getStatusComment() {
+        return statusComment;
+    }
+
+    public void setStatusComment(String statusComment) {
+        this.statusComment = statusComment;
     }
 
     public long getBookingTimestamp() {
@@ -295,6 +305,14 @@ public class OrderHeader extends RealmObject implements Serializable {
         this.ratingTechnicianComments = ratingTechnicianComments;
     }
 
+    public int getLife_per_status_minute() {
+        return life_per_status_minute;
+    }
+
+    public void setLife_per_status_minute(int life_per_status_minute) {
+        this.life_per_status_minute = life_per_status_minute;
+    }
+
     @Override
     public String toString() {
         return "OrderHeader{" +
@@ -305,6 +323,7 @@ public class OrderHeader extends RealmObject implements Serializable {
                 ", serviceType=" + serviceType +
                 ", statusId='" + statusId + '\'' +
                 ", statusDetailId='" + statusDetailId + '\'' +
+                ", statusComment='" + statusComment + '\'' +
                 ", partyId='" + partyId + '\'' +
                 ", partyName='" + partyName + '\'' +
                 ", technicianId='" + technicianId + '\'' +
@@ -317,6 +336,7 @@ public class OrderHeader extends RealmObject implements Serializable {
                 ", jumlahAC=" + jumlahAC +
                 ", ratingByCustomer=" + ratingByCustomer +
                 ", ratingByTechnician=" + ratingByTechnician +
+                ", life_per_status_minute=" + life_per_status_minute +
                 ", ratingCustomerComments='" + ratingCustomerComments + '\'' +
                 ", ratingTechnicianComments='" + ratingTechnicianComments + '\'' +
                 ", problem='" + problem + '\'' +

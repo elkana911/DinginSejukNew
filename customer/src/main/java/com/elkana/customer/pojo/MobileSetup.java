@@ -36,8 +36,25 @@ public class MobileSetup extends RealmObject implements Serializable {
     private int remove_order_age_hours;
     /**
      * time for an order will cancel automatically after no respond
+     * @see #auto_cancel
      */
-    private int timeout_cancel_minute;
+    private int life_per_status_minute;
+
+    /**
+     * hanya boleh booking 2 jam dari waktu sekarang (misalnya)
+     */
+    private int minimal_booking_hour;
+
+    /**
+     * buat jaga2 di masa depan kalo mau ada timer di customer
+     */
+    private boolean show_timer;
+
+    /**
+     * rencanany tiap status sebelum WORKING bisa auto_cancel tiap life_per_status_minute
+     * @see #life_per_status_minute
+     */
+    private boolean auto_cancel;
 
     public int getId() {
         return id;
@@ -95,12 +112,12 @@ public class MobileSetup extends RealmObject implements Serializable {
         this.unit_ac_max = unit_ac_max;
     }
 
-    public int getTimeout_cancel_minute() {
-        return timeout_cancel_minute;
+    public int getLife_per_status_minute() {
+        return life_per_status_minute;
     }
 
-    public void setTimeout_cancel_minute(int timeout_cancel_minute) {
-        this.timeout_cancel_minute = timeout_cancel_minute;
+    public void setLife_per_status_minute(int life_per_status_minute) {
+        this.life_per_status_minute = life_per_status_minute;
     }
 
     public boolean isMap_show_vendor_title() {
@@ -147,6 +164,30 @@ public class MobileSetup extends RealmObject implements Serializable {
         this.remove_order_age_hours = remove_order_age_hours;
     }
 
+    public int getMinimal_booking_hour() {
+        return minimal_booking_hour;
+    }
+
+    public void setMinimal_booking_hour(int minimal_booking_hour) {
+        this.minimal_booking_hour = minimal_booking_hour;
+    }
+
+    public boolean isShow_timer() {
+        return show_timer;
+    }
+
+    public void setShow_timer(boolean show_timer) {
+        this.show_timer = show_timer;
+    }
+
+    public boolean isAuto_cancel() {
+        return auto_cancel;
+    }
+
+    public void setAuto_cancel(boolean auto_cancel) {
+        this.auto_cancel = auto_cancel;
+    }
+
     @Override
     public String toString() {
         return "MobileSetup{" +
@@ -160,10 +201,12 @@ public class MobileSetup extends RealmObject implements Serializable {
                 ", vendor_radius_km=" + vendor_radius_km +
                 ", max_new_order=" + max_new_order +
                 ", unit_ac_max=" + unit_ac_max +
-//                ", lastOrderMinutes=" + lastOrderMinutes +
                 ", status_unhandled_minutes=" + status_unhandled_minutes +
                 ", remove_order_age_hours=" + remove_order_age_hours +
-                ", timeout_cancel_minute=" + timeout_cancel_minute +
+                ", life_per_status_minute=" + life_per_status_minute +
+                ", minimal_booking_hour=" + minimal_booking_hour +
+                ", show_timer=" + show_timer +
+                ", auto_cancel=" + auto_cancel +
                 '}';
     }
 

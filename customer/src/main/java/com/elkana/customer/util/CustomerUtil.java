@@ -104,7 +104,7 @@ udah di taruh di lib
 
                     mobileSetup.setVendor_radius_km(10);
                     mobileSetup.setUnit_ac_max(7);
-                    mobileSetup.setTimeout_cancel_minute(Util.TESTING_MODE ? 2 : 30);
+                    mobileSetup.setLife_per_status_minute(60);
                     realm.copyToRealmOrUpdate(mobileSetup);
 
 //                    realm.copyToRealmOrUpdate(new ServiceType(10, "Air Conditioner", "Air Conditioner"));

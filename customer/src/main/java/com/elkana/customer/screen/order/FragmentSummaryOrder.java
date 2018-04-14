@@ -2,7 +2,6 @@ package com.elkana.customer.screen.order;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -22,7 +21,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.elkana.customer.R;
@@ -31,7 +29,6 @@ import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.firebase.FBFunction_BasicCallableRecord;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetString;
-import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.listener.ListenerSync;
 import com.elkana.dslibrary.pojo.OrderBucket;
@@ -247,7 +244,7 @@ public class FragmentSummaryOrder extends Fragment {
             btnPayment.setVisibility(View.GONE);
             btnCancelOrder.setVisibility(View.INVISIBLE);
             btnReschedule.setVisibility(View.INVISIBLE);
-            btnReschedule.setEnabled(true);
+            btnReschedule.setEnabled(orderHeader.getRescheduleCounter() < 1);
             cardReview.setVisibility(View.GONE);
             switch (orderDetailStatus) {
                 case CREATED:
@@ -270,9 +267,8 @@ public class FragmentSummaryOrder extends Fragment {
                     btnReschedule.setVisibility(View.VISIBLE);
                     break;
                 case ASSIGNED:
-                    btnCancelOrder.setVisibility(View.VISIBLE);
-                    btnReschedule.setVisibility(View.VISIBLE);
-                    btnReschedule.setEnabled(orderHeader.getRescheduleCounter() < 1);
+//                    btnCancelOrder.setVisibility(View.VISIBLE);
+//                    btnReschedule.setVisibility(View.VISIBLE);
                     break;
                 case OTW:
                     // TODO: mungkin msh boleh dibatalkan ? tp kena charge atau gmn
@@ -297,10 +293,11 @@ public class FragmentSummaryOrder extends Fragment {
                     }
                     break;
                 case CANCELLED_BY_CUSTOMER:
-                    break;
                 case CANCELLED_BY_SERVER:
-                    break;
                 case CANCELLED_BY_TIMEOUT:
+                    if (!TextUtils.isEmpty(orderHeader.getStatusComment())) {
+                        tvStatusDetil.setText(tvStatusDetil.getText() + "\nDikarenakan " + orderHeader.getStatusComment() + ".");
+                    }
                     break;
 //                case RESCHEDULED:
 //                    break;
@@ -536,9 +533,16 @@ public class FragmentSummaryOrder extends Fragment {
                             @Override
                             public void onPositive() {
                                 String jam = etTime.getText().toString().trim();
-                                Date newDate = Util.convertStringToDate(kapanYYYYMMDD + jam, "yyyyMMddHH:mm");
 
-                                rescheduleOrder(newDate);
+                                Date newDate;
+                                try {
+                                    newDate = Util.convertStringToDate(kapanYYYYMMDD + jam, "yyyyMMddHH:mm");
+
+                                    rescheduleOrder(newDate);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
                             }
                         });
 
@@ -919,6 +923,7 @@ public class FragmentSummaryOrder extends Fragment {
                             final Map<String, Object> _keyVal = new HashMap<>();
                             _keyVal.put("customerId", orderHeader.getCustomerId() );
                             _keyVal.put("orderId", orderHeader.getUid());
+                            _keyVal.put("cancelStatus", EOrderDetailStatus.CANCELLED_BY_CUSTOMER.name());
 
                             mFunctions.getHttpsCallable(FBUtil.FUNCTION_CANCEL_BOOKING)
                                 .call(_keyVal)

@@ -31,6 +31,7 @@ public class Assignment extends RealmObject implements Serializable {
     private String mitraId;
     private String mitraName;
     private String statusDetailId;  //should synchron 1 way with orderHeader.statusDetailId
+    private String statusComment;   // diperlukan jika Server cancel dan customer diberikan alasan mengapa di cancel
     private long updatedTimestamp;
     private String updatedBy;
 
@@ -170,6 +171,14 @@ public class Assignment extends RealmObject implements Serializable {
         this.statusDetailId = statusDetailId;
     }
 
+    public String getStatusComment() {
+        return statusComment;
+    }
+
+    public void setStatusComment(String statusComment) {
+        this.statusComment = statusComment;
+    }
+
     public long getUpdatedTimestamp() {
         return updatedTimestamp;
     }
@@ -215,6 +224,7 @@ public class Assignment extends RealmObject implements Serializable {
                 ", mitraId='" + mitraId + '\'' +
                 ", mitraName='" + mitraName + '\'' +
                 ", statusDetailId='" + statusDetailId + '\'' +
+                ", statusComment='" + statusComment + '\'' +
                 ", updatedTimestamp=" + updatedTimestamp +
                 ", updatedBy='" + updatedBy + '\'' +
                 '}';

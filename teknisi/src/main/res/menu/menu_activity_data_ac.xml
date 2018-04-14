@@ -3,8 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.elkana911.topteknisi.ac.screen.dataac.ActivityDataAC">
     <item
-        android:id="@+id/action_reset"
+        android:id="@+id/action_qrcode"
         android:orderInCategory="100"
+        android:title="@string/action_take_qrcode"
+        android:icon="@drawable/qrcode_scan"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_barcode"
+        android:orderInCategory="101"
+        android:title="@string/action_take_barcode"
+        android:icon="@drawable/barcode_scan"
+        android:visible="false"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_reset"
+        android:orderInCategory="102"
         android:title="@string/action_reset"
         app:showAsAction="never" />
 </menu>

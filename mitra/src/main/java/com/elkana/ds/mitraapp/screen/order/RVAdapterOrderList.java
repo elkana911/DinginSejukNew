@@ -19,9 +19,13 @@ import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.NotifyTechnician;
 import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.listener.ListenerGetString;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.OrderBucket;
+import com.elkana.dslibrary.pojo.mitra.JobsAssigned;
+import com.elkana.dslibrary.pojo.mitra.JobsCancelled;
 import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
+import com.elkana.dslibrary.util.ColorUtil;
 import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
@@ -102,9 +106,11 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
 
                 Date today = new Date();
+
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     final OrderBucket _orderBucket = postSnapshot.getValue(OrderBucket.class);
 //                    Log.e(TAG, "DataChange:" + _orderBucket.toString());
+                    final String _wktBooking = Util.convertDateToString(new Date(_orderBucket.getBookingTimestamp()), "yyyyMMddHHmm");
 
                     EOrderDetailStatus detailStatus = EOrderDetailStatus.convertValue(_orderBucket.getStatusDetailId());
 
@@ -119,10 +125,28 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                             //catet jobs as history. this job full stop status and should not be moved anywhere
                             // to avoid updating Firebase on every changes, we need realm to store
                             FBUtil.Mitra_jobAsHistory(_orderBucket);
+
                         } else if (detailStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT
                                 || detailStatus == EOrderDetailStatus.CANCELLED_BY_SERVER
                                 || detailStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER) {
+
+                            if (_orderBucket.getTechnicianId() != null) {
+//                                Realm __r = Realm.getDefaultInstance();
+//                                try {
+//                                    JobsCancelled _jobs = new JobsCancelled();
+//                                    _jobs.setId(new Date().getTime());
+//                                    _jobs.setOrderId(_orderBucket.getUid());
+//                                    _jobs.setTechId(_orderBucket.getTechnicianId());
+//                                    _jobs.setWkt(_wktBooking);
+//
+//                                    __r.beginTransaction();
+//                                    __r.copyToRealmOrUpdate(_jobs);
+//                                    __r.commitTransaction();
+//                                } finally {
+//                                    __r.close();
+//                                }
                             FBUtil.Mitra_jobAsCancelled(_orderBucket);
+                            }
                         }
 
                         Date _updatedDate = new Date(_orderBucket.getUpdatedTimestamp());
@@ -135,7 +159,23 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                         //catet jobs sbg assigned. this job will be moved into jobs_history if not cancelled. otherwise will be moved into jobs_cancelled
                         // to avoid updating Firebase on every changes, we need realm to store
 
+                        // ga jadi dipindah ke cloud krn dipakai waktu assigned manual jd mengandalkan data di lokal
                         FBUtil.Mitra_jobAsAssigned(_orderBucket);
+                        /*
+                        Realm __r = Realm.getDefaultInstance();
+                        try {
+                            JobsAssigned _jobs = new JobsAssigned();
+                            _jobs.setId(new Date().getTime());
+                            _jobs.setOrderId(_orderBucket.getUid());
+                            _jobs.setTechId(_orderBucket.getTechnicianId());
+                            _jobs.setWkt(_wktBooking);
+
+                            __r.beginTransaction();
+                            __r.copyToRealmOrUpdate(_jobs);
+                            __r.commitTransaction();
+                        } finally {
+                            __r.close();
+                        }*/
                     }
 
                     mList.add(_orderBucket);
@@ -312,7 +352,8 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
         // spy tdk infinite loop wkt refresh firebase, timer hanya berjalan jk statusnya CREATED
         if (detailStatus == EOrderDetailStatus.CREATED)
             ((MyViewHolder) holder).startTimer(obj);
-
+        else
+            ((MyViewHolder) holder).stopTimer(obj);
     }
 
     @Override
@@ -327,7 +368,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
         public TextView tvAddress, tvCustomerName, tvHandledBy, tvOrderTime, tvOrderStatus, tvCounter, tvNo;
         public View view;
         public ImageView ivIconStatus;
-        public Button btnCallTech, btnCallCust, btnChangeTech;
+        public Button btnCallTech, btnCallCust, btnChangeTech, btnCancelOrder;
 
         CountDownTimer timer;
 
@@ -367,6 +408,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             btnCallCust = itemView.findViewById(R.id.btnCallCust);
             btnCallTech = itemView.findViewById(R.id.btnCallTech);
             btnChangeTech = itemView.findViewById(R.id.btnChangeTech);
+            btnCancelOrder = itemView.findViewById(R.id.btnCancelOrder);
 
         }
 
@@ -394,12 +436,14 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             btnCallTech.setVisibility(View.VISIBLE);
             btnChangeTech.setVisibility(View.INVISIBLE);
+            btnCancelOrder.setVisibility(View.INVISIBLE);
 
             int resIcon;
             switch (EOrderDetailStatus.convertValue(data.getStatusDetailId())) {
                 case ASSIGNED:
                     resIcon = R.drawable.ic_assignment_ind_black_24dp;
                     tvHandledBy.setText("Awaiting " + data.getTechnicianName() + " to Start Working...");
+                    btnCancelOrder.setVisibility(View.VISIBLE);
 //                    btnChangeTech.setVisibility(View.VISIBLE);
                     break;
                 case UNHANDLED:
@@ -407,12 +451,15 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                     tvOrderStatus.setTextColor(ContextCompat.getColor(mContext, android.R.color.holo_red_light));
                     tvCounter.setVisibility(View.VISIBLE);
                     btnCallTech.setVisibility(View.INVISIBLE);
+                    btnCancelOrder.setVisibility(View.VISIBLE);
                     break;
                 case OTW:
                     resIcon = R.drawable.ic_directions_bike_black_24dp;
+                    btnCancelOrder.setVisibility(View.VISIBLE);
                     break;
                 case WORKING:
                     resIcon = R.drawable.ic_build_black_24dp;
+                    btnCancelOrder.setVisibility(View.VISIBLE);
                     break;
                 case PAYMENT:
                     resIcon = R.drawable.ic_payment_black_24dp;
@@ -449,6 +496,29 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                 public void onClick(View v) {
                     if (mListener != null)
                         mListener.onChangeTech(data);
+                }
+            });
+
+            btnCancelOrder.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Util.showInputDialog(mContext, "Alasan Cancel", new ListenerGetString() {
+                        @Override
+                        public void onSuccess(String value) {
+
+                            data.setStatusComment(value);
+
+                            if (mListener != null)
+                                mListener.onCancelOrder(data);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+
+                        }
+                    });
+
                 }
             });
         }
@@ -490,7 +560,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                     tvCounter.setText("Broadcast technicians [" + ss + "]");
 
                     if (expirationMillis < (5 * 1000)) {
-                        tvCounter.setTextColor(ContextCompat.getColor(mContext, android.R.color.holo_red_light));
+                        ColorUtil.setTextColorAsRed(mContext, tvCounter);
                     }
 //                    tvCounter.setText(DateUtil.formatDateToSimple(millisUntilFinished));
                 }
@@ -533,6 +603,13 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
             }.start();
 
+        }
+
+        public void stopTimer(OrderBucket obj) {
+            if (timer == null)
+                return;
+
+            timer.cancel();
         }
     }
 }

@@ -19,6 +19,7 @@ public class OrderBucket extends RealmObject implements Serializable {
     private String technicianId;
     private String technicianName;
     private String statusDetailId;
+    private String statusComment;   // diperlukan jika Server cancel dan customer diberikan alasan mengapa di cancel
     private int acCount;
     private int minuteExtra;    //buat timer. diisi dari server
     private long bookingTimestamp;
@@ -92,6 +93,14 @@ public class OrderBucket extends RealmObject implements Serializable {
         this.statusDetailId = statusDetailId;
     }
 
+    public String getStatusComment() {
+        return statusComment;
+    }
+
+    public void setStatusComment(String statusComment) {
+        this.statusComment = statusComment;
+    }
+
     public long getBookingTimestamp() {
         return bookingTimestamp;
     }
@@ -143,6 +152,7 @@ public class OrderBucket extends RealmObject implements Serializable {
                 ", technicianId='" + technicianId + '\'' +
                 ", technicianName='" + technicianName + '\'' +
                 ", statusDetailId='" + statusDetailId + '\'' +
+                ", statusComment='" + statusComment + '\'' +
                 ", acCount=" + acCount +
                 ", minuteExtra=" + minuteExtra +
                 ", bookingTimestamp=" + bookingTimestamp +
