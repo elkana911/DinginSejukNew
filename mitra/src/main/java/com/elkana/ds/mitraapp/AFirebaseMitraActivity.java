@@ -39,6 +39,15 @@ public abstract class AFirebaseMitraActivity extends FirebaseActivity{
 
     }
 
+    /**
+     * @deprecated
+     * @param techId
+     * @param techName
+     * @param custId
+     * @param orderId
+     * @param listener
+     */
+    @Deprecated
     protected void Assignment_create(final String techId, final String techName, final String custId, final String orderId, final ListenerModifyData listener) {
 
         //1. get orderHeader

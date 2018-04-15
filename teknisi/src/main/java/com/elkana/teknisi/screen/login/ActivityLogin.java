@@ -23,6 +23,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.util.Const;
+import com.elkana.dslibrary.util.SharedPrefUtil;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.screen.MainActivity;
 import com.elkana.teknisi.R;
@@ -191,6 +194,13 @@ public class ActivityLogin extends FirebaseActivity {
 
     @Override
     protected void onLoggedOn(FirebaseUser user) {
+
+        // reset token device
+        FBUtil.Technician_addToken(user.getUid(), new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
+
+//                    List<String> tokens = new ArrayList<>();
+//                    tokens.add(new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
+
         startActivity(new Intent(this, MainActivity.class));
         finish();
     }

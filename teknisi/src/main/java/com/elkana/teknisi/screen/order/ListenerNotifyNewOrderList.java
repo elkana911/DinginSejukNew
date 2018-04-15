@@ -1,5 +1,6 @@
 package com.elkana.teknisi.screen.order;
 
+import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.mitra.NotifyNewOrderItem;
 
 /**
@@ -9,7 +10,7 @@ import com.elkana.dslibrary.pojo.mitra.NotifyNewOrderItem;
 public interface ListenerNotifyNewOrderList {
     void onDeny(NotifyNewOrderItem data);
 
-    void onAccept(NotifyNewOrderItem data);
+    void onAccept(NotifyNewOrderItem data, ListenerPositiveConfirmation listener);
 
     void onOrderRemoved(NotifyNewOrderItem data);
 

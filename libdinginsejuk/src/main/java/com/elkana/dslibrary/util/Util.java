@@ -20,7 +20,11 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 
 import com.elkana.dslibrary.BuildConfig;
 import com.elkana.dslibrary.R;
@@ -228,20 +232,36 @@ public class Util {
         return dialog;
     }
 
-    public static void showInputDialog(Context ctx, String title, final ListenerGetString listener) {
+    public static void showInputDialog(final Context ctx, String title, boolean asPassword, final ListenerGetString listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
         builder.setTitle(title);
 
 // Set up the input
         final EditText input = new EditText(ctx);
 // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-//        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        builder.setView(input);
+
+        if (asPassword) {
+            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        } else {
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+        }
+
+        // put margin
+        FrameLayout container = new FrameLayout(ctx);
+        FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins(12,14,12,12);
+        input.setLayoutParams(params);
+        container.addView(input);
+
+        builder.setView(container);
 
 // Set up the buttons
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+
+                InputMethodManager imm = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
 
                 if (listener != null)
                     listener.onSuccess(input.getText().toString());
@@ -251,11 +271,18 @@ public class Util {
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                InputMethodManager imm = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
                 dialog.cancel();
             }
         });
 
         builder.show();
+
+//        https://stackoverflow.com/questions/12997273/alertdialog-with-edittext-open-soft-keyboard-automatically-with-focus-on-editte/12997855
+        input.requestFocus();
+        InputMethodManager imm = (InputMethodManager)ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
     public static void showDialog(Context ctx, String title, String message) {
@@ -532,5 +559,9 @@ public class Util {
         int length = (int)(Math.log10(value)+1);
 
         return length;
+    }
+
+    public static char getLastChar(String string) {
+        return string.charAt(string.length()-1);
     }
 }

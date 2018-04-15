@@ -31,6 +31,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
@@ -58,6 +59,7 @@ public class FBUtil {
     public static final String REF_ASSIGNMENTS_FIGHT = "assignments/ac/fight";
     public static final String REF_MITRA_AC = "mitra/ac";
     public static final String REF_TECHNICIAN_AC = "technicians/ac";
+    public static final String REF_CUSTOMER = "users";
 
     public static final String REF_MASTER_AC_SERVICE = "master/serviceType/airConditioner/subService";
     public static final String REF_MASTER_SERVERTIME = "master/mSetup/serverTime";
@@ -65,6 +67,7 @@ public class FBUtil {
     public static final String FUNCTION_CREATE_BOOKING = "createBooking";
     public static final String FUNCTION_CANCEL_BOOKING = "cancelBooking";
     public static final String FUNCTION_RESCHEDULE_BOOKING = "rescheduleBooking";
+    public static final String FUNCTION_TECHNICIAN_GRAB_ORDER = "grabOrder";
 
     public static void IsPathExists(String completePath, final ListenerDataExists listener) {
         IsPathExists(FirebaseDatabase.getInstance().getReference(completePath), listener);
@@ -220,6 +223,13 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                 .child("svcItems");
     }
 
+    public static DatabaseReference Customer_GetRef(String userId) {
+
+        return FirebaseDatabase.getInstance().getReference(REF_CUSTOMER)
+                .child(userId);
+    }
+
+
     /**
      * @param mitraId
      * @param customerId
@@ -314,6 +324,12 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                 .child("technicians")
                 .child(technicianId);
 
+    }
+
+    public static DatabaseReference Mitra_GetRef(String mitraId) {
+
+        return FirebaseDatabase.getInstance().getReference(REF_MITRA_AC)
+                .child(mitraId);
     }
 
     public static DatabaseReference Mitra_GetServicesRef(String mitraId) {
@@ -1035,5 +1051,122 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         } finally {
             _r.close();
         }
+    }
+
+    public static void Technician_addToken(final String userId, final String token) {
+        Technician_GetRef(userId)
+                .child("firebaseToken").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<ArrayList<String>> t = new GenericTypeIndicator<ArrayList<String>>() {
+                };
+
+                List<String> messages = dataSnapshot.getValue(t);
+
+                boolean exist = false;
+                for (String s: messages) {
+                    if (s.equals(token)) {
+                        exist = true;
+                        break;
+                    }
+                }
+
+                if (!exist) {
+                    // replace
+                    messages.clear();
+                    messages.add(token);
+
+                    Technician_GetRef(userId)
+                            .child("firebaseToken").setValue(messages);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    public static void Mitra_addToken(final String mitraId, final String token) {
+        Mitra_GetRef(mitraId)
+                .child("firebaseToken").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<ArrayList<String>> t = new GenericTypeIndicator<ArrayList<String>>() {
+                };
+
+                List<String> messages = dataSnapshot.getValue(t);
+
+                boolean exist = false;
+                for (String s: messages) {
+                    if (s.equals(token)) {
+                        exist = true;
+                        break;
+                    }
+                }
+
+                if (!exist) {
+                    // replace
+                    messages.clear();
+                    messages.add(token);
+
+                    Mitra_GetRef(mitraId)
+                            .child("firebaseToken").setValue(messages);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    public static void Customer_addToken(final String userId, final String token) {
+        Customer_GetRef(userId)
+                .child("firebaseToken").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<ArrayList<String>> t = new GenericTypeIndicator<ArrayList<String>>() {
+                };
+
+                List<String> messages = dataSnapshot.getValue(t);
+
+                boolean exist = false;
+                for (String s: messages) {
+                    if (s.equals(token)) {
+                        exist = true;
+                        break;
+                    }
+                }
+
+                if (!exist) {
+                    // replace
+                    messages.clear();
+                    messages.add(token);
+
+                    Customer_GetRef(userId)
+                            .child("firebaseToken").setValue(messages);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    public static DatabaseReference Technician_GetRef(String userId) {
+
+        return FirebaseDatabase.getInstance().getReference(REF_TECHNICIAN_AC)
+                .child(userId);
     }
 }

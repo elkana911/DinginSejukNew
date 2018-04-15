@@ -191,7 +191,7 @@ public class ActivityLogin extends FirebaseActivity {
     }
 
     @Override
-    protected void onLoggedOn(FirebaseUser user) {
+    protected void onLoggedOn(final FirebaseUser user) {
 
 
         final Map<String, Object> keyVal = new HashMap<>();
@@ -209,6 +209,10 @@ public class ActivityLogin extends FirebaseActivity {
 //                dont care
 //                if (task.isSuccessful()) {
 //                }
+
+                // reset token device
+                FBUtil.Mitra_addToken(user.getUid(), new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
+
                 startActivity(new Intent(ActivityLogin.this, MainActivity.class));
                 finish();
             }

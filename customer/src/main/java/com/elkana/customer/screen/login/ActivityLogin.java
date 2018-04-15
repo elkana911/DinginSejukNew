@@ -21,6 +21,9 @@ import com.elkana.customer.screen.AFirebaseActivity;
 import com.elkana.customer.screen.MainActivity;
 import com.elkana.customer.screen.intro.ActivityIntro;
 import com.elkana.customer.screen.register.ActivityRegister;
+import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.util.Const;
+import com.elkana.dslibrary.util.SharedPrefUtil;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -114,6 +117,10 @@ public class ActivityLogin extends AFirebaseActivity {
 
     @Override
     protected void onLoggedOn(FirebaseUser user) {
+
+        // reset token device
+        FBUtil.Customer_addToken(user.getUid(), new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
+
         finish();
         startActivity(new Intent(this, MainActivity.class));
     }

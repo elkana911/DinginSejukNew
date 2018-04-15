@@ -21,4 +21,17 @@ public class Const {
 
     public static final int SERVICE_TYPE_SCHEDULED = 2;
     public static final int SERVICE_TYPE_QUICK = 1;
+
+
+    // id to handle the notification in the notification tray
+    public static final String PUSH_NOTIFICATION = "pushNotification";
+    public static final int NOTIFICATION_ID = 100;
+    public static final int NOTIFICATION_ID_BIG_IMAGE = 101;
+    public static final String KEY_FROM = "key_from";
+    public static final String KEY_UID = "key_uid";
+    public static final String KEY_STATUS = "key_status";
+    //    public static final String KEY_SEQNO = "key_seqno";
+    public static final String KEY_BOOKING_TIMESTAMP = "key_timestamp";
+    public static final String KEY_MESSAGE = "key_message";
+
 }

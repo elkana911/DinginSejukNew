@@ -1,13 +1,16 @@
 package com.elkana.teknisi.screen.order;
 
+import android.app.AlertDialog;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,13 +18,22 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.firebase.FBFunction_BasicCallableRecord;
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.mitra.NotifyNewOrderItem;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.screen.payment.ActivityPayment;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.functions.FirebaseFunctions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ActivityNewOrder extends FirebaseActivity {
 
@@ -31,16 +43,20 @@ public class ActivityNewOrder extends FirebaseActivity {
 //    public static final String PARAM_TECH_ID = "tech.id";
     public static final String PARAM_MITRA_ID = "mitra.id";
 
-    String mOrderId, mMitraId;
+    String mTechId, mTechName, mOrderId, mMitraId;
     RecyclerView rvOrders;
 //    private boolean selfDeny = false;
 
     private RVAdapterNotifyNewOrderList mAdapter;
 
+    private FirebaseFunctions mFunctions;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_order);
+
+        mFunctions = FirebaseFunctions.getInstance();
 
         mOrderId = getIntent().getStringExtra(PARAM_ORDER_ID);
 //        mTechId = mAuth.getCurrentUser().getUid();
@@ -79,9 +95,9 @@ public class ActivityNewOrder extends FirebaseActivity {
             }
         });
 
-        String mTechId = mAuth.getCurrentUser().getUid();
+        mTechId = mAuth.getCurrentUser().getUid();
 
-        String mTechName = mAuth.getCurrentUser().getDisplayName();
+        mTechName = mAuth.getCurrentUser().getDisplayName();
         if (TextUtils.isEmpty(mTechName)) {
             BasicInfo basicInfo = this.realm.where(BasicInfo.class).findFirst();
             mTechName = basicInfo.getName();
@@ -93,18 +109,53 @@ public class ActivityNewOrder extends FirebaseActivity {
 
 //                selfDeny = true;
 //
-//                if (mAdapter.getItemCount() < 2) {
-//                    setResult(RESULT_CANCELED);
-//                    finish();
-//                }
+                if (mAdapter.getItemCount() < 2) {
+                    mAdapter.cleanUpListener();
+
+                    setResult(RESULT_CANCELED);
+                    finish();
+                }
             }
 
             @Override
-            public void onAccept(NotifyNewOrderItem data) {
-                if (mAdapter.getItemCount() < 2) {
-                    setResult(RESULT_OK);
-                    finish();
-                }
+            public void onAccept(NotifyNewOrderItem data, final ListenerPositiveConfirmation listener) {
+                final AlertDialog dialog = Util.showProgressDialog(ActivityNewOrder.this, "Grab Order...");
+
+                final Map<String, Object> keyVal = new HashMap<>();
+                keyVal.put("mitraId", data.getMitraId());
+                keyVal.put("techId", data.getTechId());
+                keyVal.put("techName", mTechName);
+                keyVal.put("orderId", data.getOrderId());
+                keyVal.put("custId", data.getCustomerId());
+                keyVal.put("timestamp", ServerValue.TIMESTAMP);
+
+                mFunctions.getHttpsCallable(FBUtil.FUNCTION_TECHNICIAN_GRAB_ORDER)
+                        .call(keyVal)
+                        .continueWith(new FBFunction_BasicCallableRecord())
+                        .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Map<String, Object>> task) {
+                                dialog.dismiss();
+
+                                if (task.isSuccessful()) {
+
+                                    if (listener != null)
+                                        listener.onPositive();
+//                                        String orderId = (String) task.getResult().get("orderKey");cuma contoh
+
+                                } else {
+                                    Log.e(TAG, task.getException().getMessage(), task.getException());
+                                    Toast.makeText(ActivityNewOrder.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                }
+
+                                if (mAdapter.getItemCount() < 2) {
+                                    mAdapter.cleanUpListener();
+                                    setResult(RESULT_OK);
+                                    finish();
+                                }
+
+                            }
+                        });
 
             }
 
@@ -133,6 +184,9 @@ public class ActivityNewOrder extends FirebaseActivity {
 
     @Override
     protected void onLoggedOff() {
+        if (mAdapter != null)
+            mAdapter.cleanUpListener();
+
         setResult(RESULT_CANCELED);
         finish();
     }
@@ -166,6 +220,9 @@ public class ActivityNewOrder extends FirebaseActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_close) {
+            if (mAdapter != null)
+                mAdapter.cleanUpListener();
+
             setResult(RESULT_CANCELED);
             finish();
             return true;

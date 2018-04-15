@@ -181,11 +181,13 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             EOrderDetailStatus detailStatus = EOrderDetailStatus.convertValue(obj.getStatusDetailId());
 
+            /* TODO membingungkan, gmn cara start timer tiap status baru berubah ?
             if (detailStatus == EOrderDetailStatus.CREATED)
                 // masih experiment
                 ((MyViewHolder) holder).startTimer(obj);
             else
                 ((MyViewHolder) holder).stopTimer(obj);
+                */
         }
 
     }
@@ -265,7 +267,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 showTimer = config.isShow_timer();
 
-//                tvTimer.setVisibility(View.INVISIBLE);  // kondisi awal
+                tvTimer.setVisibility(View.INVISIBLE);  // kondisi awal
             }finally {
                 r.close();
             }
@@ -359,7 +361,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             timer.cancel();
 
-//            tvTimer.setVisibility(View.INVISIBLE); mau cek dulu stop sesuai gak
+            tvTimer.setVisibility(View.INVISIBLE);
         }
     }
 

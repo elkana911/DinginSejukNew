@@ -261,6 +261,15 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
             btnTakeOrder.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
+                    if (mListener != null)
+                        mListener.onAccept(data, new ListenerPositiveConfirmation() {
+                            @Override
+                            public void onPositive() {
+                                timer.cancel();
+                            }
+                        });
+/*
                     final AlertDialog alertDialog = Util.showProgressDialog(mContext, "Taking Order");
 
                     // chek dulu apkh uda ambil order di jam yg sama? caranya cek di slot per teknisi
@@ -300,22 +309,20 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                                         mListener.onAccept(data);
 
                                     // hapus notify_new_order, dipindah di mitra saja krn lbh stabil inetnya
-                                    /*
-                                    FBUtil.TechnicianReg_DeleteNotifyNewOrder(mMitraId, mTechId, data.getOrderId(), new ListenerModifyData() {
-                                        @Override
-                                        public void onSuccess() {
-                                            if (mListener == null)
-                                                return;
-
-                                            mListener.onAccept(data);
-                                        }
-
-                                        @Override
-                                        public void onError(Exception e) {
-                                            Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                    */
+//                                    FBUtil.TechnicianReg_DeleteNotifyNewOrder(mMitraId, mTechId, data.getOrderId(), new ListenerModifyData() {
+//                                        @Override
+//                                        public void onSuccess() {
+//                                            if (mListener == null)
+//                                                return;
+//
+//                                            mListener.onAccept(data);
+//                                        }
+//
+//                                        @Override
+//                                        public void onError(Exception e) {
+//                                            Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    });
                                 }
                             });
 
@@ -326,7 +333,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                             alertDialog.dismiss();
                             Log.e(TAG, databaseError.getMessage(), databaseError.toException());
                         }
-                    });
+                    });*/
                 }
             });
 

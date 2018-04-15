@@ -296,7 +296,10 @@ public class FragmentSummaryOrder extends Fragment {
                 case CANCELLED_BY_SERVER:
                 case CANCELLED_BY_TIMEOUT:
                     if (!TextUtils.isEmpty(orderHeader.getStatusComment())) {
-                        tvStatusDetil.setText(tvStatusDetil.getText() + "\nDikarenakan " + orderHeader.getStatusComment() + ".");
+                        sb.append("\nDikarenakan ").append(orderHeader.getStatusComment());
+
+                        if (Util.getLastChar(orderHeader.getStatusComment()) != '.')
+                            sb.append(".");
                     }
                     break;
 //                case RESCHEDULED:

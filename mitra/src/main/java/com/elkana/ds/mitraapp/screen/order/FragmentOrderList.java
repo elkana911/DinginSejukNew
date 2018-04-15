@@ -239,6 +239,7 @@ public class FragmentOrderList extends Fragment {
                     //TODO: antisipasi persistence, cek dulu kalo udah diassign jgn create lagi
 
 //                // assign to pending order. see on logic assignment
+                    // TODO dipindah ke cloud
                     mListener.onCreateAssignment(value);
 
                 }
@@ -252,7 +253,7 @@ public class FragmentOrderList extends Fragment {
         };
 
         assignmentFightRef = FirebaseDatabase.getInstance().getReference(FBUtil.REF_ASSIGNMENTS_FIGHT);
-        assignmentFightRef.addValueEventListener(assignmentFightValueListener);
+//        assignmentFightRef.addValueEventListener(assignmentFightValueListener);   //dipindah ke cloud function
 
     }
 
@@ -260,7 +261,7 @@ public class FragmentOrderList extends Fragment {
     public void onDestroy() {
         super.onDestroy();
 
-        assignmentFightRef.removeEventListener(assignmentFightValueListener);
+//        assignmentFightRef.removeEventListener(assignmentFightValueListener);
         mAdapter.cleanUpListener();
 
     }
@@ -320,7 +321,8 @@ public class FragmentOrderList extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentOrderListInteractionListener {
-        void onCreateAssignment(FightInfo fightInfo);
+        @Deprecated
+        void onCreateAssignment(FightInfo fightInfo);   //tdk lagi diassign di mitra, tp di cloud function
     }
 
 

@@ -503,7 +503,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                 @Override
                 public void onClick(View v) {
 
-                    Util.showInputDialog(mContext, "Alasan Cancel", new ListenerGetString() {
+                    Util.showInputDialog(mContext, "Alasan Cancel", false, new ListenerGetString() {
                         @Override
                         public void onSuccess(String value) {
 
