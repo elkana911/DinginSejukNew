@@ -9,7 +9,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/customer" />
-            <option value="$PROJECT_DIR$/custteknisi" />
             <option value="$PROJECT_DIR$/libdinginsejuk" />
             <option value="$PROJECT_DIR$/mitra" />
             <option value="$PROJECT_DIR$/teknisi" />

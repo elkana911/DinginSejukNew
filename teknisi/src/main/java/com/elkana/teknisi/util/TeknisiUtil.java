@@ -3,6 +3,7 @@ package com.elkana.teknisi.util;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.mitra.ServiceType;
@@ -13,6 +14,7 @@ import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.teknisi.R;
+import com.elkana.teknisi.pojo.IsiDataAC;
 import com.elkana.teknisi.pojo.MobileSetup;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,22 +33,9 @@ import io.realm.Realm;
 
 public class TeknisiUtil {
     public static final String TAG = TeknisiUtil.class.getSimpleName();
-//    public static final String REF_VENDORS_AC = "master/party/supplierAC";
 
-    public static final String REF_ORDERS_CUSTOMER_AC_PENDING = "orders/ac/pending/customer";
-    public static final String REF_ORDERS_MITRA_AC_PENDING = "orders/ac/pending/mitra";
-    public static final String REF_ORDERS_AC_FINISHED = "orders/ac/finished";
-
-    //    public static final String REF_ORDERS_AC = "orders/ac/orderHeader";
     public static final String REF_SUBSERVICEAC = "master/serviceType/airConditioner/subService";   // biasanya dipakai di HQ utk available service for all mitra. tp tetep diunduh ke teknisi karena akan dimapping dengan serviceToParty
 
-    public static final String REF_MITRA_AC = "mitra/ac";
-    public static final String REF_TECHNICIAN_AC = "technicians/ac";
-
-    public static final String REF_ASSIGNMENTS_PENDING = "assignments/ac/pending";
-    public static final String REF_ASSIGNMENTS_FINISHED = "assignments/ac/finished";
-
-    public static final String REF_MOVEMENTS= "movements";
     public static final String REF_MASTER_SETUP = "master/mSetup/" + Const.CONFIG_AS_TECHNICIAN;
 
     public static void getOnlineDataToOffline() {
@@ -233,7 +222,7 @@ public class TeknisiUtil {
             keyVal.put("statusId", EOrderStatus.PENDING.name());
         }
 
-        FirebaseDatabase.getInstance().getReference(TeknisiUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
+        FirebaseDatabase.getInstance().getReference(FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(userId)
                 .child(orderId).updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -252,4 +241,26 @@ public class TeknisiUtil {
         });
 
     }
+
+    public static void Assignment_addDataAC(String technicianId, String assignmentId, IsiDataAC data, final ListenerModifyData listener){
+        FBUtil.Assignment_getPendingRef(technicianId, assignmentId)
+                .child("dataAC")
+                .setValue(data)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            if (listener != null) {
+                                listener.onSuccess();
+                            } else {
+                                if (listener != null)
+                                    listener.onError(task.getException());
+                            }
+                        }
+                    }
+                });
+
+
+    }
+
 }

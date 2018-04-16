@@ -268,7 +268,7 @@ public class ActivityRegister extends AFirebaseActivity {
 
     public void registerUser(final String nama, final String phone, final List<UserAddress> address) {
         final FirebaseUser currentUser = mAuth.getCurrentUser();
-        DatabaseReference ref = database.getReference().child("users");
+        DatabaseReference ref = mDatabase.getReference().child("users");
 
         final DatabaseReference userIdRef = ref.child(currentUser.getUid());
 

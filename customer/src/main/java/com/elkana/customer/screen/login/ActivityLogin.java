@@ -43,7 +43,7 @@ public class ActivityLogin extends AFirebaseActivity {
         super.onPostCreate(savedInstanceState);
         ActivityCompat.requestPermissions(this, new String[]{
                         android.Manifest.permission.ACCESS_FINE_LOCATION
-                        ,android.Manifest.permission.CALL_PHONE
+                        , android.Manifest.permission.CALL_PHONE
                         , android.Manifest.permission.CAMERA
                         , android.Manifest.permission.WRITE_EXTERNAL_STORAGE
                 },

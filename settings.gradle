@@ -1,1 +1,1 @@
-include ':custteknisi', ':libdinginsejuk', ':mitra', ':customer', ':teknisi'
+include ':libdinginsejuk', ':mitra', ':customer', ':teknisi'

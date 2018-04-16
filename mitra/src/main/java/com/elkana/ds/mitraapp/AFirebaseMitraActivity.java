@@ -100,6 +100,7 @@ public abstract class AFirebaseMitraActivity extends FirebaseActivity{
                 keyValOrder.put(_root_node + "/assignmentId", refAssignment.getKey());
                 keyValOrder.put(_root_node + "/statusDetailId", _newStatus.name());
                 keyValOrder.put(_root_node + "/updatedTimestamp", ServerValue.TIMESTAMP);
+                keyValOrder.put(_root_node + "/updatedStatusTimestamp", ServerValue.TIMESTAMP);
                 keyValOrder.put(_root_node + "/updatedBy", String.valueOf(Const.USER_AS_MITRA));
 
                 /*

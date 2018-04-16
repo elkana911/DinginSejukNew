@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.pojo.Movement;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.maps.CameraUpdate;
@@ -126,7 +127,7 @@ public class ActivityTechOtwMap extends FirebaseActivity implements OnMapReadyCa
             }
         };
 
-        movementsRef = database.getReference(MitraUtil.REF_MOVEMENTS)
+        movementsRef = mDatabase.getReference(FBUtil.REF_MOVEMENTS)
                 .child(mOrderId);
 
         movementsRef.addChildEventListener(mChildEventListener);

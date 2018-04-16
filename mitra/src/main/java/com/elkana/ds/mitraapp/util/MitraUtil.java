@@ -52,25 +52,6 @@ import io.realm.Sort;
 
 public class MitraUtil {
     public static final String TAG = MitraUtil.class.getSimpleName();
-    public static final String REF_VENDORS_AC = "master/party/supplierAC";
-//    public static final String REF_ORDERS_AC = "orders/ac/orderHeader";
-
-    public static final String REF_ORDERS_CUSTOMER_AC_PENDING = "orders/ac/pending/customer";
-    public static final String REF_ORDERS_MITRA_AC_PENDING = "orders/ac/pending/mitra";
-    public static final String REF_ORDERS_AC_FINISHED = "orders/ac/finished";
-
-    public static final String REF_ASSIGNMENTS = "assignments/ac";
-//    public static final String REF_MITRA_AC = "mitra/ac";
-
-    public static final String REF_SUBSERVICEAC = "master/serviceType/airConditioner/subService";   // biasanya dipakai di HQ utk available service for all mitra. tp tetep diunduh ke teknisi karena akan dimapping dengan serviceToParty
-    public static final String REF_VENDOR_AC_SERVICES = "serviceToParty/ac";
-
-    public static final String REF_TECHNICIAN_AC = "technicians/ac";
-
-    public static final String REF_ASSIGNMENTS_PENDING = "assignments/ac/pending";
-    public static final String REF_ASSIGNMENTS_FINISHED = "assignments/ac/finished";
-
-    public static final String REF_MOVEMENTS = "movements";
     public static final String REF_MASTER_SETUP = "master/mSetup/" + Const.CONFIG_AS_MITRA;
 
     public static void getOnlineDataToOffline() {
@@ -263,7 +244,7 @@ public class MitraUtil {
             keyVal.put("statusId", EOrderStatus.PENDING.name());
         }
 
-        FirebaseDatabase.getInstance().getReference(MitraUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
+        FirebaseDatabase.getInstance().getReference(FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(userId)
                 .child(orderId).updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

@@ -369,6 +369,7 @@ public class MainActivity extends AFirebaseMitraActivity
 
     }
 
+    /*
     @Override
     public void onCreateAssignment(final FightInfo fightInfo) {
         Assignment_create(fightInfo.getTechId(), fightInfo.getTechName(), fightInfo.getCustId(), fightInfo.getOrderId(), new ListenerModifyData() {
@@ -397,6 +398,5 @@ public class MainActivity extends AFirebaseMitraActivity
             }
         });
 
-
-    }
+    }*/
 }

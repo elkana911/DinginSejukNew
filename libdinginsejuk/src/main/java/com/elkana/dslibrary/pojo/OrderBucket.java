@@ -18,6 +18,7 @@ public class OrderBucket extends RealmObject implements Serializable {
     private String partyId;
     private String technicianId;
     private String technicianName;
+    private String statusId;    // kepake buat main2 warna yg udah FINISHED
     private String statusDetailId;
     private String statusComment;   // diperlukan jika Server cancel dan customer diberikan alasan mengapa di cancel
     private int acCount;
@@ -141,6 +142,14 @@ public class OrderBucket extends RealmObject implements Serializable {
         this.updatedBy = updatedBy;
     }
 
+    public String getStatusId() {
+        return statusId;
+    }
+
+    public void setStatusId(String statusId) {
+        this.statusId = statusId;
+    }
+
     @Override
     public String toString() {
         return "OrderBucket{" +
@@ -151,6 +160,7 @@ public class OrderBucket extends RealmObject implements Serializable {
                 ", partyId='" + partyId + '\'' +
                 ", technicianId='" + technicianId + '\'' +
                 ", technicianName='" + technicianName + '\'' +
+                ", statusId='" + statusId + '\'' +
                 ", statusDetailId='" + statusDetailId + '\'' +
                 ", statusComment='" + statusComment + '\'' +
                 ", acCount=" + acCount +

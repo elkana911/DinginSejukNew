@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -13,12 +12,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.mitra.Assignment;
-import com.elkana.dslibrary.pojo.mitra.ServiceType;
 import com.elkana.dslibrary.pojo.technician.ServiceItem;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
@@ -26,8 +23,6 @@ import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.screen.dataac.ActivityDataAC;
-import com.elkana.teknisi.util.TeknisiUtil;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -76,7 +71,7 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
         final AlertDialog dialog = Util.showProgressDialog(this, "Check Orders...");
 
         // 13 mar 18 lupa knp utk ngisi mOrderId dll ga based on param di oncreate aja ? soalnya sempet forceclose wkt activity ini dipanggil
-        database.getReference(TeknisiUtil.REF_ASSIGNMENTS_PENDING)
+        mDatabase.getReference(FBUtil.REF_ASSIGNMENTS_PENDING)
                 .child(mTechnicianId)
                 .child(mAssignmentId)
                 .child("assign").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -252,6 +247,9 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
             @Override
             public void onAddDataAC() {
                 Intent intent = new Intent(ActivityServiceDetail.this, ActivityDataAC.class);
+                intent.putExtra(ActivityDataAC.PARAM_ASSIGNMENT_ID, mAssignmentId);
+                intent.putExtra(ActivityDataAC.PARAM_TECHNICIAN_ID, mTechnicianId);
+
                 startActivityForResult(intent, REQUESTCODE_SCREEN_DATA_AC);
             }
 

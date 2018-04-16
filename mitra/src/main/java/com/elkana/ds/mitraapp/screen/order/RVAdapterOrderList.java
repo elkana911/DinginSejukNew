@@ -2,6 +2,7 @@ package com.elkana.ds.mitraapp.screen.order;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.CountDownTimer;
 import android.support.v4.content.ContextCompat;
@@ -28,6 +29,7 @@ import com.elkana.dslibrary.pojo.mitra.TechnicianReg;
 import com.elkana.dslibrary.util.ColorUtil;
 import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
+import com.elkana.dslibrary.util.EOrderStatus;
 import com.elkana.dslibrary.util.Util;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -301,7 +303,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         };
 
-        orders4MitraRef = FirebaseDatabase.getInstance().getReference(MitraUtil.REF_ORDERS_MITRA_AC_PENDING)
+        orders4MitraRef = FirebaseDatabase.getInstance().getReference(FBUtil.REF_ORDERS_MITRA_AC_PENDING)
                 .child(mitraId);
 
         orders4MitraRef.addValueEventListener(mOrderBucketListener);
@@ -412,6 +414,13 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         }
 
+        private void changeDisplayTextColor(boolean enabled){
+            tvAddress.setTextColor(enabled ? Color.DKGRAY : Color.LTGRAY);
+            tvOrderTime.setTextColor(enabled ? Color.DKGRAY : Color.LTGRAY);
+            tvCustomerName.setTextColor(enabled ? Color.DKGRAY : Color.LTGRAY);
+            tvHandledBy.setTextColor(enabled ? Color.DKGRAY : Color.LTGRAY);
+        }
+
         public void setData(final OrderBucket data) {
             tvAddress.setText(data.getAddressByGoogle());
             tvCustomerName.setText(data.getCustomerName());
@@ -421,11 +430,11 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 //                obj.setStatusDetailId(EOrderDetailStatus.CANCELLED_BY_TIMEOUT.name());
 //            }
 
-            EOrderDetailStatus status = EOrderDetailStatus.convertValue(data.getStatusDetailId());
+            EOrderDetailStatus statusDetail = EOrderDetailStatus.convertValue(data.getStatusDetailId());
 
-            lastStatus = status;
+            lastStatus = statusDetail;
 
-            tvOrderStatus.setText(status.name());
+            tvOrderStatus.setText(statusDetail.name());
 //            if (status == EOrderDetailStatus.CANCELLED_BY_TIMEOUT)
 //            else
 //                tvOrderStatus.setText(status == EOrderDetailStatus.CREATED ? "NEW" : status.name());
@@ -437,6 +446,8 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             btnCallTech.setVisibility(View.VISIBLE);
             btnChangeTech.setVisibility(View.INVISIBLE);
             btnCancelOrder.setVisibility(View.INVISIBLE);
+
+            changeDisplayTextColor(true);
 
             int resIcon;
             switch (EOrderDetailStatus.convertValue(data.getStatusDetailId())) {
@@ -472,6 +483,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                 case CANCELLED_BY_SERVER:
                     resIcon = R.drawable.ic_event_busy_black_24dp;
                     btnCallTech.setVisibility(View.INVISIBLE);
+
                     break;
                 default:
                     resIcon = R.drawable.ic_fiber_new_black_24dp;

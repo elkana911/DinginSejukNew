@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.elkana.customer.R;
 import com.elkana.customer.pojo.MobileSetup;
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetString;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerSync;
@@ -48,15 +49,6 @@ import io.realm.Realm;
 
 public class CustomerUtil {
     public static final String TAG = CustomerUtil.class.getSimpleName();
-    public static final String REF_MITRA_AC = "mitra/ac";
-
-    public static final String REF_ORDERS_AC_PENDING = "orders/ac/pending";
-    public static final String REF_ORDERS_AC_FINISHED = "orders/ac/finished";
-
-    public static final String REF_ORDERS_CUSTOMER_AC_PENDING = REF_ORDERS_AC_PENDING + "/customer";
-    public static final String REF_ORDERS_MITRA_AC_PENDING = REF_ORDERS_AC_PENDING + "/mitra";
-
-    public static final String REF_MOVEMENTS = "movements";
     public static final String REF_MASTER_SETUP = "master/mSetup/" + Const.CONFIG_AS_COSTUMER;
 
     public static void getOnlineDataToOffline() {
@@ -206,7 +198,7 @@ udah di taruh di lib
             return;
         }
 
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(REF_MITRA_AC);
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(FBUtil.REF_MITRA_AC);
 
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -317,7 +309,7 @@ udah di taruh di lib
 
         index -= 1;
         final int lastIndex = index;
-        FirebaseDatabase.getInstance().getReference(REF_ORDERS_MITRA_AC_PENDING)
+        FirebaseDatabase.getInstance().getReference(FBUtil.REF_ORDERS_MITRA_AC_PENDING)
                 .child(mitraId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -360,7 +352,7 @@ udah di taruh di lib
             return;
         }
 
-        FirebaseDatabase.getInstance().getReference(REF_ORDERS_CUSTOMER_AC_PENDING)
+        FirebaseDatabase.getInstance().getReference(FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(customerId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -417,7 +409,7 @@ udah di taruh di lib
             keyVal.put("statusId", EOrderStatus.PENDING.name());
         }
 
-        FirebaseDatabase.getInstance().getReference(CustomerUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
+        FirebaseDatabase.getInstance().getReference(FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(userId)
                 .child(orderId).updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

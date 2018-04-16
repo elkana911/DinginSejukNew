@@ -142,7 +142,7 @@ public class ActivityProfile extends AFirebaseActivity {
 //        dialog.show();
         btnUpdate.setEnabled(false);
 
-        DatabaseReference usersRef = database.getReference("users")
+        DatabaseReference usersRef = mDatabase.getReference("users")
                 .child(mAuth.getCurrentUser().getUid())
                 .child("address");
 

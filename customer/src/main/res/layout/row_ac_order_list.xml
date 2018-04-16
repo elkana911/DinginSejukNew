@@ -89,6 +89,12 @@
                     android:visibility="invisible"
                     android:text="Timer..."
                     android:textColor="@color/cardTextColor" />
+                <Button
+                    android:id="@+id/btnCheckStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:text="Check Status"/>
             </LinearLayout>
 
         </RelativeLayout>

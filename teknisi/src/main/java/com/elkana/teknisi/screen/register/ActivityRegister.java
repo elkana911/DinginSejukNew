@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.map.Location;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.util.Const;
@@ -233,7 +234,7 @@ public class ActivityRegister extends AFirebaseTeknisiActivity {
 
     public void registerUser(final String nama, final String phone) {
         final FirebaseUser currentUser = mAuth.getCurrentUser();
-        DatabaseReference ref = database.getReference(TeknisiUtil.REF_TECHNICIAN_AC);
+        DatabaseReference ref = mDatabase.getReference(FBUtil.REF_TECHNICIAN_AC);
 
         final DatabaseReference userIdRef = ref.child(currentUser.getUid());
 

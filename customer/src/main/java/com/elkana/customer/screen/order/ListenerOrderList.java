@@ -12,4 +12,5 @@ public interface ListenerOrderList {
     void onAddOrder();
     void onUpdateOrder(String customerId);
     void onCancelOrder(OrderHeader order);
+    void onCheckStatus(OrderHeader order);
 }

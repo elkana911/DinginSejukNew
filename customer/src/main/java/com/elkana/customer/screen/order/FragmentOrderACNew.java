@@ -777,78 +777,7 @@ public class FragmentOrderACNew extends Fragment {
 
     }
 
-    private void submitOrderOld(final OrderHeader orderHeader) {
-
-        final AlertDialog dialog = Util.showProgressDialog(getContext(), "Booking process...");
-
-        DatabaseReference orderPendingCustomerRef = database.getReference(CustomerUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
-                .child(mUserId).push();
-
-        final String orderKey = orderPendingCustomerRef.getKey();
-        // set uid
-        orderHeader.setUid(orderKey);
-
-        final OrderBucket orderBucket = new OrderBucket();
-        orderBucket.setUid(orderKey);
-        orderBucket.setAcCount(orderHeader.getJumlahAC());
-        orderBucket.setCustomerId(orderHeader.getCustomerId());
-        orderBucket.setCustomerName(orderHeader.getCustomerName());
-        orderBucket.setAddressByGoogle(orderHeader.getAddressByGoogle());
-        orderBucket.setStatusDetailId(orderHeader.getStatusDetailId()); // duh males lg nambah node yg ini
-        orderBucket.setPartyId(orderHeader.getPartyId());
-        orderBucket.setTechnicianId(orderHeader.getTechnicianId());
-//        orderBucket.setTechnicianName(orderHeader.getTechnicianId());
-        orderBucket.setBookingTimestamp(orderHeader.getBookingTimestamp());
-        orderBucket.setUpdatedTimestamp(new Date().getTime());
-        orderBucket.setUpdatedBy(String.valueOf(Const.USER_AS_COSTUMER));
-
-        try {
-            String root = FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING + "/" + orderHeader.getCustomerId() + "/" + orderKey;
-            Map<String, Object> keyValOrderUnion = FBUtil.convertObjectToKeyVal(root, orderHeader);
-            keyValOrderUnion.put(root + "/createdTimestamp", ServerValue.TIMESTAMP);
-
-            Map<String, Object> keyValOrderBucket = FBUtil.convertObjectToKeyVal(FBUtil.REF_ORDERS_MITRA_AC_PENDING + "/" + orderHeader.getPartyId() + "/" + orderKey, orderBucket);
-
-            keyValOrderUnion.putAll(keyValOrderBucket);
-
-            FirebaseDatabase.getInstance().getReference().updateChildren(keyValOrderUnion).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (!getActivity().isDestroyed())
-                        dialog.dismiss();
-
-                    if (task.isSuccessful()) {
-
-                        Realm realm = Realm.getDefaultInstance();
-                        try {
-                            // flushed
-                            realm.executeTransaction(new Realm.Transaction() {
-                                @Override
-                                public void execute(Realm realm) {
-                                    realm.copyToRealmOrUpdate(orderHeader);
-                                    realm.copyToRealmOrUpdate(orderBucket);
-                                }
-                            });
-
-                            if (mListener != null) {
-                                mListener.onOrderCreated(orderHeader);
-                            }
-
-                        } finally {
-                            realm.close();
-                        }
-                    } else {
-                        Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
-//    Map<String, Object> keyValOrderHeader = FBUtil.convertObjectToKeyVal(root, orderHeader);
+    //    Map<String, Object> keyValOrderHeader = FBUtil.convertObjectToKeyVal(root, orderHeader);
     private void trySubmitOrder() {
 
         boolean cancel = false;
@@ -918,7 +847,8 @@ public class FragmentOrderACNew extends Fragment {
         if (mobileSetup.getMinimal_booking_hour() < 2)  //buat jaga2 kalo data kosong
             mobileSetup.setMinimal_booking_hour(2);
 
-        if (bookingTimestamp < (new Date().getTime() + (mobileSetup.getMinimal_booking_hour() * DateUtil.TIME_ONE_HOUR_MILLIS))) {
+        // dikurangin one minute spy bisa order pas di 2 jam
+        if (bookingTimestamp < ((new Date().getTime() + (mobileSetup.getMinimal_booking_hour() * DateUtil.TIME_ONE_HOUR_MILLIS)) - DateUtil.TIME_ONE_MINUTE_MILLIS)) {
             Toast.makeText(getContext(), "Mohon pilih di jam lainnya.", Toast.LENGTH_SHORT).show();
             focus = etTime;
             cancel = true;

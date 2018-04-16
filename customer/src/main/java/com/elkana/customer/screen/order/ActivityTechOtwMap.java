@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import com.elkana.customer.R;
 import com.elkana.customer.screen.AFirebaseActivity;
 import com.elkana.customer.util.CustomerUtil;
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.pojo.Movement;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.maps.CameraUpdate;
@@ -125,7 +126,7 @@ public class ActivityTechOtwMap extends AFirebaseActivity implements OnMapReadyC
             }
         };
 
-        movementsRef = database.getReference(CustomerUtil.REF_MOVEMENTS)
+        movementsRef = mDatabase.getReference(FBUtil.REF_MOVEMENTS)
                 .child(mOrderId);
 
         movementsRef.addChildEventListener(mChildEventListener);

@@ -55,11 +55,15 @@ public class FBUtil {
     public static final String REF_ORDERS_CUSTOMER_AC_FINISHED = "orders/ac/finished/customer";
     public static final String REF_ORDERS_MITRA_AC_FINISHED = "orders/ac/finished/mitra";
 
-    public static final String REF_ASSIGNMENTS_PENDING = "assignments/ac/pending";
-    public static final String REF_ASSIGNMENTS_FIGHT = "assignments/ac/fight";
+    public static final String REF_ASSIGNMENTS_PENDING = "orders/ac/pending/teknisi";
+//    public static final String REF_ASSIGNMENTS_PENDING = "assignments/ac/pending";
+
+//    public static final String REF_ASSIGNMENTS_FIGHT = "assignments/ac/fight";    deprecated
     public static final String REF_MITRA_AC = "mitra/ac";
     public static final String REF_TECHNICIAN_AC = "technicians/ac";
     public static final String REF_CUSTOMER = "users";
+
+    public static final String REF_MOVEMENTS= "movements";
 
     public static final String REF_MASTER_AC_SERVICE = "master/serviceType/airConditioner/subService";
     public static final String REF_MASTER_SERVERTIME = "master/mSetup/serverTime";
@@ -68,6 +72,7 @@ public class FBUtil {
     public static final String FUNCTION_CANCEL_BOOKING = "cancelBooking";
     public static final String FUNCTION_RESCHEDULE_BOOKING = "rescheduleBooking";
     public static final String FUNCTION_TECHNICIAN_GRAB_ORDER = "grabOrder";
+    public static final String FUNCTION_REQUEST_STATUS_CHECK  = "requestStatusCheck";
 
     public static void IsPathExists(String completePath, final ListenerDataExists listener) {
         IsPathExists(FirebaseDatabase.getInstance().getReference(completePath), listener);
@@ -148,6 +153,7 @@ public class FBUtil {
 
     }
 
+    /*
     public static DatabaseReference Assignment_fight(String orderId) {
         return FirebaseDatabase.getInstance().getReference(REF_ASSIGNMENTS_FIGHT)
                 .child(orderId)
@@ -168,7 +174,7 @@ public class FBUtil {
                 }
             }
         });
-    }
+    }*/
 
     /*
 delete assignment node khususnya bagian assignmentId jika status PAID or CANCELLED or FINISHED.
@@ -255,7 +261,10 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         String root = REF_ORDERS_CUSTOMER_AC_PENDING + "/" + customerId + "/" + orderId;
         keyValOrder.put(root + "/statusDetailId", newStatus.name());
         keyValOrder.put(root + "/updatedTimestamp", time);
+        keyValOrder.put(root + "/updatedStatusTimestamp", time);
         keyValOrder.put(root + "/updatedBy", updatedBy);
+//        keyValOrder.put(root + "/updatedStatus", time);
+
         if (newStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER
                 || newStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT
                 || newStatus == EOrderDetailStatus.CANCELLED_BY_SERVER
@@ -1054,8 +1063,11 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
     }
 
     public static void Technician_addToken(final String userId, final String token) {
+        if (TextUtils.isEmpty(token))
+            return;
+
         Technician_GetRef(userId)
-                .child("firebaseToken").addValueEventListener(new ValueEventListener() {
+                .child("firebaseToken").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator<ArrayList<String>> t = new GenericTypeIndicator<ArrayList<String>>() {
@@ -1064,6 +1076,10 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                 List<String> messages = dataSnapshot.getValue(t);
 
                 boolean exist = false;
+
+                if (messages == null)
+                    messages = new ArrayList<String>();
+
                 for (String s: messages) {
                     if (s.equals(token)) {
                         exist = true;
@@ -1088,11 +1104,28 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
             }
         });
 
+                /*
+                addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+*/
     }
 
     public static void Mitra_addToken(final String mitraId, final String token) {
+        if (TextUtils.isEmpty(token))
+            return;
+
+
         Mitra_GetRef(mitraId)
-                .child("firebaseToken").addValueEventListener(new ValueEventListener() {
+                .child("firebaseToken").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator<ArrayList<String>> t = new GenericTypeIndicator<ArrayList<String>>() {
@@ -1101,11 +1134,15 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                 List<String> messages = dataSnapshot.getValue(t);
 
                 boolean exist = false;
+
+                if (messages == null)
+                    messages = new ArrayList<String>();
+
                 for (String s: messages) {
-                    if (s.equals(token)) {
-                        exist = true;
-                        break;
-                    }
+                        if (s.equals(token)) {
+                            exist = true;
+                            break;
+                        }
                 }
 
                 if (!exist) {
@@ -1128,8 +1165,11 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
     }
 
     public static void Customer_addToken(final String userId, final String token) {
+        if (TextUtils.isEmpty(token))
+            return;
+
         Customer_GetRef(userId)
-                .child("firebaseToken").addValueEventListener(new ValueEventListener() {
+                .child("firebaseToken").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator<ArrayList<String>> t = new GenericTypeIndicator<ArrayList<String>>() {
@@ -1138,6 +1178,9 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                 List<String> messages = dataSnapshot.getValue(t);
 
                 boolean exist = false;
+
+                if (messages == null)
+                    messages = new ArrayList<String>();
                 for (String s: messages) {
                     if (s.equals(token)) {
                         exist = true;

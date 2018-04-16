@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.map.Location;
 import com.elkana.dslibrary.pojo.Movement;
 import com.elkana.dslibrary.util.NetUtil;
@@ -30,7 +31,7 @@ public class SyncMovementJob extends BroadcastReceiver {
             return;
         }
         // technicianId uat jaga2 nanti kalo butuh
-        FirebaseDatabase.getInstance().getReference(TeknisiUtil.REF_MOVEMENTS)
+        FirebaseDatabase.getInstance().getReference(FBUtil.REF_MOVEMENTS)
                 .child(orderId)
                 .child(String.valueOf(new Date().getTime()))
                 .setValue(movement);

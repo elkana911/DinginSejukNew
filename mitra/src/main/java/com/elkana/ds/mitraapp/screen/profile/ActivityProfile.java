@@ -69,7 +69,7 @@ public class ActivityProfile extends FirebaseActivity {
 //        final AlertDialog dialog = new SpotsDialog(this);
 //        dialog.show();
                 btnUpdate.setEnabled(false);
-                DatabaseReference usersRef = database.getReference(FBUtil.REF_MITRA_AC).child(mAuth.getCurrentUser().getUid()).child("address");
+                DatabaseReference usersRef = mDatabase.getReference(FBUtil.REF_MITRA_AC).child(mAuth.getCurrentUser().getUid()).child("address");
 
                 // alamat boleh dihapus meski pernah order krn sudah distore di OrderHeader
                 usersRef.setValue(null);

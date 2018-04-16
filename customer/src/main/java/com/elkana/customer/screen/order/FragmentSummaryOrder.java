@@ -927,6 +927,7 @@ public class FragmentSummaryOrder extends Fragment {
                             _keyVal.put("customerId", orderHeader.getCustomerId() );
                             _keyVal.put("orderId", orderHeader.getUid());
                             _keyVal.put("cancelStatus", EOrderDetailStatus.CANCELLED_BY_CUSTOMER.name());
+                            _keyVal.put("cancelReason", null);  // utk saat ini customer tdk perlu alasan mengapa canel
 
                             mFunctions.getHttpsCallable(FBUtil.FUNCTION_CANCEL_BOOKING)
                                 .call(_keyVal)

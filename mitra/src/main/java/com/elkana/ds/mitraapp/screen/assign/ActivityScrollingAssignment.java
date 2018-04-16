@@ -184,7 +184,7 @@ public class ActivityScrollingAssignment extends AFirebaseMitraActivity{
         final AlertDialog dialog = Util.showProgressDialog(this, "Getting Technicians");
 
         // get all registered technicians
-        DatabaseReference ref = database.getReference(FBUtil.REF_MITRA_AC)
+        DatabaseReference ref = mDatabase.getReference(FBUtil.REF_MITRA_AC)
                 .child(mMitraId)
                 .child("technicians");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {

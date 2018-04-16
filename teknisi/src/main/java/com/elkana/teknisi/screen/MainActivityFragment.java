@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Assignment;
 import com.elkana.dslibrary.util.Const;
@@ -48,7 +49,7 @@ public class MainActivityFragment extends Fragment {
 
     private View llBlank;
     private RecyclerView rvAssigments;
-    private RVAdapterAssignment mAdapter;
+    private RVAdapterAssignment mAdapterAssignment;
 
     public String technicianId;
 
@@ -132,8 +133,8 @@ public class MainActivityFragment extends Fragment {
     public void reInitiate(String uid) {
         this.technicianId = uid;
 
-        if (mAdapter != null)
-            mAdapter.cleanUpListener();
+        if (mAdapterAssignment != null)
+            mAdapterAssignment.cleanUpListener();
 
         if (technicianId == null) {
             llBlank.setVisibility(View.VISIBLE);
@@ -141,7 +142,7 @@ public class MainActivityFragment extends Fragment {
             return;
         }
 
-        mAdapter = new RVAdapterAssignment(getContext(), technicianId, new ListenerAssignmentList() {
+        mAdapterAssignment = new RVAdapterAssignment(getContext(), technicianId, new ListenerAssignmentList() {
 
             @Override
             public void onItemSelected(final Assignment assignment) {
@@ -149,7 +150,7 @@ public class MainActivityFragment extends Fragment {
                 final AlertDialog dialog = Util.showProgressDialog(getContext(), "Check Status");
 
                 //read the last status of orderid
-                final DatabaseReference orderRef = FirebaseDatabase.getInstance().getReference(TeknisiUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
+                final DatabaseReference orderRef = FirebaseDatabase.getInstance().getReference(FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
                         .child(assignment.getCustomerId())
                         .child(assignment.getOrderId());
 
@@ -256,7 +257,7 @@ public class MainActivityFragment extends Fragment {
                 }
             }
         });
-        rvAssigments.setAdapter(mAdapter);
+        rvAssigments.setAdapter(mAdapterAssignment);
     }
 
     private void stopTracking() {
@@ -294,8 +295,8 @@ public class MainActivityFragment extends Fragment {
     }
 
     public void cleanUpListener() {
-        if (mAdapter != null)
-            mAdapter.cleanUpListener();
+        if (mAdapterAssignment != null)
+            mAdapterAssignment.cleanUpListener();
     }
 
     @Override

@@ -9,4 +9,5 @@ public class ColorUtil {
     public static void setTextColorAsRed(Context ctx, TextView tv){
         tv.setTextColor(ContextCompat.getColor(ctx, android.R.color.holo_red_light));
     }
+
 }

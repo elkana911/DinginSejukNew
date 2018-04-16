@@ -313,7 +313,7 @@ public class ActivityRegister extends FirebaseActivity {
 
     public void registerUser(final String nama, final String phone, final UserAddress address) {
         final FirebaseUser currentUser = mAuth.getCurrentUser();
-        DatabaseReference ref = database.getReference(FBUtil.REF_MITRA_AC);
+        DatabaseReference ref = mDatabase.getReference(FBUtil.REF_MITRA_AC);
 
         final DatabaseReference userIdRef = ref.child(currentUser.getUid());
 

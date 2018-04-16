@@ -49,14 +49,10 @@ public class ActivityNewOrder extends FirebaseActivity {
 
     private RVAdapterNotifyNewOrderList mAdapter;
 
-    private FirebaseFunctions mFunctions;
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_order);
-
-        mFunctions = FirebaseFunctions.getInstance();
 
         mOrderId = getIntent().getStringExtra(PARAM_ORDER_ID);
 //        mTechId = mAuth.getCurrentUser().getUid();

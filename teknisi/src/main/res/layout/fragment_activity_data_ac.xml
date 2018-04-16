@@ -115,6 +115,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_tipe_ac"
+                    android:inputType="textNoSuggestions"
                     android:maxLines="1" />
             </android.support.design.widget.TextInputLayout>
 
@@ -134,15 +135,20 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:labelFor="@id/editText"
+                    android:labelFor="@id/etNotes"
                     android:text="@string/prompt_note" />
 
                 <EditText
-                    android:id="@+id/editText"
+                    android:id="@+id/etNotes"
                     android:layout_width="match_parent"
                     android:layout_height="90dp"
                     android:ems="10"
-                    android:inputType="textMultiLine" />
+                    android:inputType="textMultiLine|textNoSuggestions" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:text="max. 160 karakter" />
 
             </LinearLayout>
 

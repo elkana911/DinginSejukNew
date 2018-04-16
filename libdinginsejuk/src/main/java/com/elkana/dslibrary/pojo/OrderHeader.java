@@ -32,7 +32,17 @@ public class OrderHeader extends RealmObject implements Serializable {
     private int jumlahAC;
     private int ratingByCustomer;   //0 - 50
     private int ratingByTechnician; //0 - 50
-    private int life_per_status_minute; // waktu yg diperlukan utk status baru(any status) sebelum dinyatakan CANCELLED_BY_TIMER. hanya berlaku utk status sebelum PAYMENT
+    /**
+     * waktu yg diperlukan utk status baru(any status) sebelum dinyatakan CANCELLED_BY_TIMER. hanya berlaku utk status sebelum PAYMENT
+     * jgn bingung dengan minuteExtra di orderBucket, logikanya minuteExtra adalh waktu yg diberikan oleh mitra bg semua teknisi,
+     * sedangkan life_per_status_minute seperti waktu toleransi dari customer
+     * sehingga value life_per_status_minute harus lebih lama dari minuteExtra
+     *
+     * Untuk saat ini hanya dipakai utk STATUS yg CREATED
+     *
+     * @see #updatedStatusTimestamp
+     */
+    private int life_per_status_minute;
     private String ratingCustomerComments;
     private String ratingTechnicianComments;
     private String problem;
@@ -43,6 +53,7 @@ public class OrderHeader extends RealmObject implements Serializable {
     private long bookingTimestamp; // gabungan dateOfService & timeOfService
     private long pleasePayAmount;
     private long createdTimestamp;
+    private long updatedStatusTimestamp;
     private long updatedTimestamp;
     private String updatedBy;
 
@@ -313,6 +324,14 @@ public class OrderHeader extends RealmObject implements Serializable {
         this.life_per_status_minute = life_per_status_minute;
     }
 
+    public long getUpdatedStatusTimestamp() {
+        return updatedStatusTimestamp;
+    }
+
+    public void setUpdatedStatusTimestamp(long updatedStatusTimestamp) {
+        this.updatedStatusTimestamp = updatedStatusTimestamp;
+    }
+
     @Override
     public String toString() {
         return "OrderHeader{" +
@@ -347,6 +366,7 @@ public class OrderHeader extends RealmObject implements Serializable {
                 ", bookingTimestamp=" + bookingTimestamp +
                 ", pleasePayAmount=" + pleasePayAmount +
                 ", createdTimestamp=" + createdTimestamp +
+                ", updatedStatusTimestamp=" + updatedStatusTimestamp +
                 ", updatedTimestamp=" + updatedTimestamp +
                 ", updatedBy='" + updatedBy + '\'' +
                 '}';

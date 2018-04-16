@@ -67,8 +67,8 @@ public class FragmentOrderList extends Fragment {
     private FirebaseFunctions mFunctions;
 
     // listen to assignment fight
-    DatabaseReference assignmentFightRef;
-    ValueEventListener assignmentFightValueListener;
+//    DatabaseReference assignmentFightRef;
+//    ValueEventListener assignmentFightValueListener;
 
     public FragmentOrderList() {
         // Required empty public constructor
@@ -223,6 +223,7 @@ public class FragmentOrderList extends Fragment {
 
         // mitra will listen to path assignments/ac/fight/<orderId>/
         // barangsiapa ada teknisi yg update path tersebut, maka mitra akan otomatis buat assignmentordernya
+        /*
         assignmentFightValueListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -239,8 +240,8 @@ public class FragmentOrderList extends Fragment {
                     //TODO: antisipasi persistence, cek dulu kalo udah diassign jgn create lagi
 
 //                // assign to pending order. see on logic assignment
-                    // TODO dipindah ke cloud
-                    mListener.onCreateAssignment(value);
+                     //dipindah ke cloud
+//                    mListener.onCreateAssignment(value);
 
                 }
 
@@ -251,9 +252,9 @@ public class FragmentOrderList extends Fragment {
                 Log.e(TAG, databaseError.getMessage(), databaseError.toException());
             }
         };
-
-        assignmentFightRef = FirebaseDatabase.getInstance().getReference(FBUtil.REF_ASSIGNMENTS_FIGHT);
+//        assignmentFightRef = FirebaseDatabase.getInstance().getReference(FBUtil.REF_ASSIGNMENTS_FIGHT);
 //        assignmentFightRef.addValueEventListener(assignmentFightValueListener);   //dipindah ke cloud function
+*/
 
     }
 
@@ -321,8 +322,8 @@ public class FragmentOrderList extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentOrderListInteractionListener {
-        @Deprecated
-        void onCreateAssignment(FightInfo fightInfo);   //tdk lagi diassign di mitra, tp di cloud function
+//        @Deprecated
+//        void onCreateAssignment(FightInfo fightInfo);   //tdk lagi diassign di mitra, tp di cloud function
     }
 
 

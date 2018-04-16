@@ -193,30 +193,27 @@ public class ActivityLogin extends FirebaseActivity {
     @Override
     protected void onLoggedOn(final FirebaseUser user) {
 
+        //confusing
+//        final Map<String, Object> keyVal = new HashMap<>();
+//        keyVal.put("token", new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
+//        keyVal.put("updatedTimestamp", ServerValue.TIMESTAMP);
+//        keyVal.put("email", user.getEmail());
 
-        final Map<String, Object> keyVal = new HashMap<>();
-        keyVal.put("token", new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
-        keyVal.put("updatedTimestamp", ServerValue.TIMESTAMP);
-        keyVal.put("email", user.getEmail());
+//        final AlertDialog alertDialog = Util.showProgressDialog(this);
+//        FBUtil.Mitra_GetSSORef(user.getUid())
+//                .updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                alertDialog.dismiss();
 
-        final AlertDialog alertDialog = Util.showProgressDialog(this);
-        FBUtil.Mitra_GetSSORef(user.getUid())
-                .updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                alertDialog.dismiss();
-
-//                dont care
-//                if (task.isSuccessful()) {
-//                }
 
                 // reset token device
                 FBUtil.Mitra_addToken(user.getUid(), new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
 
                 startActivity(new Intent(ActivityLogin.this, MainActivity.class));
                 finish();
-            }
-        });
+//            }
+//        });
 
     }
 

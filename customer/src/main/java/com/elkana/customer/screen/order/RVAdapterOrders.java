@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.elkana.customer.R;
@@ -181,13 +182,14 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             EOrderDetailStatus detailStatus = EOrderDetailStatus.convertValue(obj.getStatusDetailId());
 
-            /* TODO membingungkan, gmn cara start timer tiap status baru berubah ?
+            //gmn cara start timer tiap status baru berubah ? gini, sejak cloud function, customer diberikan utk bisa selalu cek status
+            // caranya panggil method requestStatusCheck
+            // disediakan tombol tersembunyi btnCheckStatus utk cek statusnya
             if (detailStatus == EOrderDetailStatus.CREATED)
                 // masih experiment
                 ((MyViewHolder) holder).startTimer(obj);
             else
                 ((MyViewHolder) holder).stopTimer(obj);
-                */
         }
 
     }
@@ -211,6 +213,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView tvLabel, tvAddress, tvStatus, tvMitra, tvDateOfService, tvTimer;
+        public Button btnCheckStatus;
 //        public ImageButton btnCancelOrder;
         public FloatingActionButton fabCancelOrder;
 
@@ -230,6 +233,9 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
             tvStatus.setTypeface(fontFace);
             tvDateOfService = itemView.findViewById(R.id.tvDateOfService);
             tvTimer = itemView.findViewById(R.id.tvTimer);
+            btnCheckStatus = itemView.findViewById(R.id.btnCheckStatus);
+
+//            btnCheckStatus.setVisibility(Util.DEVELOPER_MODE ? View.VISIBLE : View.GONE);
 
 //            btnCancelOrder = (ImageButton) itemView.findViewById(R.id.btnCancelOrder);
 //            btnCancelOrder.setImageResource(R.drawable.ic_indeterminate_check_box_black_24dp);
@@ -267,7 +273,6 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 showTimer = config.isShow_timer();
 
-                tvTimer.setVisibility(View.INVISIBLE);  // kondisi awal
             }finally {
                 r.close();
             }
@@ -288,6 +293,13 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
             });
 
+            btnCheckStatus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mListener != null)
+                        mListener.onCheckStatus(data);
+                }
+            });
             /*
             ((MyViewHolder) holder).tvLabelAddress.setText(obj.getAddress());
 
@@ -324,9 +336,14 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
 
             // if somehow customer have a right to cancel, lets say 60 minutes
-            long startMillis = obj.getUpdatedTimestamp() + (obj.getLife_per_status_minute() * DateUtil.TIME_ONE_MINUTE_MILLIS);
+            long startMillis = obj.getUpdatedStatusTimestamp() + (obj.getLife_per_status_minute() * DateUtil.TIME_ONE_MINUTE_MILLIS);
+//            long startMillis = obj.getUpdatedTimestamp() + (obj.getLife_per_status_minute() * DateUtil.TIME_ONE_MINUTE_MILLIS);
 
             final long expirationMillis = startMillis - new Date().getTime();
+
+            // kalo tinggal 0 detik ya ga usah utk menghindari checkStatus ke inet
+            if (expirationMillis <= 0)
+                return;
 
             timer = new CountDownTimer(expirationMillis, 1000) {
                 @Override
@@ -346,12 +363,17 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if (mList.size() < 1)
                         return;
 
+                    if (timer != null)
+                         btnCheckStatus.performClick();
+                    else
+                        tvTimer.setVisibility(View.INVISIBLE);
                     // dipindah ke cloud. jd timer disini cuma display doankg
 //                    FBUtil.Order_SetStatus(mMitraId, obj.getCustomerId(), obj.getUid(), null, null, EOrderDetailStatus.UNHANDLED, String.valueOf(Const.USER_AS_MITRA), null);
                 }
             }.start();
 
-            if (showTimer)
+            // saat ini timer hanya utk developer dulu
+            if (showTimer && Util.DEVELOPER_MODE)
                 tvTimer.setVisibility(View.VISIBLE);
         }
 

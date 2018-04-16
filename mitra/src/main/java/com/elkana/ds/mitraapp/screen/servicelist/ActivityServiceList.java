@@ -1,41 +1,27 @@
 package com.elkana.ds.mitraapp.screen.servicelist;
 
-import android.app.AlertDialog;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.annotation.NonNull;
+import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.elkana.ds.mitraapp.AFirebaseMitraActivity;
 import com.elkana.ds.mitraapp.R;
-import com.elkana.ds.mitraapp.pojo.MobileSetup;
-import com.elkana.ds.mitraapp.screen.register.ActivityRegister;
 import com.elkana.ds.mitraapp.util.MitraUtil;
-import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetAllData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
-import com.elkana.dslibrary.pojo.mitra.ServiceType;
 import com.elkana.dslibrary.pojo.mitra.SubServiceType;
 import com.elkana.dslibrary.util.Util;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
-import java.util.Map;
 
 public class ActivityServiceList extends AFirebaseMitraActivity {
     private static final String TAG = ActivityServiceList.class.getSimpleName();

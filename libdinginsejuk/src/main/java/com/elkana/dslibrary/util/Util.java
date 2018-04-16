@@ -54,7 +54,7 @@ import dmax.dialog.SpotsDialog;
 
 public class Util {
 
-    public static final boolean DEVELOPER_MODE = true;
+    public static boolean DEVELOPER_MODE = true;
     public static final boolean TESTING_MODE = true;
     public static final String TESTING_USER = "4AAwmPGueYNiKhJuw2rFlDEYAqD2";
 

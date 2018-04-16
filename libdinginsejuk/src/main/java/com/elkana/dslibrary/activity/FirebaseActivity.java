@@ -12,10 +12,8 @@ import com.elkana.dslibrary.pojo.user.FirebaseToken;
 import com.elkana.dslibrary.pojo.user.UserAddress;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.functions.FirebaseFunctions;
 
 import io.realm.Realm;
 
@@ -29,14 +27,17 @@ public abstract class FirebaseActivity extends BasicActivity {
 
     protected FirebaseAuth mAuth;
     protected FirebaseAuth.AuthStateListener mAuthListener;
-    protected FirebaseDatabase database;
+    protected FirebaseDatabase mDatabase;
+    protected FirebaseFunctions mFunctions;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
+        mDatabase = FirebaseDatabase.getInstance();
+        mFunctions = FirebaseFunctions.getInstance();
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -117,7 +118,7 @@ public abstract class FirebaseActivity extends BasicActivity {
     }
 
     protected void firebaseGetAllMitra(final ListenerGetAllData listener) {
-        database.getReference(DataUtil.REF_MITRA_AC)
+        mDatabase.getReference(DataUtil.REF_MITRA_AC)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -221,7 +222,7 @@ public abstract class FirebaseActivity extends BasicActivity {
                 });
 
     contoh get list of string
-        database.getReference("users/" + mAuth.getCurrentUser().getUid()).child("firebaseToken")
+        mDatabase.getReference("users/" + mAuth.getCurrentUser().getUid()).child("firebaseToken")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {

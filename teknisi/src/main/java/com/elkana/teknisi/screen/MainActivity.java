@@ -189,7 +189,7 @@ public class MainActivity extends FirebaseActivity
 
     @Override
     protected void onLoggedOn(FirebaseUser user) {
-        DatabaseReference userRef = database.getReference(TeknisiUtil.REF_TECHNICIAN_AC)
+        DatabaseReference userRef = mDatabase.getReference(FBUtil.REF_TECHNICIAN_AC)
                 .child(user.getUid());
 
         userRef.child("basicInfo").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -305,7 +305,7 @@ public class MainActivity extends FirebaseActivity
 //        mNotifyNewOrderRef = FBUtil.TechnicianReg_getNotifyNewOrder( mAuth.getCurrentUser().getUid());
 
         // sync setup
-        database.getReference(TeknisiUtil.REF_MASTER_SETUP)
+        mDatabase.getReference(TeknisiUtil.REF_MASTER_SETUP)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -484,7 +484,7 @@ public class MainActivity extends FirebaseActivity
 //        dialog.show();
 
         // get subservice of ac
-        database.getReference(TeknisiUtil.REF_SUBSERVICEAC)
+        mDatabase.getReference(TeknisiUtil.REF_SUBSERVICEAC)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
