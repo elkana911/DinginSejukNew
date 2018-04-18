@@ -103,9 +103,9 @@ public class ActivityNewOrder extends FirebaseActivity {
             @Override
             public void onDeny(NotifyNewOrderItem data) {
 
-//                selfDeny = true;
+////                selfDeny = true;
 //
-                if (mAdapter.getItemCount() < 2) {
+                if (mAdapter.getItemCount() < 1) {
                     mAdapter.cleanUpListener();
 
                     setResult(RESULT_CANCELED);
@@ -144,7 +144,7 @@ public class ActivityNewOrder extends FirebaseActivity {
                                     Toast.makeText(ActivityNewOrder.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
                                 }
 
-                                if (mAdapter.getItemCount() < 2) {
+                                if (mAdapter.getItemCount() < 1) {
                                     mAdapter.cleanUpListener();
                                     setResult(RESULT_OK);
                                     finish();

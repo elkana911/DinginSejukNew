@@ -12,8 +12,8 @@ public interface ListenerServiceDetail {
     void onAddServiceDetail();
     void onDeleteItem(ServiceItem obj, int position);
 
-    void onAddDataAC();
-
     // awal mulanya kosong, jadi user bisa tambah item terlebih dulu. biasa dipakai utk servicecharge
     void onPrepareList(List<ServiceItem> mList);
+
+    void onAddDataAC(ServiceItem obj);
 }

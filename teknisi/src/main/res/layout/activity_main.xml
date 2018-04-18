@@ -42,9 +42,17 @@
                     android:id="@+id/profile_image"
                     android:layout_width="96dp"
                     android:layout_height="96dp"
+                    android:visibility="gone"
                     android:src="@drawable/wonder"
                     app:civ_border_color="#ffffff"
                     app:civ_border_width="1dp" />
+
+                <ImageView
+                    android:id="@+id/profile_icon"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:tint="#FFF"
+                    app:srcCompat="@drawable/worker" />
 
                 <TextView
                     android:id="@+id/tvFullName"

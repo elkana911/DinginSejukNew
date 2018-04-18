@@ -125,6 +125,13 @@
                 android:text="Isi DATA AC" />
 
             <TextView
+                android:id="@+id/tvUid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/btnDataAC"
+                />
+
+            <TextView
                 android:id="@+id/tvPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

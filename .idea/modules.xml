@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/DinginSejukNew.iml" filepath="$PROJECT_DIR$/DinginSejukNew.iml" />
       <module fileurl="file://$PROJECT_DIR$/customer/customer.iml" filepath="$PROJECT_DIR$/customer/customer.iml" />
-      <module fileurl="file://$PROJECT_DIR$/custteknisi/custteknisi.iml" filepath="$PROJECT_DIR$/custteknisi/custteknisi.iml" />
       <module fileurl="file://$PROJECT_DIR$/libdinginsejuk/libdinginsejuk.iml" filepath="$PROJECT_DIR$/libdinginsejuk/libdinginsejuk.iml" />
       <module fileurl="file://$PROJECT_DIR$/mitra/mitra.iml" filepath="$PROJECT_DIR$/mitra/mitra.iml" />
       <module fileurl="file://$PROJECT_DIR$/teknisi/teknisi.iml" filepath="$PROJECT_DIR$/teknisi/teknisi.iml" />

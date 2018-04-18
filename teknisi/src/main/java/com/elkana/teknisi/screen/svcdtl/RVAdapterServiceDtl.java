@@ -193,7 +193,7 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
         private Spinner spServiceItem;
         private FloatingActionButton fabDelete;
         private EditText etPromoCode, etCounter;
-        private TextView tvPrice;
+        private TextView tvPrice, tvUid;
         private Button btnDataAC;
         private AppCompatImageView btnDecItem, btnIncItem;
 
@@ -208,6 +208,7 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
 
             etPromoCode = itemView.findViewById(R.id.etPromoCode);
             tvPrice = itemView.findViewById(R.id.tvPrice);
+            tvUid = itemView.findViewById(R.id.tvUid);
 
             btnDataAC = itemView.findViewById(R.id.btnDataAC);
 
@@ -215,14 +216,6 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
 
             btnDecItem = itemView.findViewById(R.id.ivDecItem);
             btnIncItem = itemView.findViewById(R.id.ivIncItem);
-
-            btnDataAC.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mListener != null)
-                        mListener.onAddDataAC();
-                }
-            });
 
         }
 
@@ -239,6 +232,9 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
 
 
         public void setData(final ServiceItem obj, final int position) {
+
+            tvUid.setVisibility(Util.DEVELOPER_MODE ? View.VISIBLE : View.GONE);
+            tvUid.setText("" + obj.getUid());
 
             spServiceItem.setSelection(0);
 
@@ -257,6 +253,14 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
                 @Override
                 public void onClick(View v) {
 
+                }
+            });
+
+            btnDataAC.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mListener != null)
+                        mListener.onAddDataAC(obj);
                 }
             });
 
@@ -363,7 +367,7 @@ public class RVAdapterServiceDtl extends RecyclerView.Adapter<RecyclerView.ViewH
                     item.setServiceLabel(serviceType.getServiceTypeNameBahasa());
                     item.setRate(serviceType.getRate());
                     item.setPromoCode(serviceType.getPromoCode());
-                    item.setUidNegative(Math.abs(item.getUid()));
+                    item.setUidNegative(item.getUid() * -1);
 
                     mList.add(item);
 

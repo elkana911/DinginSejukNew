@@ -1,6 +1,7 @@
 package com.elkana.teknisi.screen.svcdtl;
 
 import android.app.AlertDialog;
+import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,13 +23,18 @@ import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
+import com.elkana.teknisi.pojo.IsiDataAC;
 import com.elkana.teknisi.screen.dataac.ActivityDataAC;
+import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Date;
 import java.util.List;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
     private static final String TAG = ActivityServiceDetail.class.getSimpleName();
@@ -190,7 +196,7 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
 
                         final AlertDialog dialog = Util.showProgressDialog(ActivityServiceDetail.this);
 
-                        FBUtil.Assignment_addServiceItems(mTechnicianId, mAssignmentId, list, new ListenerModifyData(){
+                        TeknisiUtil.Assignment_addServiceItems(mTechnicianId, mAssignmentId, list, new ListenerModifyData(){
                             @Override
                             public void onSuccess() {
                                 FBUtil.Order_SetStatus(mMitraId, mCustomerId, mOrderId, mAssignmentId,mTechnicianId, EOrderDetailStatus.PAYMENT, String.valueOf(Const.USER_AS_TECHNICIAN), new ListenerModifyData() {
@@ -242,11 +248,17 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
 
             @Override
             public void onDeleteItem(ServiceItem obj, int position) {
+                realm.beginTransaction();
+                IsiDataAC first = realm.where(IsiDataAC.class).equalTo("uid", obj.getUid()).findFirst();
+                if (first != null)
+                    first.deleteFromRealm();
+                realm.commitTransaction();
             }
 
             @Override
-            public void onAddDataAC() {
+            public void onAddDataAC(ServiceItem obj) {
                 Intent intent = new Intent(ActivityServiceDetail.this, ActivityDataAC.class);
+                intent.putExtra(ActivityDataAC.PARAM_DATAAC_UID, obj.getUid());
                 intent.putExtra(ActivityDataAC.PARAM_ASSIGNMENT_ID, mAssignmentId);
                 intent.putExtra(ActivityDataAC.PARAM_TECHNICIAN_ID, mTechnicianId);
 
@@ -259,7 +271,7 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
                 if (mServiceType == Const.SERVICE_TYPE_QUICK) {
                     ServiceItem item = new ServiceItem();
                     item.setUid(new Date().getTime());
-                    item.setUidNegative(Math.abs(item.getUid()));
+                    item.setUidNegative(item.getUid() * -1);
                     item.setCount(1);
                     item.setAssignmentId(mAssignmentId);
                     item.setPromoCode(null);
@@ -269,6 +281,20 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
                     item.setRate(25000);
 
                     mList.add(item);
+                }
+
+                // cleanup isidata table
+                Realm r = Realm.getDefaultInstance();
+                try{
+                    r.beginTransaction();
+                    RealmResults<IsiDataAC> all = r.where(IsiDataAC.class).findAll();
+
+                    if (all.size() > 0)
+                        all.deleteAllFromRealm();
+
+                    r.commitTransaction();
+                }finally {
+                    r.close();
                 }
             }
         });

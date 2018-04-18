@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.elkana.customer.R;
 import com.elkana.customer.pojo.MobileSetup;
@@ -330,7 +331,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         }
 
-        public void startTimer(OrderHeader obj) {
+        public void startTimer(final OrderHeader obj) {
             if (timer != null) {
                 return;
             }
@@ -345,6 +346,8 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
             if (expirationMillis <= 0)
                 return;
 
+            final String lastUid = obj.getUid();
+
             timer = new CountDownTimer(expirationMillis, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
@@ -354,6 +357,21 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                     if (expirationMillis < (5 * 1000)) {
                         ColorUtil.setTextColorAsRed(mContext, tvTimer);
+                    }
+                    //tricks, tiap 1 menit check status apakah sudah berubah
+                    if (ss.split(":", 2)[1].trim().equals("00")) {
+                        Realm r = Realm.getDefaultInstance();
+                        try{
+                            OrderHeader data = r.where(OrderHeader.class).equalTo("uid", lastUid).findFirst();
+                            if (data != null) {
+                                if (EOrderDetailStatus.convertValue(data.getStatusDetailId()) != EOrderDetailStatus.CREATED) {
+                                    timer.cancel();
+                                }
+
+                            }
+                        }finally{
+                            r.close();
+                        }
                     }
                 }
 

@@ -367,7 +367,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
     class MyViewHolder extends RecyclerView.ViewHolder {
         public EOrderDetailStatus lastStatus;
 
-        public TextView tvAddress, tvCustomerName, tvHandledBy, tvOrderTime, tvOrderStatus, tvCounter, tvNo;
+        public TextView tvAddress, tvCustomerName, tvHandledBy, tvOrderTime, tvOrderStatus, tvCounter, tvNo, tvInvoiceNo;
         public View view;
         public ImageView ivIconStatus;
         public Button btnCallTech, btnCallCust, btnChangeTech, btnCancelOrder;
@@ -380,6 +380,7 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             view = itemView;
 
             tvNo = itemView.findViewById(R.id.tvNo);
+            tvInvoiceNo = itemView.findViewById(R.id.tvInvoiceNo);
             tvAddress = itemView.findViewById(R.id.tvAddress);
 
             tvAddress.setCompoundDrawablePadding(10);
@@ -419,9 +420,11 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvOrderTime.setTextColor(enabled ? Color.DKGRAY : Color.LTGRAY);
             tvCustomerName.setTextColor(enabled ? Color.DKGRAY : Color.LTGRAY);
             tvHandledBy.setTextColor(enabled ? Color.DKGRAY : Color.LTGRAY);
+            tvInvoiceNo.setTextColor(enabled ? Color.DKGRAY : Color.LTGRAY);
         }
 
         public void setData(final OrderBucket data) {
+            tvInvoiceNo.setText(data.getInvoiceNo());
             tvAddress.setText(data.getAddressByGoogle());
             tvCustomerName.setText(data.getCustomerName());
             tvOrderTime.setText(Util.convertDateToString(new Date(data.getBookingTimestamp()), "dd MMM yyyy HH:mm"));
@@ -470,7 +473,6 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                     break;
                 case WORKING:
                     resIcon = R.drawable.ic_build_black_24dp;
-                    btnCancelOrder.setVisibility(View.VISIBLE);
                     break;
                 case PAYMENT:
                     resIcon = R.drawable.ic_payment_black_24dp;

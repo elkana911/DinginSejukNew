@@ -1,12 +1,15 @@
 package com.elkana.ds.mitraapp.screen;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -186,6 +189,11 @@ public class MainActivity extends AFirebaseMitraActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
 
+        Drawable drawable = menu.findItem(R.id.action_search).getIcon();
+        drawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(drawable, ContextCompat.getColor(this, android.R.color.white));
+        menu.findItem(R.id.action_search).setIcon(drawable);
+
         menuLogout = menu.findItem(R.id.action_logout);
         menuEditProfile = menu.findItem(R.id.action_editProfile);
 
@@ -209,6 +217,9 @@ public class MainActivity extends AFirebaseMitraActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.action_search) {
+            // TODO Search Activity
             return true;
         } else if (id == R.id.action_logout) {
             logout();

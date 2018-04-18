@@ -12,10 +12,14 @@ import android.widget.Spinner;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.pojo.IsiDataAC;
 
+import java.util.Date;
+
 /**
  * A simple {@link Fragment} subclass.
  */
 public class FragmentDataAC extends Fragment {
+
+    public long uid;
 
     public EditText etNotes, etTipe;
 
@@ -25,8 +29,29 @@ public class FragmentDataAC extends Fragment {
         // Required empty public constructor
     }
 
+    public void prepareFragmentUsingId(long uid, IsiDataAC data){
+
+        this.uid = uid;
+
+        if (data == null) {
+            return;
+        }
+
+        etNotes.setText(data.getNotes());
+        etTipe.setText(data.getTipeAC());
+
+        //spMerk.setSelection(pos);
+
+    }
+
     public IsiDataAC buildData(){
+
+        if (uid < 1)
+            throw new RuntimeException("uid should not be less than 1");
+
         IsiDataAC data = new IsiDataAC();
+
+        data.setUid(uid);
 
         // build
         final String merkAC = spMerk.getSelectedItem() == null ? null : (String) spMerk.getSelectedItem();
@@ -42,6 +67,17 @@ public class FragmentDataAC extends Fragment {
         data.setTipeAC(etTipe.getText().toString().trim());
 
         return data;
+    }
+
+    public boolean validateForm() {
+        boolean cancel = false;
+
+
+
+        if (cancel)
+            return false;
+
+        return true;
     }
 
 

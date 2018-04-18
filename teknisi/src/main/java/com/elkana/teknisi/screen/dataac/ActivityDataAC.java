@@ -1,26 +1,21 @@
 package com.elkana.teknisi.screen.dataac;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.elkana.dslibrary.firebase.FBUtil;
-import com.elkana.dslibrary.listener.ListenerModifyData;
-import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.pojo.IsiDataAC;
-import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -29,8 +24,10 @@ public class ActivityDataAC extends AFirebaseTeknisiActivity {
 
     public static final String PARAM_ASSIGNMENT_ID = "assignment.id";
     public static final String PARAM_TECHNICIAN_ID = "tech.id";
+    public static final String PARAM_DATAAC_UID = "dataac.id";
 
     private String mTechnicianId, mAssignmentId;
+    private long mDataACUId;
 
     private String lastScanContent;
     private String lastScanFormat;
@@ -54,6 +51,7 @@ public class ActivityDataAC extends AFirebaseTeknisiActivity {
 
         mAssignmentId = getIntent().getStringExtra(PARAM_ASSIGNMENT_ID);
         mTechnicianId = getIntent().getStringExtra(PARAM_TECHNICIAN_ID);
+        mDataACUId = getIntent().getLongExtra(PARAM_DATAAC_UID, -1);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -67,10 +65,24 @@ public class ActivityDataAC extends AFirebaseTeknisiActivity {
 
     }
 
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        FragmentDataAC fragment = (FragmentDataAC) getSupportFragmentManager().findFragmentById(R.id.fragmentDataAC);
+
+        if (mDataACUId > -1) {
+            IsiDataAC dataAC = realm.where(IsiDataAC.class).equalTo("uid", mDataACUId).findFirst();
+
+            fragment.prepareFragmentUsingId(mDataACUId, dataAC);
+    }
+
+
+    }
+
     private void attemptToSubmitData() {
 
         // validate
-
         FragmentDataAC fragment = (FragmentDataAC) getSupportFragmentManager().findFragmentById(R.id.fragmentDataAC);
 
         IsiDataAC data = fragment.buildData();
@@ -88,8 +100,14 @@ public class ActivityDataAC extends AFirebaseTeknisiActivity {
         data.setScanContent(lastScanContent);
         data.setScanFormat(lastScanFormat);
 
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(data);
+        realm.commitTransaction();
+
         Toast.makeText(this, "Submit data" + data, Toast.LENGTH_LONG).show();
 
+        finish();
+        /* harusnya waktu checkout br submit
         final AlertDialog alertDialog = Util.showProgressDialog(this, "Submit data AC...");
 
         TeknisiUtil.Assignment_addDataAC(mTechnicianId, mAssignmentId, data, new ListenerModifyData() {
@@ -107,6 +125,7 @@ public class ActivityDataAC extends AFirebaseTeknisiActivity {
                 Toast.makeText(ActivityDataAC.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+        */
     }
 
 
@@ -171,7 +190,7 @@ public class ActivityDataAC extends AFirebaseTeknisiActivity {
 //            Toast.makeText(this, "content=" + scanContent + "\nscanFormat=" + scanFormat, Toast.LENGTH_LONG).show();
             lastScanContent = scanContent;
             lastScanFormat = scanFormat;
-        }else{
+        } else {
             //No scan data received!
             Toast.makeText(this, "No code received", Toast.LENGTH_SHORT).show();
         }

@@ -12,6 +12,7 @@ import io.realm.annotations.PrimaryKey;
 public class OrderBucket extends RealmObject implements Serializable {
     @PrimaryKey
     private String uid; // order id
+    private String invoiceNo;
     private String customerId;
     private String customerName;
     private String addressByGoogle;
@@ -36,6 +37,14 @@ public class OrderBucket extends RealmObject implements Serializable {
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public String getInvoiceNo() {
+        return invoiceNo;
+    }
+
+    public void setInvoiceNo(String invoiceNo) {
+        this.invoiceNo = invoiceNo;
     }
 
     public String getCustomerId() {
@@ -154,6 +163,7 @@ public class OrderBucket extends RealmObject implements Serializable {
     public String toString() {
         return "OrderBucket{" +
                 "uid='" + uid + '\'' +
+                ", invoiceNo='" + invoiceNo + '\'' +
                 ", customerId='" + customerId + '\'' +
                 ", customerName='" + customerName + '\'' +
                 ", addressByGoogle='" + addressByGoogle + '\'' +

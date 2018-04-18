@@ -1,6 +1,14 @@
 package com.elkana.teknisi.pojo;
 
-public class IsiDataAC {
+import java.io.Serializable;
+
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
+public class IsiDataAC extends RealmObject implements Serializable {
+
+    @PrimaryKey
+    private long uid;   // timestamp
     private String scanContent;
     private String scanFormat;
     private String merkAC;
@@ -8,6 +16,14 @@ public class IsiDataAC {
     private String tahunPemasangan;
     private String tipeAC;
     private String notes;
+
+    public long getUid() {
+        return uid;
+    }
+
+    public void setUid(long uid) {
+        this.uid = uid;
+    }
 
     public String getScanContent() {
         return scanContent;
@@ -68,7 +84,8 @@ public class IsiDataAC {
     @Override
     public String toString() {
         return "IsiDataAC{" +
-                "scanContent='" + scanContent + '\'' +
+                "uid=" + uid +
+                ", scanContent='" + scanContent + '\'' +
                 ", scanFormat='" + scanFormat + '\'' +
                 ", merkAC='" + merkAC + '\'' +
                 ", dayaAC='" + dayaAC + '\'' +

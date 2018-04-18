@@ -111,6 +111,7 @@
     <string name="message_review_given">Terima Kasih sudah menggunakan jasa kami. Masukan Anda sangat berarti bagi kami.</string>
     <string name="warning_you_pick_mitra">Anda memilih %1s</string>
     <string name="message_review_not_given">Silakan beri Rating untuk Layanan ini :)</string>
+    <string name="action_search">Search</string>
 
 
 </resources>

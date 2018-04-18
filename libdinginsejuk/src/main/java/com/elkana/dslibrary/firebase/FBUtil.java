@@ -203,27 +203,6 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                 .child(assignmentId);
     }
 
-    public static void Assignment_addServiceItems(String technicianId, String assignmentId, List<ServiceItem> list, final ListenerModifyData listener) {
-
-        Assignment_getPendingRef(technicianId, assignmentId)
-                .child("svcItems")
-                .setValue(list)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            if (listener != null) {
-                                listener.onSuccess();
-                            } else {
-                                if (listener != null)
-                                    listener.onError(task.getException());
-                            }
-                        }
-                    }
-                });
-
-    }
-
     public static DatabaseReference Assignment_getServiceItemsRef(String techId, String assignmentId) {
         return Assignment_getPendingRef(techId, assignmentId)
                 .child("svcItems");

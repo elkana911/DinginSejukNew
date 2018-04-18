@@ -2,6 +2,8 @@ package com.elkana.teknisi.util;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
@@ -23,9 +25,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
+
+import static com.elkana.dslibrary.firebase.FBUtil.Assignment_getPendingRef;
+import static com.elkana.dslibrary.firebase.FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING;
 
 /**
  * Created by Eric on 23-Oct-17.
@@ -50,6 +56,7 @@ public class TeknisiUtil {
             realm.where(ServiceItem.class).findAll().deleteAllFromRealm();
 
             realm.where(Technician.class).findAll().deleteAllFromRealm();
+            realm.where(IsiDataAC.class).findAll().deleteAllFromRealm();
 //            realm.where(Mitra.class).findAll().deleteAllFromRealm();
 //            realm.where(OrderDetail.class).findAll().deleteAllFromRealm();
 //            realm.where(OrderHeader.class).findAll().deleteAllFromRealm();
@@ -222,7 +229,7 @@ public class TeknisiUtil {
             keyVal.put("statusId", EOrderStatus.PENDING.name());
         }
 
-        FirebaseDatabase.getInstance().getReference(FBUtil.REF_ORDERS_CUSTOMER_AC_PENDING)
+        FirebaseDatabase.getInstance().getReference(REF_ORDERS_CUSTOMER_AC_PENDING)
                 .child(userId)
                 .child(orderId).updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -242,10 +249,78 @@ public class TeknisiUtil {
 
     }
 
-    public static void Assignment_addDataAC(String technicianId, String assignmentId, IsiDataAC data, final ListenerModifyData listener){
-        FBUtil.Assignment_getPendingRef(technicianId, assignmentId)
-                .child("dataAC")
-                .setValue(data)
+//    public static void Assignment_addDataAC(String technicianId, String assignmentId, IsiDataAC data, final ListenerModifyData listener){
+//        FBUtil.Assignment_getPendingRef(technicianId, assignmentId)
+//                .child("dataAC")
+//                .setValue(data)
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        if (task.isSuccessful()) {
+//                            if (listener != null) {
+//                                listener.onSuccess();
+//                            } else {
+//                                if (listener != null)
+//                                    listener.onError(task.getException());
+//                            }
+//                        }
+//                    }
+//                });
+//
+//
+//    }
+
+    public static void Assignment_addServiceItems(String technicianId, String assignmentId, List<ServiceItem> list, final ListenerModifyData listener) {
+
+        final Map<String, Object> keyVal = new HashMap<>();
+
+        Realm r = Realm.getDefaultInstance();
+        try{
+            String rootDataAC = FBUtil.REF_ASSIGNMENTS_PENDING + "/" + technicianId + "/" + assignmentId + "/dataAC";
+            String rootSvcItem = FBUtil.REF_ASSIGNMENTS_PENDING + "/" + technicianId + "/" + assignmentId + "/svcItems";
+            // get isidataac via uid
+            for (int i = 0; i < list.size(); i++){
+
+                ServiceItem item = list.get(i);
+
+                Map<String, Object> _keyVal1 = FBUtil.convertObjectToKeyVal(rootSvcItem + "/" + i, item);
+                keyVal.putAll(_keyVal1);
+
+                IsiDataAC isiDataAC = r.where(IsiDataAC.class).equalTo("uid",item.getUid()).findFirst();
+
+                // bisa aja data selain AC
+                if (isiDataAC == null) {
+                    continue;
+                }
+
+                Map<String, Object> _keyVal2 = FBUtil.convertObjectToKeyVal(rootDataAC + "/" + isiDataAC.getUid(), r.copyFromRealm(isiDataAC));
+
+                keyVal.putAll(_keyVal2);
+            }
+
+            FirebaseDatabase.getInstance().getReference().updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        if (listener != null)
+                            listener.onSuccess();
+                    } else {
+                        if (listener != null)
+                            listener.onError(task.getException());
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            r.close();
+        }
+
+/*
+        Assignment_getPendingRef(technicianId, assignmentId)
+                .child("svcItems")
+                .setValue(list)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -259,8 +334,7 @@ public class TeknisiUtil {
                         }
                     }
                 });
-
-
+*/
     }
 
 }
