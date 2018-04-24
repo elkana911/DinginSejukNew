@@ -248,7 +248,12 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public void setData(final OrderHeader data){
             tvLabel.setText(mContext.getString(R.string.row_label_ac_service, data.getJumlahAC()));
             tvAddress.setText(data.getAddressId());
-            tvDateOfService.setText(mContext.getString(R.string.prompt_schedule) + ": " + Util.prettyTimestamp(mContext, data.getBookingTimestamp()));
+
+            if (data.getTimeOfService().equals("99:99"))
+                tvDateOfService.setText(mContext.getString(R.string.prompt_schedule) + ": " + Util.prettyDate(mContext, Util.convertStringToDate(data.getDateOfService(), "yyyyMMdd"), true));
+            else
+                tvDateOfService.setText(mContext.getString(R.string.prompt_schedule) + ": " + Util.prettyTimestamp(mContext, data.getServiceTimestamp()));
+
 
             Realm r = Realm.getDefaultInstance();
             try{
@@ -355,7 +360,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //                    String ss = Util.convertDateToString(new Date(millisUntilFinished), "mm:ss");
                     tvTimer.setText(ss);
 
-                    if (expirationMillis < (5 * 1000)) {
+                    if (expirationMillis < (60 * 1000)) {
                         ColorUtil.setTextColorAsRed(mContext, tvTimer);
                     }
                     //tricks, tiap 1 menit check status apakah sudah berubah

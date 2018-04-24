@@ -22,6 +22,7 @@
             app:contentPadding="8dp">
 
             <LinearLayout
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -41,6 +42,18 @@
                     android:spinnerMode="dialog" />
 
             </LinearLayout>
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/etMerk"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Merk AC"
+                    android:inputType="textNoSuggestions"
+                    android:maxLines="1" />
+            </android.support.design.widget.TextInputLayout>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -50,6 +63,7 @@
             app:contentPadding="8dp">
 
             <LinearLayout
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -69,6 +83,19 @@
                     android:spinnerMode="dialog" />
 
             </LinearLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/etDaya"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Daya AC (watt)"
+                    android:inputType="textNoSuggestions"
+                    android:maxLines="1" />
+            </android.support.design.widget.TextInputLayout>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -78,6 +105,7 @@
             app:contentPadding="8dp">
 
             <LinearLayout
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -97,6 +125,20 @@
                     android:spinnerMode="dialog" />
 
             </LinearLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/etThnPemasangan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Tahun Pasang"
+                    android:inputType="textNoSuggestions"
+                    android:maxLines="1" />
+            </android.support.design.widget.TextInputLayout>
+
         </android.support.v7.widget.CardView>
 
 
@@ -114,7 +156,7 @@
                     android:id="@+id/etTipe"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/prompt_tipe_ac"
+                    android:hint="Tipe AC"
                     android:inputType="textNoSuggestions"
                     android:maxLines="1" />
             </android.support.design.widget.TextInputLayout>

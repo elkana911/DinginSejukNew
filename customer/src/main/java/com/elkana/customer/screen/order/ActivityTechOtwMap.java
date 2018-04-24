@@ -1,6 +1,8 @@
 package com.elkana.customer.screen.order;
 
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -8,8 +10,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.elkana.customer.R;
-import com.elkana.customer.screen.AFirebaseActivity;
-import com.elkana.customer.util.CustomerUtil;
+import com.elkana.customer.screen.AFirebaseCustomerActivity;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.pojo.Movement;
 import com.elkana.dslibrary.util.Util;
@@ -29,7 +30,7 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.Date;
 
-public class ActivityTechOtwMap extends AFirebaseActivity implements OnMapReadyCallback {
+public class ActivityTechOtwMap extends AFirebaseCustomerActivity implements OnMapReadyCallback {
 
     private static final String TAG = ActivityTechOtwMap.class.getSimpleName();
 
@@ -64,14 +65,7 @@ public class ActivityTechOtwMap extends AFirebaseActivity implements OnMapReadyC
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setTitle(mTechName + " Position");
 
-//            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Window window = getWindow();
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-//                window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
-            }
-
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.

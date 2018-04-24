@@ -23,25 +23,35 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.elkana.ds.mitraapp.AFirebaseMitraActivity;
+import com.elkana.ds.mitraapp.BuildConfig;
 import com.elkana.ds.mitraapp.screen.MainActivity;
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.MobileSetup;
 import com.elkana.ds.mitraapp.screen.register.ActivityRegister;
+import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.SharedPrefUtil;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ActivityLogin extends FirebaseActivity {
+import io.realm.Realm;
+
+public class ActivityLogin extends AFirebaseMitraActivity {
     private static final String TAG = ActivityLogin.class.getSimpleName();
 
     private static final int REQUESTCODE_REGISTER = 43;
@@ -78,6 +88,44 @@ public class ActivityLogin extends FirebaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // having mobilesetup is mandatory. no userid needed
+        mDatabase.getReference(MitraUtil.REF_MASTER_SETUP)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final MobileSetup mobileSetup = dataSnapshot.getValue(MobileSetup.class);
+
+                        Realm r = Realm.getDefaultInstance();
+                        try {
+                            r.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    realm.copyToRealmOrUpdate(mobileSetup);
+                                }
+                            });
+
+                        } finally {
+                            r.close();
+                        }
+
+                        if (getSupportActionBar() != null) {
+                            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            Window window = getWindow();
+                            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                            window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                        finish();   // quit app
+                    }
+                });
+
         coordinatorLayout = findViewById(R.id.coordinatorLayout);
         mEmailView = findViewById(R.id.email);
         mPassword = findViewById(R.id.password);
@@ -98,7 +146,7 @@ public class ActivityLogin extends FirebaseActivity {
             }
         });
 
-        MobileSetup mobileSetup = this.realm.where(MobileSetup.class).findFirst();
+//        MobileSetup mobileSetup = this.realm.where(MobileSetup.class).findFirst();
 
         if (getSupportActionBar() != null) {
 //            getSupportActionBar().setTitle(title);
@@ -106,13 +154,7 @@ public class ActivityLogin extends FirebaseActivity {
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
 //            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 //            getSupportActionBar().setTitle(TAG);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Window window = getWindow();
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
-            }
         }
         // if you want to center title https://stackoverflow.com/questions/18418635/how-to-align-title-at-center-of-actionbar-in-default-themetheme-holo-light
 //        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -193,7 +235,7 @@ public class ActivityLogin extends FirebaseActivity {
     @Override
     protected void onLoggedOn(final FirebaseUser user) {
 
-        //confusing
+        //this sso is confusing
 //        final Map<String, Object> keyVal = new HashMap<>();
 //        keyVal.put("token", new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
 //        keyVal.put("updatedTimestamp", ServerValue.TIMESTAMP);
@@ -207,11 +249,32 @@ public class ActivityLogin extends FirebaseActivity {
 //                alertDialog.dismiss();
 
 
-                // reset token device
-                FBUtil.Mitra_addToken(user.getUid(), new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
+        // reset token device
+        FBUtil.Mitra_addToken(user.getUid(), new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
 
+        final AlertDialog alertDialog = Util.showProgressDialog(this, "Check version");
+        // check valid version ?
+        int versionCode = BuildConfig.VERSION_CODE;
+        final String versionName = BuildConfig.VERSION_NAME;
+
+        MitraUtil.CheckVersions(versionName, new ListenerModifyData(){
+
+            @Override
+            public void onSuccess() {
+                alertDialog.dismiss();
                 startActivity(new Intent(ActivityLogin.this, MainActivity.class));
                 finish();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                alertDialog.dismiss();
+                Toast.makeText(ActivityLogin.this, "Mohon update aplikasi terbaru.", Toast.LENGTH_SHORT).show();
+                logout();
+                finish();
+            }
+        });
+
 //            }
 //        });
 

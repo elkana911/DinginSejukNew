@@ -11,6 +11,7 @@ import java.util.Date;
 
 public class OrderUtil {
 
+    /*
     public static void setScheduleOrder(OrderHeader orderHeader, OrderBucket orderBucket, Date newDate, String updatedBy) {
         orderHeader.setRescheduleCounter(orderHeader.getRescheduleCounter() + 1);
         orderHeader.setDateOfService(Util.convertDateToString(newDate, "yyyyMMdd"));
@@ -37,5 +38,6 @@ public class OrderUtil {
         orderBucket.setStatusDetailId(EOrderDetailStatus.CREATED.name());
 
     }
+    */
 
 }

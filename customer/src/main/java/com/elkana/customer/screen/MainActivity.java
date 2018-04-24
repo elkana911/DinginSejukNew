@@ -1,7 +1,11 @@
 package com.elkana.customer.screen;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -19,12 +23,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.elkana.customer.R;
+import com.elkana.customer.pojo.QuickOrderProfile;
 import com.elkana.customer.screen.login.ActivityLogin;
 import com.elkana.customer.screen.order.ActivityTechOtwMap;
 import com.elkana.customer.screen.order.FragmentMitraListInRange;
@@ -63,8 +70,9 @@ import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
-public class MainActivity extends FirebaseActivity
+public class MainActivity extends AFirebaseCustomerActivity
         implements NavigationView.OnNavigationItemSelectedListener
         , FragmentOrderList.OnFragmentOrderListInteractionListener
         , FragmentOrderACNew.OnFragmentOrderACInteractionListener
@@ -94,14 +102,16 @@ public class MainActivity extends FirebaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        MobileSetup mobileSetup = this.realm.where(MobileSetup.class).findFirst();
-
         boolean firstTime = false;
         if (firstTime)
             startActivity(new Intent(this, ActivityWelcomeNewUser.class));
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
+        }
 
         coordinatorLayout = findViewById(R.id.container);
         bottomNavigation = findViewById(R.id.bottom_navigation);
@@ -259,14 +269,14 @@ public class MainActivity extends FirebaseActivity
                 }
 
                 Realm r = Realm.getDefaultInstance();
-                try{
+                try {
                     r.executeTransaction(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
                             realm.copyToRealmOrUpdate(list);
                         }
                     });
-                }finally {
+                } finally {
                     r.close();
                 }
 
@@ -294,14 +304,14 @@ public class MainActivity extends FirebaseActivity
                     list.add(ft);
                 }
                 Realm r = Realm.getDefaultInstance();
-                try{
+                try {
                     r.executeTransaction(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
                             realm.copyToRealmOrUpdate(list);
                         }
                     });
-                }finally {
+                } finally {
                     r.close();
                 }
             }
@@ -341,14 +351,14 @@ public class MainActivity extends FirebaseActivity
 //        dont put any view logic here krn bisa dipanggil sebelum activity ready after login. let oncreate handle this
 //        final AlertDialog dialog = Util.showProgressDialog(this, "Loading user information...");
 
-        CustomerUtil.syncUserInformation(this.realm);
+        CustomerUtil.syncUserInformation(this);
 
         CustomerUtil.syncMitra(this, new ListenerSync() {
             @Override
             public void onPostSync(Exception e) {
                 if (e == null) {
                     CustomerUtil.syncOrders(MainActivity.this, user.getUid(), new ListenerSync() {
-//                    CustomerUtil.syncOrders(MainActivity.this, mAuth.getCurrentUser().getUid(), new ListenerSync() {
+                        //                    CustomerUtil.syncOrders(MainActivity.this, mAuth.getCurrentUser().getUid(), new ListenerSync() {
                         @Override
                         public void onPostSync(Exception e) {
                             try {
@@ -524,7 +534,48 @@ public class MainActivity extends FirebaseActivity
 
     @Override
     public void onAddOrder() {
-        onGoToScreen(PAGE_SERVICE_CHOICE, true, false);
+
+        if (realm.where(QuickOrderProfile.class).equalTo("userId", mAuth.getCurrentUser().getUid()).count() > 0) {
+            // setup the alert builder
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Pilih Isi Cepat");
+
+            RealmResults<QuickOrderProfile> allSavedOrderProfile = realm.where(QuickOrderProfile.class)
+                    .equalTo("userId", mAuth.getCurrentUser().getUid())
+                    .findAllSorted("label");
+
+            final List<String> list = new ArrayList<>();
+            for (QuickOrderProfile qop : allSavedOrderProfile) {
+                list.add(qop.getLabel());
+            }
+
+            String[] stockArr = new String[list.size()];
+            stockArr = list.toArray(stockArr);
+
+            builder.setItems(stockArr, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    String pick = list.get(which);
+
+                    // copas from onGoToScreen
+                    viewPager.setCurrentItem(PAGE_SERVICE_CHOICE, true);
+
+                    Fragment _fragment = pageAdapter.getItem(PAGE_SERVICE_CHOICE);
+                    if (_fragment instanceof FragmentOrderACNew) {
+                        ((FragmentOrderACNew) _fragment).reInitiate(mAuth.getCurrentUser().getUid(), pick);
+                    }
+
+                    lastPageIndex = PAGE_SERVICE_CHOICE;
+
+                }
+            });
+
+// create and show the alert dialog
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        } else
+            onGoToScreen(PAGE_SERVICE_CHOICE, true, false);
     }
 
     @Override
@@ -561,7 +612,7 @@ public class MainActivity extends FirebaseActivity
         final Map<String, Object> keyVal = new HashMap<>();
         keyVal.put("orderId", order.getUid());
         keyVal.put("customerId", order.getCustomerId());
-        keyVal.put("requestBy",  String.valueOf(Const.USER_AS_COSTUMER));
+        keyVal.put("requestBy", String.valueOf(Const.USER_AS_COSTUMER));
 
         mFunctions.getHttpsCallable(FBUtil.FUNCTION_REQUEST_STATUS_CHECK)
                 .call(keyVal)
@@ -571,17 +622,13 @@ public class MainActivity extends FirebaseActivity
                     public void onComplete(@NonNull Task<Map<String, Object>> task) {
 //                        dialog.dismiss();
 
-                        if (task.isSuccessful()) {
-
-
-                            long timestamp = (Long) task.getResult().get("timestamp");
-
-
-
-                        } else {
+                        if (!task.isSuccessful()) {
                             Log.e(TAG, task.getException().getMessage(), task.getException());
-                            Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, FBUtil.friendlyTaskNotSuccessfulMessage(task.getException()), Toast.LENGTH_LONG).show();
+                            return;
                         }
+
+                        long timestamp = (Long) task.getResult().get("timestamp");
 
                     }
                 });
@@ -687,7 +734,7 @@ public class MainActivity extends FirebaseActivity
 
     }
 
-    protected void logout(){
+    protected void logout() {
         super.logout();
 
         startActivity(new Intent(this, ActivityLogin.class));

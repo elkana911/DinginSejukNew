@@ -36,6 +36,7 @@ import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.Field;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -68,11 +69,12 @@ public class FBUtil {
     public static final String REF_MASTER_AC_SERVICE = "master/serviceType/airConditioner/subService";
     public static final String REF_MASTER_SERVERTIME = "master/mSetup/serverTime";
 
-    public static final String FUNCTION_CREATE_BOOKING = "createBooking";
-    public static final String FUNCTION_CANCEL_BOOKING = "cancelBooking";
-    public static final String FUNCTION_RESCHEDULE_BOOKING = "rescheduleBooking";
+    public static final String FUNCTION_CREATE_ORDER = "createBooking";
+    public static final String FUNCTION_CANCEL_ORDER = "cancelBooking";
+    public static final String FUNCTION_RESCHEDULE_SERVICE = "rescheduleBooking";
     public static final String FUNCTION_TECHNICIAN_GRAB_ORDER = "grabOrder";
     public static final String FUNCTION_REQUEST_STATUS_CHECK  = "requestStatusCheck";
+    public static final String FUNCTION_MANUAL_ASSIGNMENT  = "manualAssignment";
 
     public static void IsPathExists(String completePath, final ListenerDataExists listener) {
         IsPathExists(FirebaseDatabase.getInstance().getReference(completePath), listener);
@@ -518,6 +520,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         });
     }
 
+    /* dipindah ke cloud
     public static void Orders_reschedule(final OrderHeader oldOrderHeader, final OrderBucket oldOrderBucket, final Date newDate, final ListenerModifyData listener) {
         // utk saat ini hanya dipake oleh customer
         final String updatedBy = String.valueOf(Const.USER_AS_COSTUMER);
@@ -555,7 +558,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
             }
         });
 
-    }
+    }*/
 
     public static void TechnicianReg_setNotifyNewOrderTo(String techId, OrderBucket orderBucket, final ListenerModifyData listener) {
 
@@ -570,7 +573,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         item.setCustomerName(orderBucket.getCustomerName());
         item.setMitraId(orderBucket.getPartyId());
         item.setOrderId(orderBucket.getUid());
-        item.setOrderTimestamp(orderBucket.getBookingTimestamp());    // this could be a problem
+        item.setServiceTimestamp(orderBucket.getServiceTimestamp());    // this could be a problem
         item.setMitraTimestamp(new Date().getTime());                // this could be a problem
 
         // the problem is orderbucket information is not completed yet because technicianId is null when orderstatus=CREATED
@@ -859,7 +862,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         Realm _r = Realm.getDefaultInstance();
         try {
 
-            final String _wkt = Util.convertDateToString(new Date(orderBucket.getBookingTimestamp()), "yyyyMMddHHmm");
+            final String _wkt = Util.convertDateToString(new Date(orderBucket.getServiceTimestamp()), "yyyyMMddHHmm");
             JobsAssigned jobsAssigned = _r.where(JobsAssigned.class)
                     .equalTo("techId", orderBucket.getTechnicianId())
                     .equalTo("orderId", orderBucket.getUid())
@@ -904,7 +907,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         Realm _r = Realm.getDefaultInstance();
         try {
 
-            final String _wkt = Util.convertDateToString(new Date(orderBucket.getBookingTimestamp()), "yyyyMMddHHmm");
+            final String _wkt = Util.convertDateToString(new Date(orderBucket.getServiceTimestamp()), "yyyyMMddHHmm");
 
             JobsCancelled jobsHistory = _r.where(JobsCancelled.class)
                     .equalTo("techId", orderBucket.getTechnicianId())
@@ -975,7 +978,7 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
         Realm _r = Realm.getDefaultInstance();
         try {
 
-            final String _wkt = Util.convertDateToString(new Date(orderBucket.getBookingTimestamp()), "yyyyMMddHHmm");
+            final String _wkt = Util.convertDateToString(new Date(orderBucket.getServiceTimestamp()), "yyyyMMddHHmm");
 
             JobsHistory jobsHistory = _r.where(JobsHistory.class)
                     .equalTo("techId", orderBucket.getTechnicianId())
@@ -1190,5 +1193,12 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
 
         return FirebaseDatabase.getInstance().getReference(REF_TECHNICIAN_AC)
                 .child(userId);
+    }
+
+    public static String friendlyTaskNotSuccessfulMessage(Exception exception) {
+        if (exception instanceof SocketTimeoutException)
+            return "Timeout Connection. Check your network.";
+        else
+            return exception.getMessage();
     }
 }

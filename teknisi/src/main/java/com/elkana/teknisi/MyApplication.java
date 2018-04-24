@@ -34,6 +34,6 @@ public class MyApplication extends Application {
                 .build();
         Realm.setDefaultConfiguration(config);
 
-        TeknisiUtil.initiateOfflineData();
+//        TeknisiUtil.initiateOfflineData();
     }
 }

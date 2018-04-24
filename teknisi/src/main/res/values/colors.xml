@@ -10,5 +10,5 @@
 
     <color name="colorMapRadius">#454d1cff</color>
 
-    <string name="message_blank_no_order">Belum ada penugasan dari mitra untuk saat ini.</string>
+    <string name="message_blank_no_order">Belum ada tugas baru untuk saat ini.</string>
 </resources>

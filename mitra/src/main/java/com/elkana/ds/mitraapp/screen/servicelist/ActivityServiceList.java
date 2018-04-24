@@ -1,5 +1,7 @@
 package com.elkana.ds.mitraapp.screen.servicelist;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,14 +44,7 @@ public class ActivityServiceList extends AFirebaseMitraActivity {
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 //            getSupportActionBar().setTitle(TAG);
-
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Window window = getWindow();
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-//                window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
-            }
-
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
         }
         rvServiceList = findViewById(R.id.rvServiceList);
         rvServiceList.setLayoutManager(new LinearLayoutManager(this));

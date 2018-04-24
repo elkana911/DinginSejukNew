@@ -4,6 +4,9 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -15,6 +18,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +30,7 @@ import com.elkana.dslibrary.pojo.mitra.SubServiceType;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.FirebaseToken;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
+import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.job.SyncMovementJob;
 import com.elkana.teknisi.pojo.MitraReg;
@@ -47,7 +53,7 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class MainActivity extends FirebaseActivity
+public class MainActivity extends AFirebaseTeknisiActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         MainActivityFragment.OnFragmentAssignmentListInteractionListener
 {
@@ -56,6 +62,7 @@ public class MainActivity extends FirebaseActivity
     private static final int REQUESTCODE_NEW_ORDER = 23;
     private View coordinatorLayout;
     TextView tvFullName;
+    View appBar;
 
     private MenuItem menuLogin;
     private MenuItem menuEditProfile;
@@ -83,9 +90,16 @@ public class MainActivity extends FirebaseActivity
 
         coordinatorLayout = findViewById(R.id.coordinatorLayout);
         tvFullName = findViewById(R.id.tvFullName);
+        appBar = findViewById(R.id.app_bar);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
+        }
+
+        appBar.setBackgroundColor(Color.parseColor(mobileSetup.getTheme_color_default()));
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {

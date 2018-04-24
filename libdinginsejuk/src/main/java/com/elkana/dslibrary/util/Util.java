@@ -56,7 +56,6 @@ public class Util {
 
     public static boolean DEVELOPER_MODE = true;
     public static final boolean TESTING_MODE = true;
-    public static final String TESTING_USER = "4AAwmPGueYNiKhJuw2rFlDEYAqD2";
 
     /**
      * @param ctx
@@ -241,9 +240,9 @@ public class Util {
 // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
 
         if (asPassword) {
-            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         } else {
-            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         }
 
         // put margin
@@ -564,4 +563,9 @@ public class Util {
     public static char getLastChar(String string) {
         return string.charAt(string.length()-1);
     }
+
+    public static boolean isEmpty(String str) {
+        return str == null ? true : str.trim().length() < 1;
+    }
+
 }

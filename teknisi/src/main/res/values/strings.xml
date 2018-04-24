@@ -37,6 +37,18 @@
     <string name="title_activity_mitra_list">Daftar Mitra</string>
     <string name="title_activity_payment">Payment</string>
 
+    <!--<string name="status_created">Vendor will looking specialist for You.</string>-->
+    <!--<string name="status_unhandled">Vendor will looking specialist for You.</string>-->
+    <!--<string name="status_assigned">Vendor has found a Technician to help you.</string>-->
+    <!--<string name="status_otw">The Technician is already on the way.</string>-->
+    <!--<string name="status_rescheduled">You reschedule the order</string>-->
+    <!--<string name="status_paid">Thank you for using our service.\nPlease give Rating for this Service :)</string>-->
+    <!--<string name="status_working">Technician is working your Order</string>-->
+    <!--<string name="status_payment">Please proceed with Payment</string>-->
+    <!--<string name="status_payment_amount">Please pay %1s to Technician</string>-->
+    <!--<string name="status_expired">Order is Expired</string>-->
+    <string name="status_cancelled_by_server">Sorry, Server membatalkan pesanan</string>
+    <string name="status_cancelled_by_timeout">Sorry, Order timout</string>
     <string name="status_cancelled_by_customer">Customer membatalkan pesanan.</string>
     <string name="prompt_jobtitle">Job Title</string>
     <string name="action_calendar">Calendar</string>

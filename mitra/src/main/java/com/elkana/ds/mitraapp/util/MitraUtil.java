@@ -3,6 +3,7 @@ package com.elkana.ds.mitraapp.util;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.MobileSetup;
@@ -25,13 +26,17 @@ import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.EOrderStatus;
+import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -211,7 +216,7 @@ public class MitraUtil {
                 /*|| status == EOrderDetailStatus.RESCHEDULED*/
                 || status == EOrderDetailStatus.UNKNOWN
                 ) {
-            return DateUtil.isExpiredTime(orderHeader.getBookingTimestamp(), 30) > 0;   //hardcode 30
+            return DateUtil.isExpiredTime(orderHeader.getServiceTimestamp(), 30) > 0;   //hardcode 30
 
         } else
             return false;
@@ -227,7 +232,7 @@ public class MitraUtil {
                 /*|| status == EOrderDetailStatus.RESCHEDULED*/
                 || status == EOrderDetailStatus.UNKNOWN
                 ) {
-            return DateUtil.isExpiredTime(orderBucket.getBookingTimestamp(), 30) > 0;
+            return DateUtil.isExpiredTime(orderBucket.getServiceTimestamp(), 30) > 0;
 
         } else
             return false;
@@ -369,21 +374,22 @@ public class MitraUtil {
                 });
     }
 
-    public static void syncUserInformation() {
+    public static void syncUserInformation(final Context ctx) {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
+//        final android.app.AlertDialog alertDialog = Util.showProgressDialog(ctx, "Sync User Info");
+
         // get user info
-        DatabaseReference refUser = database.getReference(FBUtil.REF_MITRA_AC).child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        refUser.child("basicInfo")
+        //        https://firebase.googleblog.com/2016/10/become-a-firebase-taskmaster-part-4.html
+
+        // 1
+        final TaskCompletionSource<DataSnapshot> getBasicInfo = new TaskCompletionSource<>();
+        database.getReference(FBUtil.REF_MITRA_AC).child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("basicInfo")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-//                            logout();
-
-                            return;
-                        }
 
                         final BasicInfo basicInfo = dataSnapshot.getValue(BasicInfo.class);
 
@@ -398,21 +404,24 @@ public class MitraUtil {
                         } finally {
                             r.close();
                         }
+
+                        getBasicInfo.setResult(dataSnapshot);
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
                         Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                        getBasicInfo.setException(databaseError.toException());
                     }
                 });
 
-        refUser.child("address")
+        // 2
+        final TaskCompletionSource<DataSnapshot> getAddress = new TaskCompletionSource<>();
+        database.getReference(FBUtil.REF_MITRA_AC).child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("address")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-                            return;
-                        }
 
                         final List<UserAddress> list = new ArrayList<>();
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
@@ -430,22 +439,23 @@ public class MitraUtil {
                         } finally {
                             r.close();
                         }
+                        getAddress.setResult(dataSnapshot);
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
                         Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                        getAddress.setException(databaseError.toException());
                     }
                 });
 
-        refUser.child("firebaseToken")
+        // 3
+        final TaskCompletionSource<DataSnapshot> getTokens = new TaskCompletionSource<>();
+        database.getReference(FBUtil.REF_MITRA_AC).child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("firebaseToken")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-                            return;
-                        }
-
                         final List<FirebaseToken> list = new ArrayList<>();
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                             String ss = postSnapshot.getValue(String.class);
@@ -464,44 +474,32 @@ public class MitraUtil {
                         } finally {
                             r.close();
                         }
+
+                        getTokens.setResult(dataSnapshot);
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
                         Log.e(TAG, databaseError.getMessage(), databaseError.toException());
-                    }
-                });
-
-        // sync setup
-        database.getReference(MitraUtil.REF_MASTER_SETUP)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        final MobileSetup mobileSetup = dataSnapshot.getValue(MobileSetup.class);
-
-                        Realm r = Realm.getDefaultInstance();
-                        try {
-                            r.executeTransaction(new Realm.Transaction() {
-                                @Override
-                                public void execute(Realm realm) {
-                                    realm.copyToRealmOrUpdate(mobileSetup);
-                                }
-                            });
-
-                        } finally {
-                            r.close();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                        getTokens.setException(databaseError.toException());
                     }
                 });
 
         //TODO: sync jobs_assigned & jobs_history
 
+        Task<Void> allTask = Tasks.whenAll(getBasicInfo.getTask(), getAddress.getTask(), getTokens.getTask());
+        allTask.addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+//                alertDialog.dismiss();
 
+                if (task.isSuccessful()) {
+//                    Toast.makeText(ctx, "Sync All success", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(ctx, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
 
@@ -537,4 +535,43 @@ public class MitraUtil {
 
         return priorityList;
     }
+
+    public static void CheckVersions(final String versionName, final ListenerModifyData listener) {
+        FirebaseDatabase.getInstance().getReference(REF_MASTER_SETUP)
+                .child("versions")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (listener == null)
+                            return;
+
+                        if (!dataSnapshot.exists())
+                            listener.onSuccess();
+
+                        GenericTypeIndicator<ArrayList<String>> t = new GenericTypeIndicator<ArrayList<String>>() {
+                        };
+
+                        List<String> versions = dataSnapshot.getValue(t);
+
+                        for (String s : versions) {
+                            if (s.equalsIgnoreCase(versionName)) {
+                                listener.onSuccess();
+                                return;
+                            }
+                        }
+
+                        listener.onError(new RuntimeException("No Version match"));
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        // failed to check ? skip
+                        if (listener != null) {
+                            listener.onSuccess();
+                        }
+                    }
+                });
+    }
+
 }

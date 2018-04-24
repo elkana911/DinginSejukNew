@@ -141,6 +141,10 @@ public class SimpleAdapterUserAddress extends ArrayAdapter<UserAddress> {
         return mList.get(position);
     }
 
+    public List<UserAddress> getList() {
+        return mList;
+    }
+
     @Override
     public int getCount() {
         return mList.size();

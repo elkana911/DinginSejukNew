@@ -47,7 +47,6 @@ public class ActivityRegister extends AFirebaseTeknisiActivity {
 
     private static final String TAG = ActivityRegister.class.getSimpleName();
 
-
     EditText mNama, mEmailView, etPhone, mPassword;
     Button btnRegister, btnPleaseSignIn;
     ProgressBar progressBar;
@@ -104,12 +103,6 @@ public class ActivityRegister extends AFirebaseTeknisiActivity {
 //            getSupportActionBar().setTitle(TAG);
 
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Window window = getWindow();
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
-            }
 
         }
         // if you want to center title https://stackoverflow.com/questions/18418635/how-to-align-title-at-center-of-actionbar-in-default-themetheme-holo-light

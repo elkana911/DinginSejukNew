@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 import com.elkana.customer.R;
 import com.elkana.customer.pojo.MobileSetup;
-import com.elkana.customer.screen.AFirebaseActivity;
+import com.elkana.customer.screen.AFirebaseCustomerActivity;
 import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.UserAddress;
@@ -40,7 +40,7 @@ import java.util.Map;
 
 import io.realm.Realm;
 
-public class ActivityRegister extends AFirebaseActivity {
+public class ActivityRegister extends AFirebaseCustomerActivity {
     private static final String TAG = ActivityRegister.class.getSimpleName();
     private static final int REQUESTCODE_MAP = 66;
 
@@ -76,23 +76,13 @@ public class ActivityRegister extends AFirebaseActivity {
             }
         });
 
-        MobileSetup mobileSetup = CustomerUtil.getMobileSetup();
         if (getSupportActionBar() != null) {
 //            getSupportActionBar().setTitle(title);
 //            getSupportActionBar().setSubtitle(userFullName);
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(TAG);
-
-
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Window window = getWindow();
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
-            }
-
         }
         // if you want to center title https://stackoverflow.com/questions/18418635/how-to-align-title-at-center-of-actionbar-in-default-themetheme-holo-light
 //        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);

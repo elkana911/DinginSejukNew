@@ -5,9 +5,11 @@ import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.elkana.customer.R;
 import com.elkana.customer.pojo.MobileSetup;
+import com.elkana.customer.pojo.QuickOrderProfile;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetString;
 import com.elkana.dslibrary.listener.ListenerModifyData;
@@ -26,12 +28,15 @@ import com.elkana.dslibrary.util.NetUtil;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -40,6 +45,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import io.realm.Realm;
 
@@ -76,7 +84,7 @@ udah di taruh di lib
 
     }
 */
-
+/* dangerous
     public static void initiateOfflineData() {
 
         Realm r = Realm.getDefaultInstance();
@@ -113,6 +121,7 @@ udah di taruh di lib
         }
 
     }
+    */
 
     public static String getServiceTypeLabel(Context ctx, int serviceType) {
         switch (serviceType) {
@@ -429,7 +438,7 @@ udah di taruh di lib
 
     }
 
-    public static void syncUserInformation(Realm realm) {
+    public static void syncUserInformation(final Context ctx) {
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -438,6 +447,128 @@ udah di taruh di lib
             Log.e(TAG, "Please login to synchronize User Information");
             return;
         }
+
+//        final android.app.AlertDialog alertDialog = Util.showProgressDialog(ctx, "Sync User Info");
+//        https://firebase.googleblog.com/2016/10/become-a-firebase-taskmaster-part-4.html
+
+        // 2
+        final TaskCompletionSource<DataSnapshot> getAddress = new TaskCompletionSource<>();
+        database.getReference("users/" + currentUser.getUid()).child("address")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        Realm r = Realm.getDefaultInstance();
+                        try {
+                            r.beginTransaction();
+                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                UserAddress _obj = postSnapshot.getValue(UserAddress.class);
+
+                                r.copyToRealmOrUpdate(_obj);
+                                Log.e(TAG, _obj.toString());
+                            }
+
+                            r.commitTransaction();
+                        } finally {
+                            r.close();
+                        }
+                        getAddress.setResult(dataSnapshot);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                        getAddress.setException(databaseError.toException());
+                    }
+                });
+
+        // 3
+        final TaskCompletionSource<DataSnapshot> getBasicInfo = new TaskCompletionSource<>();
+        database.getReference("users/" + currentUser.getUid()).child("basicInfo")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        final BasicInfo _obj = dataSnapshot.getValue(BasicInfo.class);
+
+                        Realm r = Realm.getDefaultInstance();
+                        try {
+                            r.beginTransaction();
+                            r.copyToRealmOrUpdate(_obj);
+                            r.commitTransaction();
+
+                        } finally {
+                            r.close();
+                        }
+                        getBasicInfo.setResult(dataSnapshot);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                        getBasicInfo.setException(databaseError.toException());
+                    }
+                });
+
+        Task<Void> allTask = Tasks.whenAll(getBasicInfo.getTask(), getAddress.getTask());
+        allTask.addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+//                alertDialog.dismiss();
+
+                if (task.isSuccessful()) {
+//                    Toast.makeText(ctx, "Sync All success", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(ctx, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        /* unless you want this to put them on asynctask
+        try {
+            // Block on the task for a maximum of 500 milliseconds, otherwise time out.
+            Tasks.await(allTask, 1, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+            Toast.makeText(ctx, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+        System.out.println("TRAP");
+        if (true)
+            return;
+            */
+/*
+
+        // syncsetup
+        database.getReference(CustomerUtil.REF_MASTER_SETUP)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final MobileSetup mobileSetup = dataSnapshot.getValue(MobileSetup.class);
+
+                        Realm r = Realm.getDefaultInstance();
+                        try {
+                            r.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    realm.copyToRealmOrUpdate(mobileSetup);
+                                }
+                            });
+
+                        } finally {
+                            r.close();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                    }
+                });
 
         BasicInfo basicInfo = realm.where(BasicInfo.class)
                 .equalTo("uid", currentUser.getUid())
@@ -507,35 +638,8 @@ udah di taruh di lib
                 });
 //        }
 
-        // sync setup
-        database.getReference(CustomerUtil.REF_MASTER_SETUP)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        final MobileSetup mobileSetup = dataSnapshot.getValue(MobileSetup.class);
-
-                        Realm r = Realm.getDefaultInstance();
-                        try {
-                            r.executeTransaction(new Realm.Transaction() {
-                                @Override
-                                public void execute(Realm realm) {
-                                    realm.copyToRealmOrUpdate(mobileSetup);
-                                }
-                            });
-
-                        } finally {
-                            r.close();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
-                    }
-                });
-
         //tokens ga boleh menyimpan token dari device lain. token secara default diperoleh di MyFirebaseInstanceIDService
-
+*/
     }
 
 
@@ -571,7 +675,6 @@ udah di taruh di lib
             }
         });
     }
-*/
 
     public static int isWorkingHour(int offset) {
 
@@ -588,6 +691,7 @@ udah di taruh di lib
         return x;
 
     }
+*/
 
     public static Date getWorkingDay(Date from, int offset) {
         Calendar c = Calendar.getInstance();
@@ -617,8 +721,16 @@ udah di taruh di lib
         }
     }
 
-    public static void showDialogTimeOfService(Context ctx, String mitraName, final ListenerGetString listener) {
+    /**
+     * @param ctx
+     * @param nextDayYYYYMMDD jika nextDayYYYYMMDD adalah hari ini, maka jam tidak akan menampilkan jam yg telah lewat.
+     * @param offsetHour jika 2, maka waktu open hour akan digeser 2 jam
+     * @param mitraName
+     * @param listener
+     */
+    public static void showDialogTimeOfService(Context ctx, String nextDayYYYYMMDD, int offsetHour, String mitraName, final ListenerGetString listener) {
 
+        // filter waktu buka berdasarkan hari service, dalam hal ini nextDayYYYYMMDD
         int openTime, closeTime;
         Realm _realm = Realm.getDefaultInstance();
         try {
@@ -631,8 +743,23 @@ udah di taruh di lib
             _realm.close();
         }
 
+        Date now = new Date();
+        String today = Util.convertDateToString(now, "yyyyMMdd");
+        if (nextDayYYYYMMDD.equals(today)) {
+            Calendar c = Calendar.getInstance();
+            c.setTime(now);
+
+            int currentHour = c.get(Calendar.HOUR_OF_DAY);
+            if (currentHour > openTime)
+                openTime = currentHour + offsetHour;
+        }
+
         final String[] time_services = DateUtil.generateWorkingHours(openTime, closeTime, 15);
 
+        if (time_services == null) {
+            Toast.makeText(ctx, "Sudah diluar jam kerja. Silakan ganti hari.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
         builder.setTitle("Pilih Jam");
 
@@ -659,4 +786,64 @@ udah di taruh di lib
 //        return Util.isExpiredBooking(order.getTimestamp(), getMobileSetup().getLastOrderMinutes());
 //    }
 
+    public static void CheckVersions(final String versionName, final ListenerModifyData listener) {
+        FirebaseDatabase.getInstance().getReference(REF_MASTER_SETUP)
+                .child("versions")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (listener == null)
+                            return;
+
+                        if (!dataSnapshot.exists())
+                            listener.onSuccess();
+
+                        GenericTypeIndicator<ArrayList<String>> t = new GenericTypeIndicator<ArrayList<String>>() {
+                        };
+
+                        List<String> versions = dataSnapshot.getValue(t);
+
+                        for (String s : versions) {
+                            if (s.equalsIgnoreCase(versionName)) {
+                                listener.onSuccess();
+                                return;
+                            }
+                        }
+
+                        listener.onError(new RuntimeException("No Version match"));
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        // failed to check ? skip
+                        if (listener != null) {
+                            listener.onSuccess();
+                        }
+                    }
+                });
+    }
+
+    public static void SaveOrderProfile(String userId, String profileLabel, QuickOrderProfile profile, ListenerModifyData listener) {
+
+        if (profile == null || Util.isEmpty(profileLabel)) {
+            if (listener != null)
+                listener.onError(new RuntimeException("mandatory profile data"));
+        }
+
+        FBUtil.Customer_GetRef(userId)
+                .child("orderProfile")
+                .child(String.valueOf(profile.getUid()))
+                .setValue(profile).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+
+                } else {
+
+                }
+            }
+        });
+
+    }
 }

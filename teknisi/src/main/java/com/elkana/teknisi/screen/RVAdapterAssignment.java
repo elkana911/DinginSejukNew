@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.pojo.mitra.Assignment;
+import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
@@ -190,7 +191,8 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
             tvCustomerName.setText(obj.getCustomerName());
             tvMitra.setText(mContext.getString(R.string.label_mitra, obj.getMitraName()));
 
-            String tos = Util.convertDateToString(Util.convertStringToDate(obj.getDateOfService(), "yyyyMMdd"), "dd MMM yyyy") + " " + obj.getTimeOfService();
+            String tos = Util.prettyTimestamp(mContext, DateUtil.compileDateAndTime(obj.getDateOfService(), obj.getTimeOfService()));
+//            String tos = Util.convertDateToString(Util.convertStringToDate(obj.getDateOfService(), "yyyyMMdd"), "dd MMM yyyy") + " " + obj.getTimeOfService();
 
             tvDateOfService.setText(mContext.getString(R.string.label_serviceDate) + " " + tos);
 

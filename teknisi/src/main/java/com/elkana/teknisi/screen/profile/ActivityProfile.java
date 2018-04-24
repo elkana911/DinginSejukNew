@@ -3,6 +3,8 @@ package com.elkana.teknisi.screen.profile;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -21,6 +23,7 @@ import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.util.Util;
+import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.BuildConfig;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.pojo.MitraReg;
@@ -42,7 +45,7 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class ActivityProfile extends FirebaseActivity {
+public class ActivityProfile extends AFirebaseTeknisiActivity {
 
     private static final String TAG = "Profile";
     private static final int REQUEST_CODE_MITRA = 32;
@@ -104,6 +107,7 @@ public class ActivityProfile extends FirebaseActivity {
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 //            getSupportActionBar().setTitle(TAG);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
         }
 
         final BasicInfo basicInfo = this.realm.where(BasicInfo.class).findFirst();

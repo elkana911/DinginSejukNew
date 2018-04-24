@@ -37,6 +37,6 @@ public class MyApplication extends Application {
                 .build();
         Realm.setDefaultConfiguration(config);
 
-        MitraUtil.initiateOfflineData();
+//        MitraUtil.initiateOfflineData();
     }
 }

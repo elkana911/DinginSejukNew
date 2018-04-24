@@ -54,7 +54,6 @@
                 android:id="@+id/tvInvoiceNo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="right|end"
                 android:text="Invoice No:"
                 android:textColor="@color/cardTextColor" />
 
@@ -73,11 +72,11 @@
                 android:textColor="@color/cardTextColor" />
 
             <TextView
-                android:id="@+id/tvOrderTime"
+                android:id="@+id/tvServiceTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Order Time"
+                android:text="Service Time"
                 android:textColor="@color/cardTextColor" />
 
             <TextView
@@ -120,6 +119,14 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:text="Cancel Order"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/btnCheckStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/btnCancelOrder"
+                android:text="Check Status"
                 android:visibility="invisible" />
 
             <Button

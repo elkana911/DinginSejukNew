@@ -21,7 +21,7 @@ public class FragmentDataAC extends Fragment {
 
     public long uid;
 
-    public EditText etNotes, etTipe;
+    public EditText etNotes, etTipe, etThnPemasangan, etDaya, etMerk;
 
     public Spinner spThnPemasangan, spDaya, spMerk;
 
@@ -36,6 +36,9 @@ public class FragmentDataAC extends Fragment {
         if (data == null) {
             return;
         }
+        etMerk.setText(data.getMerkAC());
+        etThnPemasangan.setText(data.getTahunPemasangan());
+        etDaya.setText(data.getDayaAC());
 
         etNotes.setText(data.getNotes());
         etTipe.setText(data.getTipeAC());
@@ -54,14 +57,14 @@ public class FragmentDataAC extends Fragment {
         data.setUid(uid);
 
         // build
-        final String merkAC = spMerk.getSelectedItem() == null ? null : (String) spMerk.getSelectedItem();
-        data.setMerkAC(merkAC);
+//        final String merkAC = spMerk.getSelectedItem() == null ? null : (String) spMerk.getSelectedItem();
+        data.setMerkAC(etMerk.getText().toString().trim());
 
-        final String dayaAC = spDaya.getSelectedItem() == null ? null : (String) spDaya.getSelectedItem();
-        data.setDayaAC(dayaAC);
+//        final String dayaAC = spDaya.getSelectedItem() == null ? null : (String) spDaya.getSelectedItem();
+        data.setDayaAC(etDaya.getText().toString().trim());
 
-        final String thnPemasangan = spThnPemasangan.getSelectedItem() == null ? null : (String) spThnPemasangan.getSelectedItem();
-        data.setTahunPemasangan(thnPemasangan);
+//        final String thnPemasangan = spThnPemasangan.getSelectedItem() == null ? null : (String) spThnPemasangan.getSelectedItem();
+        data.setTahunPemasangan(etThnPemasangan.getText().toString().trim());
 
         data.setNotes(etNotes.getText().toString().trim());
         data.setTipeAC(etTipe.getText().toString().trim());

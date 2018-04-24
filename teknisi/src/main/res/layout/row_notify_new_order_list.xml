@@ -32,14 +32,21 @@
                 android:gravity="center"
                 android:text="Pesanan Baru Datang !!"
                 />
+
             <TextView
                 android:id="@+id/tvCounter"
-                android:layout_marginTop="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:gravity="center"
-                android:textSize="40dp"
                 android:text="15:00:00"
+                android:textSize="40dp" />
+            <Button
+                android:id="@+id/btnPickTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:text="Pilih Waktu Pengerjaan"
                 />
             <TextView
                 android:id="@+id/tvOrderInfo"
@@ -70,7 +77,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
+        android:layout_marginTop="28dp"
         android:tint="@android:color/white"
         app:elevation="4dp"
         app:fabSize="mini"
@@ -82,7 +89,7 @@
         android:layout_height="wrap_content"
         android:tint="@android:color/white"
         android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
+        android:layout_marginTop="28dp"
         app:elevation="4dp"
         app:fabSize="mini"
         app:layout_anchorGravity="center_vertical|end"

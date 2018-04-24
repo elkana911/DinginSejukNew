@@ -1,6 +1,8 @@
 package com.elkana.ds.mitraapp.screen.profile;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.elkana.ds.mitraapp.AFirebaseMitraActivity;
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.screen.map.ActivityMaps;
 import com.elkana.ds.mitraapp.screen.register.ListenerAddressList;
@@ -30,7 +33,7 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class ActivityProfile extends FirebaseActivity {
+public class ActivityProfile extends AFirebaseMitraActivity {
 
     private static final String TAG = "Profile";
     private static final int RESULTCODE_MAP = 66;
@@ -54,6 +57,7 @@ public class ActivityProfile extends FirebaseActivity {
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(TAG);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
         }
 
         final BasicInfo basicInfo = this.realm.where(BasicInfo.class).findFirst();

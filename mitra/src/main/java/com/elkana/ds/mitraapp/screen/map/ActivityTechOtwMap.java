@@ -1,12 +1,15 @@
 package com.elkana.ds.mitraapp.screen.map;
 
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.elkana.ds.mitraapp.AFirebaseMitraActivity;
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
@@ -30,7 +33,7 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.Date;
 
-public class ActivityTechOtwMap extends FirebaseActivity implements OnMapReadyCallback {
+public class ActivityTechOtwMap extends AFirebaseMitraActivity implements OnMapReadyCallback {
 
     private static final String TAG = ActivityTechOtwMap.class.getSimpleName();
 
@@ -65,13 +68,7 @@ public class ActivityTechOtwMap extends FirebaseActivity implements OnMapReadyCa
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setTitle(mTechName + " Position");
 
-//            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Window window = getWindow();
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-//                window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
-            }
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
 
         }
 

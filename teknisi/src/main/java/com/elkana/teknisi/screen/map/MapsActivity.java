@@ -6,13 +6,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -38,8 +39,6 @@ import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.job.SyncMovementJob;
 import com.elkana.teknisi.pojo.MobileSetup;
-import com.elkana.teknisi.screen.MainActivity;
-import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -89,7 +88,6 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
     private Location lastLoc;
     private CameraUpdate cameraCurrentPos, cameraAddress;
 
-    protected MobileSetup mobileSetup = null;
 
     private ValueEventListener alwaysListenOrderListener;
     private DatabaseReference alwaysListenOrderRef;
@@ -104,14 +102,13 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        mobileSetup = TeknisiUtil.getMobileSetup();
-
         if (getSupportActionBar() != null) {
 //            getSupportActionBar().setTitle(title);
 //            getSupportActionBar().setSubtitle(userFullName);
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 //            getSupportActionBar().setTitle(getString(R.string.title_activity_maps));
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
         }
 
         tvACCount = findViewById(R.id.tvACCount);
@@ -247,7 +244,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                         int minMinutesOtw = mobileSetup.getMin_minutes_otw();
                         long minMillisOtw = minMinutesOtw * DateUtil.TIME_ONE_MINUTE_MILLIS;
 
-                        long oneHourBeforeOtw = orderInfo.getBookingTimestamp() - minMillisOtw;
+                        long oneHourBeforeOtw = orderInfo.getServiceTimestamp() - minMillisOtw;
 
                         if (oneHourBeforeOtw > now) {
 
@@ -568,7 +565,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                 tvACCount.setText("Jml AC: " + String.valueOf(orderInfo.getJumlahAC()));
                 tvOrderId.setText("Order Id: " + orderInfo.getUid());
                 tvCustomerName.setText(orderInfo.getCustomerName());
-                tvDateOfService.setText("Tgl Service: " + DateUtil.displayTimeInJakarta(orderInfo.getBookingTimestamp(), "dd-MMM-yyyy HH:mm"));
+                tvDateOfService.setText("Tgl Service: " + DateUtil.displayTimeInJakarta(orderInfo.getServiceTimestamp(), "dd-MMM-yyyy HH:mm"));
 //                tvDateOfService.setText("Tgl Service: " + Util.convertDateToString(new Date(obj.getTimestamp()), "dd-MMM-yyyy HH:mm"));
                 tvMitra.setText("Mitra: " + orderInfo.getPartyName());
                 tvProblem.setText("Keterangan: " + orderInfo.getProblem());

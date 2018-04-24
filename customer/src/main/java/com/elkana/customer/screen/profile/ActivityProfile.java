@@ -1,6 +1,8 @@
 package com.elkana.customer.screen.profile;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.elkana.customer.R;
-import com.elkana.customer.screen.AFirebaseActivity;
+import com.elkana.customer.screen.AFirebaseCustomerActivity;
 import com.elkana.customer.screen.register.ActivityMapsUserAddress;
 import com.elkana.customer.screen.register.ListenerAddressList;
 import com.elkana.customer.screen.register.RVAdapterUserAddress;
@@ -28,7 +30,7 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class ActivityProfile extends AFirebaseActivity {
+public class ActivityProfile extends AFirebaseCustomerActivity {
 
     private static final String TAG = "Profile";
     private static final int RESULTCODE_MAP = 66;
@@ -85,6 +87,7 @@ public class ActivityProfile extends AFirebaseActivity {
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(TAG);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
         }
 
         String mode = getIntent().getStringExtra("mode");

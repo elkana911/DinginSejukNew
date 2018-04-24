@@ -22,17 +22,12 @@ import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.firebase.FBFunction_BasicCallableRecord;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
-import com.elkana.dslibrary.pojo.FightInfo;
 import com.elkana.dslibrary.pojo.OrderBucket;
+import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
 
 import java.util.HashMap;
@@ -184,7 +179,7 @@ public class FragmentOrderList extends Fragment {
                 _keyVal.put("cancelStatus", EOrderDetailStatus.CANCELLED_BY_SERVER.name());
                 _keyVal.put("cancelReason", data.getStatusComment());
 
-                mFunctions.getHttpsCallable(FBUtil.FUNCTION_CANCEL_BOOKING)
+                mFunctions.getHttpsCallable(FBUtil.FUNCTION_CANCEL_ORDER)
                         .call(_keyVal)
                         .continueWith(new FBFunction_BasicCallableRecord())
                         .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {
@@ -215,6 +210,37 @@ public class FragmentOrderList extends Fragment {
                                 } finally {
                                     _r.close();
                                 }*/
+                            }
+                        });
+
+            }
+
+            @Override
+            public void onCheckStatus(OrderBucket data) {
+                if (getActivity().isDestroyed())
+                    return;
+
+                final Map<String, Object> keyVal = new HashMap<>();
+                keyVal.put("orderId", data.getUid());
+                keyVal.put("customerId", data.getCustomerId());
+                keyVal.put("requestBy", String.valueOf(Const.USER_AS_MITRA));
+
+                mFunctions.getHttpsCallable(FBUtil.FUNCTION_REQUEST_STATUS_CHECK)
+                        .call(keyVal)
+                        .continueWith(new FBFunction_BasicCallableRecord())
+                        .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Map<String, Object>> task) {
+//                        dialog.dismiss();
+
+                                if (!task.isSuccessful()) {
+                                    Log.e(TAG, task.getException().getMessage(), task.getException());
+                                    Toast.makeText(getContext(), FBUtil.friendlyTaskNotSuccessfulMessage(task.getException()), Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+
+                                long timestamp = (Long) task.getResult().get("timestamp");
+
                             }
                         });
 

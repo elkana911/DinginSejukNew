@@ -38,6 +38,6 @@ public class MyApplication extends Application {
         Realm.setDefaultConfiguration(config);
 
 
-        CustomerUtil.initiateOfflineData();
+//        CustomerUtil.initiateOfflineData();
     }
 }

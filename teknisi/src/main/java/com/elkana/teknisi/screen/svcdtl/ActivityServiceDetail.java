@@ -3,6 +3,8 @@ package com.elkana.teknisi.screen.svcdtl;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -122,6 +124,8 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+
         tvTotalFare = findViewById(R.id.tvTotalFare);
         tvCustomerAddress = findViewById(R.id.tvAddress);
         tvCustomerName = findViewById(R.id.tvCustomerName);
@@ -133,6 +137,7 @@ public class ActivityServiceDetail extends AFirebaseTeknisiActivity {
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 //            getSupportActionBar().setTitle(getString(R.string.title_activity_servicedtl));
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
         }
 
         mAssignmentId = getIntent().getStringExtra(PARAM_ASSIGNMENT_ID);

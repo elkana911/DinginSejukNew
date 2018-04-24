@@ -14,35 +14,28 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.CardView;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.elkana.customer.R;
 import com.elkana.customer.exception.OrderAlreadyExists;
 import com.elkana.customer.pojo.MobileSetup;
-import com.elkana.customer.pojo.QuickOrderProfile;
 import com.elkana.customer.screen.register.SimpleAdapterUserAddress;
 import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.firebase.FBFunction_BasicCallableRecord;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetString;
-import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
@@ -93,10 +86,10 @@ import io.realm.RealmResults;
  * Activities that contain this fragment must implement the
  * {@link OnFragmentOrderACInteractionListener} interface
  * to handle interaction events.
- * Use the {@link FragmentOrderACNew#newInstance} factory method to
+ * Use the {@link FragmentOrderACOld#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FragmentOrderACNew extends Fragment {
+public class FragmentOrderACOld extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "userId";
     private static final String ARG_PARAM2 = "param2";
@@ -125,17 +118,12 @@ public class FragmentOrderACNew extends Fragment {
 
     MaterialSpinner spAddress;
 
-    View tilTime;
     EditText etDate, etTime, etProblem, etCounter;
     public EditText etSelectMitra;
-    Switch switch1;
-    CardView cvAddress, cvDate, cvTime, cvACCount, cvProblem;
-    FloatingActionButton fabEditAddress, fabSubmitOrder;
-    TextView tvDataProfileName;
 
     TextView tvExtraCharge;
 
-    public FragmentOrderACNew() {
+    public FragmentOrderACOld() {
         // Required empty public constructor
     }
 
@@ -148,8 +136,8 @@ public class FragmentOrderACNew extends Fragment {
      * @return A new instance of fragment FragmentOrderAC.
      */
     // TODO: Rename and change types and number of parameters
-    public static FragmentOrderACNew newInstance(String param1, String param2) {
-        FragmentOrderACNew fragment = new FragmentOrderACNew();
+    public static FragmentOrderACOld newInstance(String param1, String param2) {
+        FragmentOrderACOld fragment = new FragmentOrderACOld();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -212,32 +200,10 @@ public class FragmentOrderACNew extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_order_ac_new, container, false);
 
-        tvDataProfileName = v.findViewById(R.id.tvDataProfileName);
         etDate = v.findViewById(R.id.etDate);
         etTime = v.findViewById(R.id.etTime);
-        tilTime = v.findViewById(R.id.tilTime);
-        tilTime.setVisibility(View.GONE);
-
         tvExtraCharge = v.findViewById(R.id.tvExtraCharge);
         etProblem = v.findViewById(R.id.etServiceProblem);
-        etProblem.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() != 0) {
-                }
-                fabSubmitOrder.setVisibility(s.length() != 0 ? View.VISIBLE : View.GONE);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
         etCounter = v.findViewById(R.id.etCounter);
         etSelectMitra = v.findViewById(R.id.etSelectMitra);
         etSelectMitra.setOnClickListener(new View.OnClickListener() {
@@ -248,24 +214,7 @@ public class FragmentOrderACNew extends Fragment {
         });
         spAddress = v.findViewById(R.id.spAddress);
 
-        cvTime = v.findViewById(R.id.cvTime);
-        cvACCount = v.findViewById(R.id.cvACCount);
-        cvAddress = v.findViewById(R.id.cvAddress);
-        cvDate = v.findViewById(R.id.cvDate);
-        cvProblem = v.findViewById(R.id.cvProblem);
-
-        switch1 = v.findViewById(R.id.switch1);
-        switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                tilTime.setVisibility(!isChecked ? View.VISIBLE : View.GONE);
-                if (isChecked) {
-
-                }
-            }
-        });
-
-        fabEditAddress = v.findViewById(R.id.fabEditAddress);
+        FloatingActionButton fabEditAddress = v.findViewById(R.id.fabEditAddress);
         fabEditAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -364,8 +313,8 @@ public class FragmentOrderACNew extends Fragment {
             }
         });
 
-        fabSubmitOrder = v.findViewById(R.id.fabSubmitOrder);
-        fabSubmitOrder.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton btnSubmitOrder = v.findViewById(R.id.btnSubmitOrder);
+        btnSubmitOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 trySubmitOrder();
@@ -450,16 +399,16 @@ public class FragmentOrderACNew extends Fragment {
             @Override
             public void onClick(View view) {
 
-                if (Util.isEmpty(kapanYYYYMMDD)) {
-                    Toast.makeText(getContext(), "Please set Date first.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
                 final String mitra = etSelectMitra.getText().toString().trim();
 
                 if (TextUtils.isEmpty(mitra)) {
                     Toast.makeText(getContext(), "Mitra not defined", Toast.LENGTH_SHORT).show();
                     etSelectMitra.setError(getString(R.string.error_field_required));
+                    return;
+                }
+
+                if (Util.isEmpty(kapanYYYYMMDD)) {
+                    Toast.makeText(getContext(), "Please set Date first.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -641,21 +590,15 @@ public class FragmentOrderACNew extends Fragment {
             // auto fill
             etProblem.setText("Kurang dingin");
             spAddress.setSelection(0);
-        }
-        */
+//            spServiceCount.setSelection(2);
+//            etDate.setText("Hari Ini");   karena ada conversion
+        }*/
         etTime.setText("09:00");
 //        etTime.setText(Util.convertDateToString(new Date(), "HH:mm"));
 
         // auto select
-//        selectAddressDefault();   dipindah
+        selectAddressDefault();
         selectMitraDefault();
-
-        viewCardACCount(false, 1);
-        viewCardAddress(false, null);
-        viewCardDate(false);
-        viewCardTime(false, true);
-        viewCardProblem(false, null);
-        fabSubmitOrder.setVisibility(View.GONE);
 
         Date nextWorkingDay = CustomerUtil.getWorkingDay(new Date(), 2);
         etDate.setText(Util.prettyDate(getContext(), nextWorkingDay, true));
@@ -712,92 +655,6 @@ public class FragmentOrderACNew extends Fragment {
         return null;
     }
 
-    private void selectQuickOrder(String orderProfileLabel) {
-
-        if (TextUtils.isEmpty(orderProfileLabel)) {
-            tvDataProfileName.setText(null);
-            tvDataProfileName.setVisibility(View.GONE);
-
-            // create wizard alike, maybe ?
-
-            // 1. select When
-            viewCardAddress(true, null);
-            selectAddressDefault();
-            viewCardDate(true);
-            viewCardTime(true, true);
-            viewCardACCount(true, 1);
-            viewCardProblem(true, null);
-
-        } else {
-            tvDataProfileName.setText("Profile: " + orderProfileLabel);
-            tvDataProfileName.setVisibility(View.VISIBLE);
-
-            Realm r = Realm.getDefaultInstance();
-            try {
-                QuickOrderProfile qoProfile = r.where(QuickOrderProfile.class)
-                        .equalTo("userId", mUserId)
-                        .equalTo("label", orderProfileLabel)
-                        .findFirst();
-
-                if (qoProfile != null) {
-//                    viewCardAddress(adapterUserAddress.getCount() > 1, null);
-
-                    viewCardAddress(true, qoProfile.getAddressId());
-                    viewCardDate(true);
-                    viewCardTime(true, qoProfile.isServiceTimeFree());
-                    viewCardACCount(true, qoProfile.getAcCount());
-                    viewCardProblem(true, qoProfile.getProblems());
-                }
-
-            } finally {
-                r.close();
-            }
-        }
-
-//        Toast.makeText(getContext(), "Data Profile Label is " + orderProfileLabel, Toast.LENGTH_SHORT).show();
-
-    }
-
-    private void saveForm(String orderProfileLabel) {
-        if (Util.isEmpty(orderProfileLabel))
-            return;
-
-        final QuickOrderProfile profile = new QuickOrderProfile();
-        profile.setUid(new Date().getTime());
-        profile.setUserId(mUserId);
-        profile.setAddressId(adapterUserAddress.getItem(spAddress.getSelectedItemPosition()).getUid());
-        profile.setAcCount(Integer.parseInt(etCounter.getText().toString()));
-        profile.setDateOfService(kapanYYYYMMDD);
-
-        final String jam = etTime.getText().toString().trim();
-        profile.setTimeOfService(jam);
-        profile.setServiceTimestamp(DateUtil.compileDateAndTime(kapanYYYYMMDD, jam));
-
-        profile.setServiceTimeFree(switch1.isChecked());
-        profile.setLabel(orderProfileLabel);
-        profile.setProblems(etProblem.getText().toString().trim());
-
-        CustomerUtil.SaveOrderProfile(mUserId, orderProfileLabel, profile, new ListenerModifyData() {
-
-            @Override
-            public void onSuccess() {
-                Realm r = Realm.getDefaultInstance();
-                try {
-                    r.beginTransaction();
-                    r.copyToRealmOrUpdate(profile);
-                    r.commitTransaction();
-                } finally {
-                    r.close();
-                }
-            }
-
-            @Override
-            public void onError(Exception e) {
-
-            }
-        });
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -842,8 +699,8 @@ public class FragmentOrderACNew extends Fragment {
 
     }
 
-    public void reInitiate(String userId, String orderProfileLabel) {
-        mUserId = userId;
+    public void reInitiate(String userId, String param2) {
+        this.mUserId = userId;
 
         if (adapterUserAddress != null)
             adapterUserAddress.cleanUpListener();
@@ -851,53 +708,12 @@ public class FragmentOrderACNew extends Fragment {
         adapterUserAddress = new SimpleAdapterUserAddress(getContext(), android.R.layout.simple_spinner_item, mUserId);
         spAddress.setAdapter(adapterUserAddress);
 
-        // finally, quick select based on profile
-        selectQuickOrder(orderProfileLabel);
-
+        selectAddressDefault();
     }
-
-    private void viewCardAddress(boolean visible, String addressId) {
-
-        if (Util.isEmpty(addressId)) {
-            spAddress.setSelection(-1);
-        } else {
-            List<UserAddress> list = adapterUserAddress.getList();
-            for (UserAddress ua : list) {
-                if (ua.getUid().equals(addressId)) {
-                    spAddress.setSelection(adapterUserAddress.getPosition(ua));
-                    break;
-                }
-            }
-
-        }
-
-        cvAddress.setVisibility(visible ? View.VISIBLE : View.GONE);
-        fabEditAddress.setVisibility(visible ? View.VISIBLE : View.GONE);
-    }
-
-    private void viewCardDate(boolean visible) {
-        cvDate.setVisibility(visible ? View.VISIBLE : View.GONE);
-    }
-
-    private void viewCardTime(boolean visible, boolean freeTime) {
-        switch1.setChecked(freeTime);
-        cvTime.setVisibility(visible ? View.VISIBLE : View.GONE);
-    }
-
-    private void viewCardProblem(boolean visible, String problem) {
-        etProblem.setText(problem);
-        cvProblem.setVisibility(visible ? View.VISIBLE : View.GONE);
-    }
-
-    private void viewCardACCount(boolean visible, int acCount) {
-        etCounter.setText(String.valueOf(acCount));
-        cvACCount.setVisibility(visible ? View.VISIBLE : View.GONE);
-    }
-
 
     private void submitOrder(final OrderHeader orderHeader) {
 
-        final AlertDialog dialog = Util.showProgressDialog(getContext(), "Submit order...");
+        final AlertDialog dialog = Util.showProgressDialog(getContext(), "Booking process...");
 
         try {
             mFunctions.getHttpsCallable(FBUtil.FUNCTION_CREATE_ORDER)
@@ -909,53 +725,53 @@ public class FragmentOrderACNew extends Fragment {
                             if (!getActivity().isDestroyed())
                                 dialog.dismiss();
 
-                            if (!task.isSuccessful()) {
-                                Log.e(TAG, task.getException().getMessage(), task.getException());
-                                Toast.makeText(getActivity(), FBUtil.friendlyTaskNotSuccessfulMessage(task.getException()), Toast.LENGTH_LONG).show();
-                                return;
-                            }
+                            if (task.isSuccessful()) {
 
-                            String orderId = (String) task.getResult().get("orderKey");
+                                String orderId = (String) task.getResult().get("orderKey");
 
-                            // fix empty uid
-                            orderHeader.setUid(orderId);
-                            // get order bucket
-                            FBUtil.Order_getPendingMitraRef(orderHeader.getPartyId(), orderId)
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                // fix empty uid
+                                orderHeader.setUid(orderId);
+                                // get order bucket
+                                FBUtil.Order_getPendingMitraRef(orderHeader.getPartyId(), orderId)
+                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                            if (!dataSnapshot.exists())
-                                                return;
+                                                if (!dataSnapshot.exists())
+                                                    return;
 
-                                            final OrderBucket orderBucket = dataSnapshot.getValue(OrderBucket.class);
+                                                final OrderBucket orderBucket = dataSnapshot.getValue(OrderBucket.class);
 
-                                            Realm realm = Realm.getDefaultInstance();
-                                            try {
-                                                // flushed
-                                                realm.executeTransaction(new Realm.Transaction() {
-                                                    @Override
-                                                    public void execute(Realm realm) {
-                                                        realm.copyToRealmOrUpdate(orderHeader);
-                                                        realm.copyToRealmOrUpdate(orderBucket);
+                                                Realm realm = Realm.getDefaultInstance();
+                                                try {
+                                                    // flushed
+                                                    realm.executeTransaction(new Realm.Transaction() {
+                                                        @Override
+                                                        public void execute(Realm realm) {
+                                                            realm.copyToRealmOrUpdate(orderHeader);
+                                                            realm.copyToRealmOrUpdate(orderBucket);
+                                                        }
+                                                    });
+
+                                                    if (mListener != null) {
+                                                        mListener.onOrderCreated(orderHeader);
                                                     }
-                                                });
 
-                                                if (mListener != null) {
-                                                    mListener.onOrderCreated(orderHeader);
+                                                } finally {
+                                                    realm.close();
                                                 }
 
-                                            } finally {
-                                                realm.close();
                                             }
 
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-                                            Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
-                                        }
-                                    });
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+                                                Toast.makeText(getActivity(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                            } else {
+                                Log.e(TAG, task.getException().getMessage(), task.getException());
+                                Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            }
                         }
                     });
 
@@ -978,10 +794,10 @@ public class FragmentOrderACNew extends Fragment {
         etSelectMitra.setError(null);
 
         final String kapan = etDate.getText().toString().trim();
-        final String jam = switch1.isChecked() ? "99:99" : etTime.getText().toString().trim();
+        final String jam = etTime.getText().toString().trim();
         final String problem = etProblem.getText().toString().trim();
 
-        final long serviceTimestamp = DateUtil.compileDateAndTime(kapanYYYYMMDD, jam);
+        final long bookingTimestamp = Util.convertStringToDate(kapanYYYYMMDD + jam, "yyyyMMddHH:mm").getTime();
 
         Object addressObj = spAddress.getSelectedItem();
         String alamat = "";
@@ -1035,13 +851,11 @@ public class FragmentOrderACNew extends Fragment {
         if (mobileSetup.getMinimal_booking_hour() < 2)  //buat jaga2 kalo data kosong
             mobileSetup.setMinimal_booking_hour(2);
 
-        if (!switch1.isChecked()) {
-            // dikurangin one minute spy bisa order pas di 2 jam
-            if (serviceTimestamp < ((new Date().getTime() + (mobileSetup.getMinimal_booking_hour() * DateUtil.TIME_ONE_HOUR_MILLIS)) - DateUtil.TIME_ONE_MINUTE_MILLIS)) {
-                Toast.makeText(getContext(), "Mohon pilih di jam lainnya.", Toast.LENGTH_SHORT).show();
-                focus = etTime;
-                cancel = true;
-            }
+        // dikurangin one minute spy bisa order pas di 2 jam
+        if (bookingTimestamp < ((new Date().getTime() + (mobileSetup.getMinimal_booking_hour() * DateUtil.TIME_ONE_HOUR_MILLIS)) - DateUtil.TIME_ONE_MINUTE_MILLIS)) {
+            Toast.makeText(getContext(), "Mohon pilih di jam lainnya.", Toast.LENGTH_SHORT).show();
+            focus = etTime;
+            cancel = true;
         }
 
         if (cancel) {
@@ -1066,15 +880,11 @@ public class FragmentOrderACNew extends Fragment {
 
             int maxNewOrder = mobileSetup.getMax_new_order();
 
-            // paling parah kalo ada kesalahan data ga boleh lebih dari 10 hardcode
-            if (maxNewOrder < 1)
-                maxNewOrder = 10;
-
             if (countCreatedOrder >= maxNewOrder) {
                 Toast.makeText(getContext(), "Maaf, hanya diperbolehkan membuat " + maxNewOrder + " pesanan baru.", Toast.LENGTH_LONG).show();
                 return;
             }
-        } finally {
+        } finally{
             r.close();
         }
 
@@ -1082,7 +892,7 @@ public class FragmentOrderACNew extends Fragment {
         final String finalAlamatByGoogle = alamatByGoogle;
         final String finalLatitude = latitude;
         final String finalLongitude = longitude;
-        Util.showDialogConfirmation(getActivity(), "Order Confirmation", "Pesan Layanan sekarang ?", new ListenerPositiveConfirmation() {
+        Util.showDialogConfirmation(getActivity(), "Booking Confirmation", "Booking Layanan sekarang ?", new ListenerPositiveConfirmation() {
             @Override
             public void onPositive() {
 
@@ -1090,8 +900,7 @@ public class FragmentOrderACNew extends Fragment {
                 orderHeader.setCustomerId(mUserId);//jd tdk mungkin user yg sama bisa order 2x
                 orderHeader.setDateOfService(kapanYYYYMMDD);
                 orderHeader.setTimeOfService(jam);
-                orderHeader.setServiceTimeFree(switch1.isChecked());
-                orderHeader.setServiceTimestamp(serviceTimestamp);
+                orderHeader.setServiceTimestamp(bookingTimestamp);
                 orderHeader.setServiceType(DateUtil.isToday(orderHeader.getServiceTimestamp()) ? Const.SERVICE_TYPE_QUICK : Const.SERVICE_TYPE_SCHEDULED);
                 orderHeader.setStatusId(EOrderStatus.PENDING.name());
                 orderHeader.setStatusDetailId(EOrderDetailStatus.CREATED.name());

@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.elkana.ds.mitraapp.AFirebaseMitraActivity;
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.MobileSetup;
 import com.elkana.dslibrary.activity.FirebaseActivity;
@@ -44,9 +45,9 @@ import java.util.Map;
 
 import io.realm.Realm;
 
-public class ActivityRegister extends FirebaseActivity {
+public class ActivityRegister extends AFirebaseMitraActivity {
 
-    private static final String TAG = "Register";
+    private static final String TAG = ActivityRegister.class.getSimpleName();
     private static final int REQUESTCODE_MAP = 66;
 
     // berbeda dengan TopCustomer, UserAddress ditiadakan. akan digabung dengan basicInfo karena mitra cuma butuh 1 alamat per cabang.
@@ -109,15 +110,9 @@ public class ActivityRegister extends FirebaseActivity {
 //            getSupportActionBar().setSubtitle(userFullName);
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(TAG);
+//            getSupportActionBar().setTitle(TAG);
 
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Window window = getWindow();
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
-            }
 
         }
         // if you want to center title https://stackoverflow.com/questions/18418635/how-to-align-title-at-center-of-actionbar-in-default-themetheme-holo-light

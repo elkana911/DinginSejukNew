@@ -10,7 +10,7 @@
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/app_bar_height"
+        android:layout_height="210dp"
         android:fitsSystemWindows="true"
         android:theme="@style/AppTheme.AppBarOverlay">
 
@@ -76,6 +76,12 @@
                     android:layout_height="wrap_content"
                     android:text="Tanggal"
                     android:textColor="@android:color/white" />
+                <Button
+                    android:id="@+id/btnPickTime"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pilih Jam Layanan"/>
 
             </LinearLayout>
 

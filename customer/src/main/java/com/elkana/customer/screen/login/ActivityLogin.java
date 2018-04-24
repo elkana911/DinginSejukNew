@@ -1,9 +1,11 @@
 package com.elkana.customer.screen.login;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -11,17 +13,23 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.elkana.customer.BuildConfig;
 import com.elkana.customer.R;
-import com.elkana.customer.screen.AFirebaseActivity;
+import com.elkana.customer.pojo.MobileSetup;
+import com.elkana.customer.screen.AFirebaseCustomerActivity;
 import com.elkana.customer.screen.MainActivity;
 import com.elkana.customer.screen.intro.ActivityIntro;
 import com.elkana.customer.screen.register.ActivityRegister;
+import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.SharedPrefUtil;
 import com.elkana.dslibrary.util.Util;
@@ -29,10 +37,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
-public class ActivityLogin extends AFirebaseActivity {
+import io.realm.Realm;
+
+public class ActivityLogin extends AFirebaseCustomerActivity {
     private static final String TAG = ActivityLogin.class.getSimpleName();
-    private static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA_STORAGE = 413;
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE_STORAGE = 413;
+//    private static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA_STORAGE = 413;  camera dipisah aja krn buat photo profile yg bukan mandatory
 
     AutoCompleteTextView mEmailView;
     EditText mPassword;
@@ -44,10 +58,10 @@ public class ActivityLogin extends AFirebaseActivity {
         ActivityCompat.requestPermissions(this, new String[]{
                         android.Manifest.permission.ACCESS_FINE_LOCATION
                         , android.Manifest.permission.CALL_PHONE
-                        , android.Manifest.permission.CAMERA
+//                        , android.Manifest.permission.CAMERA
                         , android.Manifest.permission.WRITE_EXTERNAL_STORAGE
                 },
-                MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA_STORAGE);
+                MY_PERMISSIONS_REQUEST_LOCATION_PHONE_STORAGE);
 
     }
 
@@ -55,6 +69,44 @@ public class ActivityLogin extends AFirebaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // having mobilesetup is mandatory. no userid needed
+        mDatabase.getReference(CustomerUtil.REF_MASTER_SETUP)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final MobileSetup mobileSetup = dataSnapshot.getValue(MobileSetup.class);
+
+                        Realm r = Realm.getDefaultInstance();
+                        try {
+                            r.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    realm.copyToRealmOrUpdate(mobileSetup);
+                                }
+                            });
+
+                        } finally {
+                            r.close();
+                        }
+
+                        if (getSupportActionBar() != null) {
+                            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            Window window = getWindow();
+                            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                            window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                        finish();   // quit app
+                    }
+                });
 
         mEmailView = findViewById(R.id.email);
         mPassword = findViewById(R.id.password);
@@ -100,11 +152,11 @@ public class ActivityLogin extends AFirebaseActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA_STORAGE:
+            case MY_PERMISSIONS_REQUEST_LOCATION_PHONE_STORAGE:
                 if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED
                         && grantResults[2] == PackageManager.PERMISSION_GRANTED
-                        && grantResults[3] == PackageManager.PERMISSION_GRANTED
+//                        && grantResults[3] == PackageManager.PERMISSION_GRANTED
                         ) {
 //                    signIn();
                 } else {
@@ -121,8 +173,30 @@ public class ActivityLogin extends AFirebaseActivity {
         // reset token device
         FBUtil.Customer_addToken(user.getUid(), new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
 
-        finish();
-        startActivity(new Intent(this, MainActivity.class));
+        final AlertDialog alertDialog = Util.showProgressDialog(this, "Check version");
+
+        // check valid version ?
+        int versionCode = BuildConfig.VERSION_CODE;
+        final String versionName = BuildConfig.VERSION_NAME;
+
+        CustomerUtil.CheckVersions(versionName, new ListenerModifyData(){
+
+            @Override
+            public void onSuccess() {
+                alertDialog.dismiss();
+                startActivity(new Intent(ActivityLogin.this, MainActivity.class));
+                finish();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                alertDialog.dismiss();
+                Toast.makeText(ActivityLogin.this, "Mohon update aplikasi terbaru.", Toast.LENGTH_SHORT).show();
+                logout();
+                finish();
+            }
+        });
+
     }
 
     /*

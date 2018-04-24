@@ -1,6 +1,13 @@
 package com.elkana.teknisi;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.firebase.FBUtil;
@@ -8,6 +15,8 @@ import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.util.Const;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
+import com.elkana.teknisi.pojo.MobileSetup;
+import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,6 +33,22 @@ import java.util.Map;
  */
 
 public abstract class AFirebaseTeknisiActivity extends FirebaseActivity{
+
+    protected MobileSetup mobileSetup = null;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mobileSetup = TeknisiUtil.getMobileSetup();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
+        }
+
+    }
 
     @Override
     protected void onLoggedOff() {

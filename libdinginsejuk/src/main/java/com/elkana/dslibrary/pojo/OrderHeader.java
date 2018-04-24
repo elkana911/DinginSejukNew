@@ -46,11 +46,12 @@ public class OrderHeader extends RealmObject implements Serializable {
     private String ratingCustomerComments;
     private String ratingTechnicianComments;
     private String problem;
-    private String dateOfService;   // yyyyMMdd
-    private String timeOfService;
+    private boolean serviceTimeFree;
+    private String dateOfService;   // yyyyMMdd.
+    private String timeOfService;   //HH:mm bisa diisi oleh mitra/teknisi kalo customer pilih waktu bebas
     private String phone;
     private int rescheduleCounter;
-    private long bookingTimestamp; // gabungan dateOfService & timeOfService
+    private long serviceTimestamp; // gabungan dateOfService & timeOfService
     private long pleasePayAmount;
     private long createdTimestamp;
     private long updatedStatusTimestamp;
@@ -108,13 +109,6 @@ public class OrderHeader extends RealmObject implements Serializable {
         this.statusComment = statusComment;
     }
 
-    public long getBookingTimestamp() {
-        return bookingTimestamp;
-    }
-
-    public void setBookingTimestamp(long bookingTimestamp) {
-        this.bookingTimestamp = bookingTimestamp;
-    }
 
     public String getCustomerId() {
         return customerId;
@@ -332,6 +326,22 @@ public class OrderHeader extends RealmObject implements Serializable {
         this.updatedStatusTimestamp = updatedStatusTimestamp;
     }
 
+    public boolean isServiceTimeFree() {
+        return serviceTimeFree;
+    }
+
+    public void setServiceTimeFree(boolean serviceTimeFree) {
+        this.serviceTimeFree = serviceTimeFree;
+    }
+
+    public long getServiceTimestamp() {
+        return serviceTimestamp;
+    }
+
+    public void setServiceTimestamp(long serviceTimestamp) {
+        this.serviceTimestamp = serviceTimestamp;
+    }
+
     @Override
     public String toString() {
         return "OrderHeader{" +
@@ -359,11 +369,12 @@ public class OrderHeader extends RealmObject implements Serializable {
                 ", ratingCustomerComments='" + ratingCustomerComments + '\'' +
                 ", ratingTechnicianComments='" + ratingTechnicianComments + '\'' +
                 ", problem='" + problem + '\'' +
+                ", serviceTimeFree=" + serviceTimeFree +
                 ", dateOfService='" + dateOfService + '\'' +
                 ", timeOfService='" + timeOfService + '\'' +
                 ", phone='" + phone + '\'' +
                 ", rescheduleCounter=" + rescheduleCounter +
-                ", bookingTimestamp=" + bookingTimestamp +
+                ", serviceTimestamp=" + serviceTimestamp +
                 ", pleasePayAmount=" + pleasePayAmount +
                 ", createdTimestamp=" + createdTimestamp +
                 ", updatedStatusTimestamp=" + updatedStatusTimestamp +

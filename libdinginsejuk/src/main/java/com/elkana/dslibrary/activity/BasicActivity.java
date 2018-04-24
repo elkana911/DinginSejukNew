@@ -26,6 +26,7 @@ public class BasicActivity extends AppCompatActivity {
     static {
 //        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
+
     protected Typeface fontFace;
     protected Realm realm;
 

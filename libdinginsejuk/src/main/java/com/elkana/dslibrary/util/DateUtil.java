@@ -215,6 +215,9 @@ public class DateUtil {
      */
     public static String[] generateWorkingHours(int openTime, int closeTime, int minuteStep) {
 
+        if (openTime > closeTime)
+            return null;
+
         int digitCount = Util.getDigitsCount(openTime);
 
         if (digitCount == 1 || digitCount == 2)
@@ -252,5 +255,11 @@ public class DateUtil {
         }
 
         return list.toArray(new String[list.size()]);
+    }
+
+    public static long compileDateAndTime(String dateYYYYMMDD, String timeHH_MM) {
+        long serviceTimestamp = Util.convertStringToDate(dateYYYYMMDD + timeHH_MM, "yyyyMMddHH:mm").getTime();
+
+        return serviceTimestamp;
     }
 }

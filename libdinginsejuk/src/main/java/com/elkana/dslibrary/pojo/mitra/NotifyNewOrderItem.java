@@ -12,10 +12,16 @@ public class NotifyNewOrderItem {
     private int acCount;
     private String customerId;
     private String customerName;
-    private long orderTimestamp;    // order timestamp
+    private String dateOfService;   // yyyyMMdd.
+    private String timeOfService;   // HH:mm bisa diisi oleh mitra/teknisi kalo customer pilih waktu bebas
+    private boolean serviceTimeFree;
+    private long serviceTimestamp;    // order timestamp
 //    private long timestamp; // inserted timestamp. diganti mitraTimestamp
-    private long mitraTimestamp;    // dibuat utk timer dihitung dr waktunya mitra, supaya tetap sinkron dengan timer di teknisi
+    private long mitraTimestamp;    // dibuat utk timer dihitung dr waktunya mitra, supaya tetap sinkron dengan timer di teknisi. deprecated, see createdTimestamp
     private int minuteExtra;    // buat timer. diisi dari server. defaultnya 10 menit. utk develop 5 menit cukup.
+    private int mitraOpenTime;  // perlu tau spy teknisi bisa atur waktu dengan mitra-nya
+    private int mitraCloseTime;
+    private long createdTimestamp;
 
     public String getOrderId() {
         return orderId;
@@ -73,12 +79,20 @@ public class NotifyNewOrderItem {
         this.customerName = customerName;
     }
 
-    public long getOrderTimestamp() {
-        return orderTimestamp;
+    public long getServiceTimestamp() {
+        return serviceTimestamp;
     }
 
-    public void setOrderTimestamp(long orderTimestamp) {
-        this.orderTimestamp = orderTimestamp;
+    public void setServiceTimestamp(long serviceTimestamp) {
+        this.serviceTimestamp = serviceTimestamp;
+    }
+
+    public boolean isServiceTimeFree() {
+        return serviceTimeFree;
+    }
+
+    public void setServiceTimeFree(boolean serviceTimeFree) {
+        this.serviceTimeFree = serviceTimeFree;
     }
 
     public long getMitraTimestamp() {
@@ -97,6 +111,46 @@ public class NotifyNewOrderItem {
         this.minuteExtra = minuteExtra;
     }
 
+    public String getDateOfService() {
+        return dateOfService;
+    }
+
+    public void setDateOfService(String dateOfService) {
+        this.dateOfService = dateOfService;
+    }
+
+    public String getTimeOfService() {
+        return timeOfService;
+    }
+
+    public void setTimeOfService(String timeOfService) {
+        this.timeOfService = timeOfService;
+    }
+
+    public int getMitraOpenTime() {
+        return mitraOpenTime;
+    }
+
+    public void setMitraOpenTime(int mitraOpenTime) {
+        this.mitraOpenTime = mitraOpenTime;
+    }
+
+    public int getMitraCloseTime() {
+        return mitraCloseTime;
+    }
+
+    public void setMitraCloseTime(int mitraCloseTime) {
+        this.mitraCloseTime = mitraCloseTime;
+    }
+
+    public long getCreatedTimestamp() {
+        return createdTimestamp;
+    }
+
+    public void setCreatedTimestamp(long createdTimestamp) {
+        this.createdTimestamp = createdTimestamp;
+    }
+
     @Override
     public String toString() {
         return "NotifyNewOrderItem{" +
@@ -107,9 +161,15 @@ public class NotifyNewOrderItem {
                 ", acCount=" + acCount +
                 ", customerId='" + customerId + '\'' +
                 ", customerName='" + customerName + '\'' +
-                ", orderTimestamp=" + orderTimestamp +
+                ", dateOfService='" + dateOfService + '\'' +
+                ", timeOfService='" + timeOfService + '\'' +
+                ", serviceTimeFree=" + serviceTimeFree +
+                ", serviceTimestamp=" + serviceTimestamp +
                 ", mitraTimestamp=" + mitraTimestamp +
                 ", minuteExtra=" + minuteExtra +
+                ", mitraOpenTime=" + mitraOpenTime +
+                ", mitraCloseTime=" + mitraCloseTime +
+                ", createdTimestamp=" + createdTimestamp +
                 '}';
     }
 }

@@ -1,7 +1,15 @@
 package com.elkana.ds.mitraapp;
 
+import android.graphics.Color;
+import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.view.Window;
+import android.view.WindowManager;
 
+import com.elkana.ds.mitraapp.pojo.MobileSetup;
+import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.exception.OrderAlreadyFinished;
 import com.elkana.dslibrary.firebase.FBUtil;
@@ -29,6 +37,22 @@ import java.util.Map;
  */
 
 public abstract class AFirebaseMitraActivity extends FirebaseActivity{
+    protected MobileSetup mobileSetup = null;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mobileSetup = MitraUtil.getMobileSetup();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
+        }
+
+    }
+
     @Override
     protected void onLoggedOn(FirebaseUser user) {
 
@@ -40,6 +64,7 @@ public abstract class AFirebaseMitraActivity extends FirebaseActivity{
     }
 
     /**
+     * Sementara cuma dipakai wkt assignment manual dari mitra
      * @deprecated
      * @param techId
      * @param techName

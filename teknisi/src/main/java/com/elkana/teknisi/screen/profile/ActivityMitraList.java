@@ -2,6 +2,8 @@ package com.elkana.teknisi.screen.profile;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +19,7 @@ import com.elkana.dslibrary.listener.ListenerGetAllData;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
 import com.elkana.dslibrary.util.Util;
+import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.pojo.UserMitra;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,7 +28,7 @@ import java.util.List;
 
 import io.realm.Realm;
 
-public class ActivityMitraList extends FirebaseActivity {
+public class ActivityMitraList extends AFirebaseTeknisiActivity {
 
     private static final String TAG = ActivityMitraList.class.getSimpleName();
 
@@ -93,13 +96,7 @@ public class ActivityMitraList extends FirebaseActivity {
             getSupportActionBar().setHomeButtonEnabled(true);
 //            getSupportActionBar().setTitle(TAG);
 
-//            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Window window = getWindow();
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-//                window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
-            }
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
 
         }
 

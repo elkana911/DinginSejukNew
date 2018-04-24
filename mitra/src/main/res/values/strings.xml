@@ -2,7 +2,7 @@
     <string name="app_name">Mitra</string>
 
     <string name="label_customer_address">Alamat Pemesan : %1s</string>
-    <string name="label_order_date">Order Date : %1s</string>
+    <string name="label_order_date">Service Date : %1s</string>
     <string name="label_order_today_count">Layanan Hari Ini : %1d</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>

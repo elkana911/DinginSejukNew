@@ -24,8 +24,12 @@ public class OrderBucket extends RealmObject implements Serializable {
     private String statusComment;   // diperlukan jika Server cancel dan customer diberikan alasan mengapa di cancel
     private int acCount;
     private int minuteExtra;    //buat timer. diisi dari server
-    private long bookingTimestamp;
+    private String dateOfService;   // yyyyMMdd. bisa diisi oleh mitra/teknisi kalo customer pilih waktu bebas
+    private String timeOfService;   // HH:mm bisa diisi oleh mitra/teknisi kalo customer pilih waktu bebas
+    private boolean serviceTimeFree;
+    private long serviceTimestamp;
     private long updatedTimestamp;  // the time when server received order. bisa dipakai utk start timeout
+    private long createdTimestamp;
     private String updatedBy;
 
     public OrderBucket() {
@@ -111,12 +115,12 @@ public class OrderBucket extends RealmObject implements Serializable {
         this.statusComment = statusComment;
     }
 
-    public long getBookingTimestamp() {
-        return bookingTimestamp;
+    public long getServiceTimestamp() {
+        return serviceTimestamp;
     }
 
-    public void setBookingTimestamp(long bookingTimestamp) {
-        this.bookingTimestamp = bookingTimestamp;
+    public void setServiceTimestamp(long serviceTimestamp) {
+        this.serviceTimestamp = serviceTimestamp;
     }
 
     public int getAcCount() {
@@ -133,6 +137,14 @@ public class OrderBucket extends RealmObject implements Serializable {
 
     public void setMinuteExtra(int minuteExtra) {
         this.minuteExtra = minuteExtra;
+    }
+
+    public boolean isServiceTimeFree() {
+        return serviceTimeFree;
+    }
+
+    public void setServiceTimeFree(boolean serviceTimeFree) {
+        this.serviceTimeFree = serviceTimeFree;
     }
 
     public long getUpdatedTimestamp() {
@@ -159,6 +171,30 @@ public class OrderBucket extends RealmObject implements Serializable {
         this.statusId = statusId;
     }
 
+    public String getDateOfService() {
+        return dateOfService;
+    }
+
+    public void setDateOfService(String dateOfService) {
+        this.dateOfService = dateOfService;
+    }
+
+    public String getTimeOfService() {
+        return timeOfService;
+    }
+
+    public void setTimeOfService(String timeOfService) {
+        this.timeOfService = timeOfService;
+    }
+
+    public long getCreatedTimestamp() {
+        return createdTimestamp;
+    }
+
+    public void setCreatedTimestamp(long createdTimestamp) {
+        this.createdTimestamp = createdTimestamp;
+    }
+
     @Override
     public String toString() {
         return "OrderBucket{" +
@@ -175,8 +211,12 @@ public class OrderBucket extends RealmObject implements Serializable {
                 ", statusComment='" + statusComment + '\'' +
                 ", acCount=" + acCount +
                 ", minuteExtra=" + minuteExtra +
-                ", bookingTimestamp=" + bookingTimestamp +
+                ", dateOfService='" + dateOfService + '\'' +
+                ", timeOfService='" + timeOfService + '\'' +
+                ", serviceTimeFree=" + serviceTimeFree +
+                ", serviceTimestamp=" + serviceTimestamp +
                 ", updatedTimestamp=" + updatedTimestamp +
+                ", createdTimestamp=" + createdTimestamp +
                 ", updatedBy='" + updatedBy + '\'' +
                 '}';
     }

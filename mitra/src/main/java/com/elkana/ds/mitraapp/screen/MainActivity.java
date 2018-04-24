@@ -1,7 +1,10 @@
 package com.elkana.ds.mitraapp.screen;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -18,12 +21,15 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.elkana.ds.mitraapp.AFirebaseMitraActivity;
 import com.elkana.ds.mitraapp.R;
+import com.elkana.ds.mitraapp.pojo.MobileSetup;
 import com.elkana.ds.mitraapp.screen.assign.FragmentTechnicianList;
 import com.elkana.ds.mitraapp.screen.login.ActivityLogin;
 import com.elkana.ds.mitraapp.screen.order.FragmentOrderList;
@@ -60,8 +66,21 @@ public class MainActivity extends AFirebaseMitraActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        MobileSetup mobileSetup = this.realm.where(MobileSetup.class).findFirst();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor(mobileSetup.getTheme_color_default()));
+        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -146,6 +165,8 @@ public class MainActivity extends AFirebaseMitraActivity
 
         super.onLoggedOn(user);
 
+        MitraUtil.syncUserInformation(this);
+
         displayView(R.id.nav_order_new);
 
         refreshToolbar();
@@ -157,7 +178,6 @@ public class MainActivity extends AFirebaseMitraActivity
         TextView tvProfileEmail = headerView.findViewById(R.id.tvProfileEmail);
         tvProfileEmail.setText(user.getEmail());
 
-        MitraUtil.syncUserInformation();
         MitraUtil.syncTechnicianReg();
 //        MitraUtil.syncServices();   // dipindah ke activityservicelist
     }

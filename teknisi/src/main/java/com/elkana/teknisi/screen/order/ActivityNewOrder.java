@@ -1,6 +1,8 @@
 package com.elkana.teknisi.screen.order;
 
 import android.app.AlertDialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,6 +26,7 @@ import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.mitra.NotifyNewOrderItem;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.util.Util;
+import com.elkana.teknisi.AFirebaseTeknisiActivity;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.screen.payment.ActivityPayment;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -35,12 +38,12 @@ import com.google.firebase.functions.FirebaseFunctions;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ActivityNewOrder extends FirebaseActivity {
+public class ActivityNewOrder extends AFirebaseTeknisiActivity {
 
     public static final String TAG = ActivityNewOrder.class.getSimpleName();
 
     public static final String PARAM_ORDER_ID = "order.id";
-//    public static final String PARAM_TECH_ID = "tech.id";
+    //    public static final String PARAM_TECH_ID = "tech.id";
     public static final String PARAM_MITRA_ID = "mitra.id";
 
     String mTechId, mTechName, mOrderId, mMitraId;
@@ -54,18 +57,23 @@ public class ActivityNewOrder extends FirebaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_order);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
+        }
+
         mOrderId = getIntent().getStringExtra(PARAM_ORDER_ID);
 //        mTechId = mAuth.getCurrentUser().getUid();
 //        mCustomerId = getIntent().getStringExtra(PARAM_CUSTOMER_ID);
 //        mCustomerName = getIntent().getStringExtra(PARAM_CUSTOMER_NAME);
         mMitraId = getIntent().getStringExtra(PARAM_MITRA_ID);
 
+        /*
         if (Util.TESTING_MODE && mOrderId == null) {
             mOrderId = "-L6o-DwfOBp7lBgFxh6R";
 //            mTechId = "BFAi7avqKCbtHhYMydfoHiKifVv2";
 //            mCustomerName = "Eric Elkana";
             mMitraId = "a6VtLlJ3nGZKlkZZGXLHTwGVbQT2";
-        }
+        }*/
 
         Button btnClose = findViewById(R.id.btnClose);
         btnClose.setOnClickListener(new View.OnClickListener() {
@@ -123,6 +131,10 @@ public class ActivityNewOrder extends FirebaseActivity {
                 keyVal.put("techName", mTechName);
                 keyVal.put("orderId", data.getOrderId());
                 keyVal.put("custId", data.getCustomerId());
+                keyVal.put("dateOfService", data.getDateOfService());
+                keyVal.put("timeOfService", data.getTimeOfService());
+                keyVal.put("serviceTimeFree", data.isServiceTimeFree());
+                keyVal.put("serviceTimestamp", data.getServiceTimestamp());
                 keyVal.put("timestamp", ServerValue.TIMESTAMP);
 
                 mFunctions.getHttpsCallable(FBUtil.FUNCTION_TECHNICIAN_GRAB_ORDER)
@@ -133,18 +145,17 @@ public class ActivityNewOrder extends FirebaseActivity {
                             public void onComplete(@NonNull Task<Map<String, Object>> task) {
                                 dialog.dismiss();
 
-                                if (task.isSuccessful()) {
-
-                                    if (listener != null)
-                                        listener.onPositive();
-//                                        String orderId = (String) task.getResult().get("orderKey");cuma contoh
-
-                                } else {
+                                if (!task.isSuccessful()) {
                                     Log.e(TAG, task.getException().getMessage(), task.getException());
-                                    Toast.makeText(ActivityNewOrder.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(ActivityNewOrder.this, FBUtil.friendlyTaskNotSuccessfulMessage(task.getException()), Toast.LENGTH_LONG).show();
+                                    return;
                                 }
 
-                                if (mAdapter.getItemCount() < 1) {
+                                if (listener != null)
+                                    listener.onPositive();
+//                                        String orderId = (String) task.getResult().get("orderKey");cuma contoh
+
+                                if (mAdapter.getItemCount() == 1) {
                                     mAdapter.cleanUpListener();
                                     setResult(RESULT_OK);
                                     finish();

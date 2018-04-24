@@ -165,8 +165,9 @@ public class MainActivityFragment extends Fragment {
                         OrderHeader obj = dataSnapshot.getValue(OrderHeader.class);
                         Log.e(TAG, "obj:" + obj.toString());
 
+                        EOrderDetailStatus detailStatus = EOrderDetailStatus.convertValue(obj.getStatusDetailId());
                         Intent i;
-                        switch (EOrderDetailStatus.convertValue(obj.getStatusDetailId())) {
+                        switch (detailStatus) {
                             case CREATED:
                             case ASSIGNED:
                             case OTW:
@@ -215,13 +216,16 @@ public class MainActivityFragment extends Fragment {
                                 Util.showDialog(getActivity(), getString(R.string.service_status_changed), getString(R.string.status_rescheduled));
                                 break;*/
                             case CANCELLED_BY_CUSTOMER:
-                                Util.showDialog(getActivity(), "Service Cancelled", getString(R.string.status_cancelled_by_customer));
+                                Util.showDialog(getActivity(), "Service Cancelled By Customer", getString(R.string.status_cancelled_by_customer));
+                                break;
+                            case CANCELLED_BY_SERVER:
+                                Util.showDialog(getActivity(), "Service Cancelled By Server", getString(R.string.status_cancelled_by_server));
                                 break;
                             case PAID:
                                 Util.showDialog(getActivity(), getString(R.string.service_finished), getString(R.string.status_paid));
                                 break;
                             default:
-                                Toast.makeText(getContext(), "Unhandled order status", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Unhandled status " + detailStatus, Toast.LENGTH_SHORT).show();
                                 break;
                         }
 

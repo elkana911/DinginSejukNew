@@ -20,8 +20,13 @@ import com.elkana.teknisi.pojo.IsiDataAC;
 import com.elkana.teknisi.pojo.MobileSetup;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -69,7 +74,7 @@ public class TeknisiUtil {
             realm.close();
         }
     }
-
+/*
     public static void initiateOfflineData() {
 
         Realm r = Realm.getDefaultInstance();
@@ -86,21 +91,6 @@ public class TeknisiUtil {
                     mobileSetup.setTheme_color_default_accent("#00f73e");
                     mobileSetup.setTheme_color_default_inactive("#000000");
 
-                    /*
-                    mobileSetup.setTheme_color_cleaning("#00796a");
-                    mobileSetup.setTheme_color_cleaning_accent("#e7f4fc");
-                    mobileSetup.setTheme_color_cleaning_inactive("#bac9cc");
-                    mobileSetup.setTheme_color_electric("#00796a");
-                    mobileSetup.setTheme_color_electric_accent("#e7f4fc");
-                    mobileSetup.setTheme_color_electric_inactive("#bac9cc");
-                    mobileSetup.setTimeout_cancel_minute(Util.TESTING_MODE ? 2 : 30);
-                    realm.copyToRealmOrUpdate(new ServiceType(10, "Air Conditioner", "Air Conditioner"));
-                    realm.copyToRealmOrUpdate(new ServiceType(20, "Electricity", "PLN/Listrik"));
-
-                    realm.copyToRealmOrUpdate(new SubServiceType(10, "Cleaning", "Bersihin AC"));
-                    realm.copyToRealmOrUpdate(new SubServiceType(20, "Freon Charge", "Freon Charge"));
-                    realm.copyToRealmOrUpdate(new SubServiceType(30, "Installation", "Instalasi"));
-*/
                     mobileSetup.setTrackingGps(false);
                     mobileSetup.setMin_minutes_otw(60);
                     realm.copyToRealmOrUpdate(mobileSetup);
@@ -112,6 +102,7 @@ public class TeknisiUtil {
             r.close();
         }
     }
+*/
 
     public static String getServiceTypeLabel(Context ctx, int serviceType) {
         return serviceType < 2 ? ctx.getString(R.string.title_activity_ac_quickservice)
@@ -337,4 +328,41 @@ public class TeknisiUtil {
 */
     }
 
+    public static void CheckVersions(final String versionName, final ListenerModifyData listener) {
+        FirebaseDatabase.getInstance().getReference(REF_MASTER_SETUP)
+                .child("versions")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (listener == null)
+                            return;
+
+                        if (!dataSnapshot.exists())
+                            listener.onSuccess();
+
+                        GenericTypeIndicator<ArrayList<String>> t = new GenericTypeIndicator<ArrayList<String>>() {
+                        };
+
+                        List<String> versions = dataSnapshot.getValue(t);
+
+                        for (String s : versions) {
+                            if (s.equalsIgnoreCase(versionName)) {
+                                listener.onSuccess();
+                                return;
+                            }
+                        }
+
+                        listener.onError(new RuntimeException("No Version match"));
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        // failed to check ? skip
+                        if (listener != null) {
+                            listener.onSuccess();
+                        }
+                    }
+                });
+    }
 }

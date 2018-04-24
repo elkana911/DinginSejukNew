@@ -2,6 +2,7 @@ package com.elkana.teknisi.screen.order;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +36,7 @@ import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -180,6 +183,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
         public TextView tvNewOrderMsg, tvCounter, tvPleaseAcceptNewOrder, tvOrderInfo;
         public View view;
         public FloatingActionButton btnDenyOrder, btnTakeOrder, btnCloseExpired;
+        public Button btnPickTime;
 
         CountDownTimer timer;
 
@@ -195,6 +199,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
 //            tvAddress.setCompoundDrawablePadding(10);
 //            tvAddress.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(itemView.getContext(), R.drawable.ic_home_black_24dp, android.R.color.holo_blue_dark), null, null, null);
             btnDenyOrder = itemView.findViewById(R.id.btnDenyOrder);
+            btnPickTime = itemView.findViewById(R.id.btnPickTime);
 
             btnTakeOrder = itemView.findViewById(R.id.btnTakeOrder);
 
@@ -212,11 +217,28 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
 //            tvCustomerName.setText(data.getCustomerName());
 //            tvOrderTime.setText(Util.convertDateToString(new Date(data.getTimestamp()), "dd MMM yyyy HH:mm"));
             StringBuilder sb = new StringBuilder();
-            sb.append("Jadwal : ").append(DateUtil.displayTimeInJakarta(data.getOrderTimestamp(), "dd MMM yyyy HH:mm")).append("\n");
-            sb.append("Jumlah AC : ").append(data.getAcCount()).append("\n");
+
+            // TODO perlu konfirmasi ke rony, jika suatu saat mitra bisa menentukan slot wkt apakah teknisi bisa ganti jam lain ?
+            if (data.isServiceTimeFree()) {
+                btnPickTime.setVisibility(View.VISIBLE);
+                sb.append("Jadwal : ");
+                if (data.getTimeOfService().equals("99:99")) {
+
+                    sb.append(Util.prettyDate(mContext, Util.convertStringToDate(data.getDateOfService(), "yyyyMMdd"), true));
+                    sb.append(" Jam Kerja");
+
+                }else
+                    sb.append(DateUtil.displayTimeInJakarta(data.getServiceTimestamp(), "dd MMM yyyy HH:mm"));
+//                    sb.append(data.getTimeOfService());
+            } else {
+                btnPickTime.setVisibility(View.GONE);
+                sb.append("Jadwal : ").append(DateUtil.displayTimeInJakarta(data.getServiceTimestamp(), "dd MMM yyyy HH:mm"));
+            }
+
+            sb.append("\nJumlah AC : ").append(data.getAcCount());
 //            sb.append("Alamat : ").append(data.getAddress()).append("\n");
-            sb.append(data.getAddress()).append("\n");
-            sb.append(data.getCustomerName()).append("\n");
+            sb.append("\n").append(data.getAddress());
+            sb.append("\n").append(data.getCustomerName());
 //            sb.append("MitraTimestamp : ").append(DateUtil.displayTimeInJakarta(data.getMitraTimestamp(), "dd MMM yyyy HH:mm:ss")).append(data.getMitraTimestamp()).append("\n");
 //            sb.append("Timestamp : ").append(DateUtil.displayTimeInJakarta(data.getTimestamp(), "dd MMM yyyy HH:mm:ss")). append(data.getTimestamp()).append("\n");
 //            sb.append("Nama : ").append(data.getCustomerName()).append("\n");
@@ -262,13 +284,39 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                 @Override
                 public void onClick(View v) {
 
-                    if (mListener != null)
-                        mListener.onAccept(data, new ListenerPositiveConfirmation() {
-                            @Override
-                            public void onPositive() {
-                                timer.cancel();
+                    if (mListener != null) {
+
+                        // TODO pastikan jam udah berubah sewaktu diisi teknisi
+                        if (data.isServiceTimeFree()) {
+                            // cek dulu sapa tau time sudah diisi oleh mitra jd teknisi tidak usah isi jam
+                            if (data.getTimeOfService().equals("99:99")) {
+                                Toast.makeText(mContext, "Mohon " + btnPickTime.getText().toString(), Toast.LENGTH_SHORT).show();
+                            } else {
+                                // TODO krn teknisi bisa atur jam maka isian serviceTimestamp jangan sampai ga cocok dgn dateOfService dan timeOfService
+                                String _tgl = DateUtil.displayTimeInJakarta(data.getServiceTimestamp(), "dd MMM yyyy");
+                                String _jam = DateUtil.displayTimeInJakarta(data.getServiceTimestamp(), "HH:mm");
+                                Util.showDialogConfirmation(mContext, "Ambil Order", "Pastikan Anda bisa bekerja di Tanggal " + _tgl + "\nJam " + _jam, new ListenerPositiveConfirmation() {
+                                    @Override
+                                    public void onPositive() {
+                                        mListener.onAccept(data, new ListenerPositiveConfirmation() {
+                                            @Override
+                                            public void onPositive() {
+                                                timer.cancel();
+                                            }
+                                        });
+                                    }
+                                });
                             }
-                        });
+
+                        } else {
+                            mListener.onAccept(data, new ListenerPositiveConfirmation() {
+                                @Override
+                                public void onPositive() {
+                                    timer.cancel();
+                                }
+                            });
+                        }
+                    }
 /*
                     final AlertDialog alertDialog = Util.showProgressDialog(mContext, "Taking Order");
 
@@ -337,6 +385,63 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                 }
             });
 
+            btnPickTime.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    // filter waktu buka berdasarkan hari service
+                    int openTime = data.getMitraOpenTime();
+                    int closeTime = data.getMitraCloseTime();
+                    int offsetHour = 2;
+                    String nextDayYYYYMMDD = data.getDateOfService();
+
+                    Date now = new Date();
+                    String today = Util.convertDateToString(now, "yyyyMMdd");
+                    if (nextDayYYYYMMDD.equals(today)) {
+                        Calendar c = Calendar.getInstance();
+                        c.setTime(now);
+
+                        int currentHour = c.get(Calendar.HOUR_OF_DAY);
+                        if (currentHour > openTime)
+                            openTime = currentHour + offsetHour;
+                    }
+
+                    // show working hours of selected mitra
+                    final String[] time_services = DateUtil.generateWorkingHours(openTime, closeTime, 15);
+
+                    android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(mContext);
+                    builder.setTitle("Pilih Jam Pengerjaan");
+
+                    builder.setItems(time_services, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            String pick = time_services[which];
+                            data.setTimeOfService(pick);
+
+                            // recalculate
+                            data.setServiceTimestamp(DateUtil.compileDateAndTime(data.getDateOfService(), data.getTimeOfService()));
+
+                            // TODO  update mList to enable submit data updated. the goal is to update value of timeOfService so mitra & customer may know the serviceTimestamp
+                            // need to scan again in case notifyneworder updated
+                            for (int i = 0; i < mList.size(); i++) {
+                                if (data.getOrderId().equals(mList.get(i).getOrderId())) {
+                                    mList.set(i, data);
+
+                                    // TODO coba cek apakah tampilan berubah ?
+                                    notifyDataSetChanged();
+                                    break;
+                                }
+                            }
+
+                        }
+                    });
+
+                    android.support.v7.app.AlertDialog dialog = builder.create();
+                    dialog.show();
+
+                }
+            });
         }
 
         public void startTimer(NotifyNewOrderItem obj) {
@@ -346,7 +451,8 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
             if (timer != null)
                 return;
 
-            long startMillis = obj.getMitraTimestamp() + (obj.getMinuteExtra() * DateUtil.TIME_ONE_MINUTE_MILLIS);
+            long startMillis = obj.getCreatedTimestamp() + (obj.getMinuteExtra() * DateUtil.TIME_ONE_MINUTE_MILLIS);
+//            long startMillis = obj.getMitraTimestamp() + (obj.getMinuteExtra() * DateUtil.TIME_ONE_MINUTE_MILLIS);
 
             final long expirationMillis = startMillis - new Date().getTime();
 //            String start = DateUtil.formatMillisToMinutesSeconds(expirationMillis);
@@ -358,7 +464,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
 //                    String ss = Util.convertDateToString(new Date(millisUntilFinished), "mm:ss");
                     tvCounter.setText(ss);
 
-                    if (expirationMillis < (5 * 1000)) {
+                    if (expirationMillis < (60 * 1000)) {
                         tvCounter.setTextColor(ContextCompat.getColor(mContext, android.R.color.holo_red_light));
                     }
                 }
@@ -369,6 +475,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                     btnDenyOrder.setVisibility(View.INVISIBLE);
                     btnTakeOrder.setVisibility(View.INVISIBLE);
                     btnCloseExpired.setVisibility(View.VISIBLE);
+                    btnPickTime.setVisibility(View.GONE);
 
                     if (mListener != null)
                         mListener.onTimesUp();
