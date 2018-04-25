@@ -14,6 +14,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -25,6 +26,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.elkana.dslibrary.firebase.FBFunction_BasicCallableRecord;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetLong;
 import com.elkana.dslibrary.listener.ListenerModifyData;
@@ -47,6 +49,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -271,6 +275,59 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                     @Override
                     public void onPositive() {
 
+                        final AlertDialog _dialog =  Util.showProgressDialog(MapsActivity.this);
+                        final Map<String, Object> keyVal = new HashMap<>();
+                        keyVal.put("mitraId", mMitraId);
+                        keyVal.put("technicianId", mTechnicianId);
+                        keyVal.put("assignmentId", mAssignmentId);
+                        keyVal.put("customerId", mCustomerId);
+                        keyVal.put("orderId", mOrderId);
+                        keyVal.put("requestBy", String.valueOf(Const.USER_AS_TECHNICIAN));
+
+                        mFunctions.getHttpsCallable(FBUtil.FUNCTION_TECHNICIAN_START_WORKING)
+                                .call(keyVal)
+                                .continueWith(new FBFunction_BasicCallableRecord())
+                                .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Map<String, Object>> task) {
+                                        _dialog.dismiss();
+
+                                        if (!task.isSuccessful()) {
+                                            Log.e(TAG, task.getException().getMessage(), task.getException());
+                                            Toast.makeText(MapsActivity.this, FBUtil.friendlyTaskNotSuccessfulMessage(task.getException()), Toast.LENGTH_LONG).show();
+                                            return;
+                                        }
+
+//                                        String orderId = (String) task.getResult().get("orderKey");cuma contoh
+                                        //turn off tracking
+                                        Realm r = Realm.getDefaultInstance();
+                                        try{
+                                            MobileSetup setup = r.where(MobileSetup.class).findFirst();
+
+                                            r.beginTransaction();
+                                            setup.setTrackingGps(false);
+
+                                            r.copyToRealmOrUpdate(setup);
+                                            r.commitTransaction();
+                                        }finally {
+                                            r.close();
+                                        }
+
+                                        Intent data = new Intent();
+                                        data.putExtra("statusDetailId", EOrderDetailStatus.WORKING.name());
+                                        data.putExtra(PARAM_ASSIGNMENT_ID, mAssignmentId);
+                                        data.putExtra(PARAM_CUSTOMER_ID, mCustomerId);
+                                        data.putExtra(PARAM_ORDER_ID, mOrderId);
+                                        data.putExtra(PARAM_TECHNICIAN_ID, mTechnicianId);
+                                        data.putExtra(PARAM_MITRA_ID, mMitraId);
+                                        data.putExtra(PARAM_SERVICE_TYPE, mServiceType);
+                                        setResult(RESULT_OK, data);
+                                        finish();
+
+                                    }
+                                });
+
+/*
                         //turn off tracking
                         Realm r = Realm.getDefaultInstance();
                         try{
@@ -284,8 +341,6 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                         }finally {
                             r.close();
                         }
-
-                        final AlertDialog _dialog =  Util.showProgressDialog(MapsActivity.this);
 
                         Assignment_setStatus(mMitraId, mTechnicianId, mAssignmentId, mCustomerId, mOrderId, EOrderDetailStatus.WORKING, new ListenerModifyData() {
                                 @Override
@@ -323,7 +378,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                                 Log.e(TAG, e.getMessage());
                             }
                         });
-
+*/
                     }
                 });
             }
@@ -343,6 +398,54 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
 
                 final AlertDialog _dialog = Util.showProgressDialog(MapsActivity.this);
 
+                final Map<String, Object> keyVal = new HashMap<>();
+                keyVal.put("mitraId", mMitraId);
+                keyVal.put("technicianId", mTechnicianId);
+                keyVal.put("assignmentId", mAssignmentId);
+                keyVal.put("customerId", mCustomerId);
+                keyVal.put("orderId", mOrderId);
+                keyVal.put("requestBy", String.valueOf(Const.USER_AS_TECHNICIAN));
+
+                mFunctions.getHttpsCallable(FBUtil.FUNCTION_TECHNICIAN_START_OTW)
+                        .call(keyVal)
+                        .continueWith(new FBFunction_BasicCallableRecord())
+                        .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Map<String, Object>> task) {
+                                _dialog.dismiss();
+
+                                if (!task.isSuccessful()) {
+                                    Log.e(TAG, task.getException().getMessage(), task.getException());
+                                    Toast.makeText(MapsActivity.this, FBUtil.friendlyTaskNotSuccessfulMessage(task.getException()), Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+
+//                                        String orderId = (String) task.getResult().get("orderKey");cuma contoh
+                                btnStartOtw.setVisibility(View.GONE);
+                                btnStartWorking.setVisibility(View.VISIBLE);
+                                _dialog.dismiss();
+
+                                //turn on tracking
+                                Realm r = Realm.getDefaultInstance();
+                                try{
+                                    MobileSetup setup = r.where(MobileSetup.class).findFirst();
+
+                                    r.beginTransaction();
+                                    setup.setTrackingGps(true);
+                                    setup.setTrackingOrderId(mOrderId);
+
+                                    r.copyToRealmOrUpdate(setup);
+                                    r.commitTransaction();
+
+                                    // TODO: send first coordinate !
+                                    SyncMovementJob.markLocation(MapsActivity.this);
+                                }finally {
+                                    r.close();
+                                }
+
+                            }
+                        });
+  /*
                 //1. cek dulu apa user cancel order ?
                 final DatabaseReference orderRef = FBUtil.Order_getPendingCustomerRef(mCustomerId, mOrderId);
 
@@ -406,7 +509,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                         Log.e(TAG, databaseError.getMessage(), databaseError.toException());
                     }
                 });
-
+*/
             }
         });
 

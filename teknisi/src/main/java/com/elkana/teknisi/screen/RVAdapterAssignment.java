@@ -33,7 +33,6 @@ import java.util.List;
 /**
  * Created by Eric on 13-Nov-17.
  */
-
 public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = RVAdapterAssignment.class.getSimpleName();

@@ -46,7 +46,8 @@ public class OrderHeader extends RealmObject implements Serializable {
     private String ratingCustomerComments;
     private String ratingTechnicianComments;
     private String problem;
-    private boolean serviceTimeFree;
+    private boolean serviceTimeFree;    // see mobilesetup.serviceTimeFreeDecisionType
+    private int serviceTimeFreeDecisionType;    // see mobilesetup.serviceTimeFreeDecisionType
     private String dateOfService;   // yyyyMMdd.
     private String timeOfService;   //HH:mm bisa diisi oleh mitra/teknisi kalo customer pilih waktu bebas
     private String phone;
@@ -334,6 +335,14 @@ public class OrderHeader extends RealmObject implements Serializable {
         this.serviceTimeFree = serviceTimeFree;
     }
 
+    public int getServiceTimeFreeDecisionType() {
+        return serviceTimeFreeDecisionType;
+    }
+
+    public void setServiceTimeFreeDecisionType(int serviceTimeFreeDecisionType) {
+        this.serviceTimeFreeDecisionType = serviceTimeFreeDecisionType;
+    }
+
     public long getServiceTimestamp() {
         return serviceTimestamp;
     }
@@ -370,6 +379,7 @@ public class OrderHeader extends RealmObject implements Serializable {
                 ", ratingTechnicianComments='" + ratingTechnicianComments + '\'' +
                 ", problem='" + problem + '\'' +
                 ", serviceTimeFree=" + serviceTimeFree +
+                ", serviceTimeFreeDecisionType=" + serviceTimeFreeDecisionType +
                 ", dateOfService='" + dateOfService + '\'' +
                 ", timeOfService='" + timeOfService + '\'' +
                 ", phone='" + phone + '\'' +

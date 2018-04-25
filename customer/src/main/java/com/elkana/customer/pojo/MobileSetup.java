@@ -51,6 +51,13 @@ public class MobileSetup extends RealmObject implements Serializable {
     private boolean show_timer;
 
     /**
+     * 25 apr 2018
+     * fitur baru utk opsi alternatif project, apakah utk order yg serviceTimeFree=true waktu utk teknisi / mitra pilih jamnya secepatnya atau menyusul
+     * see orderheader.serviceTimeFree
+     */
+    private int serviceTimeFreeDecisionType;    // 0: jam harus ditentukan sebeum ambil order, 1: jam dapat ditentukan nanti/menyusul
+
+    /**
      * rencanany tiap status sebelum WORKING bisa auto_cancel tiap life_per_status_minute
      * @see #life_per_status_minute
      */
@@ -188,6 +195,18 @@ public class MobileSetup extends RealmObject implements Serializable {
         this.auto_cancel = auto_cancel;
     }
 
+    public int getServiceTimeFreeDecisionType() {
+        return serviceTimeFreeDecisionType;
+    }
+
+    public void setServiceTimeFreeDecisionType(int serviceTimeFreeDecisionType) {
+        this.serviceTimeFreeDecisionType = serviceTimeFreeDecisionType;
+    }
+
+    public void setAppLifeTime(long appLifeTime) {
+        this.appLifeTime = appLifeTime;
+    }
+
     @Override
     public String toString() {
         return "MobileSetup{" +
@@ -206,12 +225,8 @@ public class MobileSetup extends RealmObject implements Serializable {
                 ", life_per_status_minute=" + life_per_status_minute +
                 ", minimal_booking_hour=" + minimal_booking_hour +
                 ", show_timer=" + show_timer +
+                ", serviceTimeFreeDecisionType=" + serviceTimeFreeDecisionType +
                 ", auto_cancel=" + auto_cancel +
                 '}';
     }
-
-    public void setAppLifeTime(long appLifeTime) {
-        this.appLifeTime = appLifeTime;
-    }
-
 }

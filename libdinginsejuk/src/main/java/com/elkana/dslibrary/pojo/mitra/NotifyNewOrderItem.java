@@ -14,6 +14,7 @@ public class NotifyNewOrderItem {
     private String customerName;
     private String dateOfService;   // yyyyMMdd.
     private String timeOfService;   // HH:mm bisa diisi oleh mitra/teknisi kalo customer pilih waktu bebas
+    private int serviceTimeFreeDecisionType;
     private boolean serviceTimeFree;
     private long serviceTimestamp;    // order timestamp
 //    private long timestamp; // inserted timestamp. diganti mitraTimestamp
@@ -85,6 +86,14 @@ public class NotifyNewOrderItem {
 
     public void setServiceTimestamp(long serviceTimestamp) {
         this.serviceTimestamp = serviceTimestamp;
+    }
+
+    public int getServiceTimeFreeDecisionType() {
+        return serviceTimeFreeDecisionType;
+    }
+
+    public void setServiceTimeFreeDecisionType(int serviceTimeFreeDecisionType) {
+        this.serviceTimeFreeDecisionType = serviceTimeFreeDecisionType;
     }
 
     public boolean isServiceTimeFree() {
@@ -163,6 +172,7 @@ public class NotifyNewOrderItem {
                 ", customerName='" + customerName + '\'' +
                 ", dateOfService='" + dateOfService + '\'' +
                 ", timeOfService='" + timeOfService + '\'' +
+                ", serviceTimeFreeDecisionType=" + serviceTimeFreeDecisionType +
                 ", serviceTimeFree=" + serviceTimeFree +
                 ", serviceTimestamp=" + serviceTimestamp +
                 ", mitraTimestamp=" + mitraTimestamp +

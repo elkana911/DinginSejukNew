@@ -78,7 +78,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                 //disable krn msh testing new order
                 // hanya ambil yg belum expired. dikurangi 1 menit utk toleransi klik/koneksi. misal diinfo 10 menit timer, tp sebenere cuma dikasih 9 menit utk tampil di layar
 //                if (TeknisiUtil.isExpiredTime(_obj.getMitraTimestamp(), mobileSetup.getWindow_new_order_minutes() - 1)) {
-                    // delete
+                // delete
 //                    FBUtil.TechnicianReg_deleteNotifyNewOrder(mMitraId, mTechId, _obj.getOrderId(), null);
 //                    return;
 //                }
@@ -227,7 +227,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                     sb.append(Util.prettyDate(mContext, Util.convertStringToDate(data.getDateOfService(), "yyyyMMdd"), true));
                     sb.append(" Jam Kerja");
 
-                }else
+                } else
                     sb.append(DateUtil.displayTimeInJakarta(data.getServiceTimestamp(), "dd MMM yyyy HH:mm"));
 //                    sb.append(data.getTimeOfService());
             } else {
@@ -284,10 +284,31 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                 @Override
                 public void onClick(View v) {
 
-                    if (mListener != null) {
+                    if (mListener == null)
+                        return;
 
-                        // TODO pastikan jam udah berubah sewaktu diisi teknisi
-                        if (data.isServiceTimeFree()) {
+                    // TODO pastikan jam udah berubah sewaktu diisi teknisi
+                    if (!data.isServiceTimeFree()) {
+                        mListener.onAccept(data, new ListenerPositiveConfirmation() {
+                            @Override
+                            public void onPositive() {
+                                timer.cancel();
+                            }
+                        });
+                    }
+
+                    switch (data.getServiceTimeFreeDecisionType()) {
+                        case Const.SERVICETIMEFREEDECISIONTYPE_LATER:
+                            // jadi biarin aja isi timeOfservice=99:99 krn bisa diatur menyusul
+                            mListener.onAccept(data, new ListenerPositiveConfirmation() {
+                                @Override
+                                public void onPositive() {
+                                    timer.cancel();
+                                }
+                            });
+
+                            break;
+                        case Const.SERVICETIMEFREEDECISIONTYPE_NOW:
                             // cek dulu sapa tau time sudah diisi oleh mitra jd teknisi tidak usah isi jam
                             if (data.getTimeOfService().equals("99:99")) {
                                 Toast.makeText(mContext, "Mohon " + btnPickTime.getText().toString(), Toast.LENGTH_SHORT).show();
@@ -307,16 +328,9 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                                     }
                                 });
                             }
-
-                        } else {
-                            mListener.onAccept(data, new ListenerPositiveConfirmation() {
-                                @Override
-                                public void onPositive() {
-                                    timer.cancel();
-                                }
-                            });
-                        }
+                            break;
                     }
+
 /*
                     final AlertDialog alertDialog = Util.showProgressDialog(mContext, "Taking Order");
 
@@ -385,7 +399,9 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                 }
             });
 
-            btnPickTime.setOnClickListener(new View.OnClickListener() {
+            btnPickTime.setOnClickListener(new View.OnClickListener()
+
+            {
                 @Override
                 public void onClick(View v) {
 

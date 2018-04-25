@@ -1096,6 +1096,7 @@ public class FragmentOrderACNew extends Fragment {
                 orderHeader.setDateOfService(kapanYYYYMMDD);
                 orderHeader.setTimeOfService(jam);
                 orderHeader.setServiceTimeFree(switch1.isChecked());
+                orderHeader.setServiceTimeFreeDecisionType(mobileSetup.getServiceTimeFreeDecisionType());
                 orderHeader.setServiceTimestamp(serviceTimestamp);
                 orderHeader.setServiceType(DateUtil.isToday(orderHeader.getServiceTimestamp()) ? Const.SERVICE_TYPE_QUICK : Const.SERVICE_TYPE_SCHEDULED);
                 orderHeader.setStatusId(EOrderStatus.PENDING.name());

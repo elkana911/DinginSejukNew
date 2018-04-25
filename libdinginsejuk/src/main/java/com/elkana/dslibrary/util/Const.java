@@ -34,4 +34,6 @@ public class Const {
     public static final String KEY_BOOKING_TIMESTAMP = "key_timestamp";
     public static final String KEY_MESSAGE = "key_message";
 
+    public static final int SERVICETIMEFREEDECISIONTYPE_LATER = 0;
+    public static final int SERVICETIMEFREEDECISIONTYPE_NOW = 1;
 }
