@@ -76,6 +76,11 @@
             android:label="@string/title_activity_tech_otw_maps"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".screen.map.ActivityMaps"
+            android:label="@string/title_activity_maps"
+            android:screenOrientation="portrait" />
+
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").

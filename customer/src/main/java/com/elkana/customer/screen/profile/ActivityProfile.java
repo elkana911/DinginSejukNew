@@ -1,9 +1,13 @@
 package com.elkana.customer.screen.profile;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -33,6 +37,7 @@ import io.realm.RealmResults;
 public class ActivityProfile extends AFirebaseCustomerActivity {
 
     private static final String TAG = "Profile";
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 413;
     private static final int RESULTCODE_MAP = 66;
 
     public static final String MODE_EDIT_ADDRESS = "editAddress";
@@ -61,6 +66,16 @@ public class ActivityProfile extends AFirebaseCustomerActivity {
     @BindView(R.id.btnUpdate)
     Button btnUpdate;
 */
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        ActivityCompat.requestPermissions(this, new String[]{
+                        android.Manifest.permission.ACCESS_FINE_LOCATION
+                },
+                MY_PERMISSIONS_REQUEST_LOCATION);
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +141,22 @@ public class ActivityProfile extends AFirebaseCustomerActivity {
         });
         rvAddress.setAdapter(mAdapter);
         rvAddress.setLayoutManager(new LinearLayoutManager(this));
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        ) {
+//                    signIn();
+                } else {
+                    Toast.makeText(this, "You need to allow requested access to continue.", Toast.LENGTH_LONG).show();
+                    finish();
+                }
+                break;
+        }
 
     }
 

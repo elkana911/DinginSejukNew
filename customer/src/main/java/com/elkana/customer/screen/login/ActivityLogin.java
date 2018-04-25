@@ -6,10 +6,10 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -23,11 +23,11 @@ import android.widget.Toast;
 import com.elkana.customer.BuildConfig;
 import com.elkana.customer.R;
 import com.elkana.customer.pojo.MobileSetup;
-import com.elkana.customer.screen.AFirebaseCustomerActivity;
 import com.elkana.customer.screen.MainActivity;
 import com.elkana.customer.screen.intro.ActivityIntro;
 import com.elkana.customer.screen.register.ActivityRegister;
 import com.elkana.customer.util.CustomerUtil;
+import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.util.Const;
@@ -43,9 +43,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import io.realm.Realm;
 
-public class ActivityLogin extends AFirebaseCustomerActivity {
+/*
+ utk login sbg layar utama jgn extend AfirebaseCustomerActivity krn akan force close di mobilesetup
+  */
+public class ActivityLogin extends FirebaseActivity {
     private static final String TAG = ActivityLogin.class.getSimpleName();
-    private static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE_STORAGE = 413;
+//    private static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE_STORAGE = 413;
 //    private static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE_CAMERA_STORAGE = 413;  camera dipisah aja krn buat photo profile yg bukan mandatory
 
     AutoCompleteTextView mEmailView;
@@ -55,13 +58,13 @@ public class ActivityLogin extends AFirebaseCustomerActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        ActivityCompat.requestPermissions(this, new String[]{
-                        android.Manifest.permission.ACCESS_FINE_LOCATION
-                        , android.Manifest.permission.CALL_PHONE
-//                        , android.Manifest.permission.CAMERA
-                        , android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-                },
-                MY_PERMISSIONS_REQUEST_LOCATION_PHONE_STORAGE);
+//        ActivityCompat.requestPermissions(this, new String[]{
+//                        android.Manifest.permission.ACCESS_FINE_LOCATION
+//                        , android.Manifest.permission.CALL_PHONE
+////                        , android.Manifest.permission.CAMERA
+//                        , android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+//                },
+//                MY_PERMISSIONS_REQUEST_LOCATION_PHONE_STORAGE);
 
     }
 
@@ -149,27 +152,33 @@ public class ActivityLogin extends AFirebaseCustomerActivity {
     }
 
     @Override
+    protected void onLoggedOff() {
+        btnLogin.setEnabled(true);
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION_PHONE_STORAGE:
-                if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                        && grantResults[1] == PackageManager.PERMISSION_GRANTED
-                        && grantResults[2] == PackageManager.PERMISSION_GRANTED
-//                        && grantResults[3] == PackageManager.PERMISSION_GRANTED
-                        ) {
-//                    signIn();
-                } else {
-                    Toast.makeText(this, "You need to allow requested access to continue.", Toast.LENGTH_LONG).show();
-                    finish();
-                }
-                break;
-        }
+//        switch (requestCode) {
+//            case MY_PERMISSIONS_REQUEST_LOCATION_PHONE_STORAGE:
+//                if (grantResults.length > 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+//                        && grantResults[1] == PackageManager.PERMISSION_GRANTED
+//                        && grantResults[2] == PackageManager.PERMISSION_GRANTED
+////                        && grantResults[3] == PackageManager.PERMISSION_GRANTED
+//                        ) {
+////                    signIn();
+//                } else {
+//                    Toast.makeText(this, "You need to allow requested access to continue.", Toast.LENGTH_LONG).show();
+//                    finish();
+//                }
+//                break;
+//        }
     }
 
     @Override
     protected void onLoggedOn(FirebaseUser user) {
-
+        btnLogin.setEnabled(false);
+//        Toast.makeText(this, "You are logged on as " + user.getEmail(), Toast.LENGTH_LONG).show();
         // reset token device
         FBUtil.Customer_addToken(user.getUid(), new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
 

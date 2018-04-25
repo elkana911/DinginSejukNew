@@ -1,17 +1,16 @@
 package com.elkana.ds.mitraapp.screen.login;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -23,11 +22,10 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.elkana.ds.mitraapp.AFirebaseMitraActivity;
 import com.elkana.ds.mitraapp.BuildConfig;
-import com.elkana.ds.mitraapp.screen.MainActivity;
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.MobileSetup;
+import com.elkana.ds.mitraapp.screen.MainActivity;
 import com.elkana.ds.mitraapp.screen.register.ActivityRegister;
 import com.elkana.ds.mitraapp.util.MitraUtil;
 import com.elkana.dslibrary.activity.FirebaseActivity;
@@ -38,20 +36,18 @@ import com.elkana.dslibrary.util.SharedPrefUtil;
 import com.elkana.dslibrary.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import io.realm.Realm;
 
-public class ActivityLogin extends AFirebaseMitraActivity {
+/*
+ utk login sbg layar utama jgn extend AfirebaseMitraActivity krn akan force close di mobilesetup
+  */
+public class ActivityLogin extends FirebaseActivity {
     private static final String TAG = ActivityLogin.class.getSimpleName();
 
     private static final int REQUESTCODE_REGISTER = 43;
@@ -229,11 +225,12 @@ public class ActivityLogin extends AFirebaseMitraActivity {
 
     @Override
     protected void onLoggedOff() {
-
+        btnSignIn.setEnabled(true);
     }
 
     @Override
     protected void onLoggedOn(final FirebaseUser user) {
+        btnSignIn.setEnabled(false);
 
         //this sso is confusing
 //        final Map<String, Object> keyVal = new HashMap<>();

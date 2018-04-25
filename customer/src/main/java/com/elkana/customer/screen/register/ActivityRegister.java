@@ -2,11 +2,14 @@ package com.elkana.customer.screen.register;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -42,6 +45,7 @@ import io.realm.Realm;
 
 public class ActivityRegister extends AFirebaseCustomerActivity {
     private static final String TAG = ActivityRegister.class.getSimpleName();
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 413;
     private static final int REQUESTCODE_MAP = 66;
 
     private RVAdapterUserAddress mAdapter;
@@ -50,6 +54,16 @@ public class ActivityRegister extends AFirebaseCustomerActivity {
     RecyclerView rvAddress;
     EditText mNama, mEmail, mPassword, mPhone;
     Button btnRegister, btnSignIn;
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        ActivityCompat.requestPermissions(this, new String[]{
+                        android.Manifest.permission.ACCESS_FINE_LOCATION
+                },
+                MY_PERMISSIONS_REQUEST_LOCATION);
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +132,22 @@ public class ActivityRegister extends AFirebaseCustomerActivity {
             mEmail.setText("elkana911@yahoo.com");
             mPhone.setText("087886283377");
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        ) {
+//                    signIn();
+                } else {
+                    Toast.makeText(this, "You need to allow requested access to continue.", Toast.LENGTH_LONG).show();
+                    finish();
+                }
+                break;
+        }
+
     }
 
     @Override

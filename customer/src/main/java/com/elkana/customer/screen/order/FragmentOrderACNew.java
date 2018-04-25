@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
@@ -97,6 +99,9 @@ import io.realm.RealmResults;
  * create an instance of this fragment.
  */
 public class FragmentOrderACNew extends Fragment {
+
+//    private static final int MY_PERMISSIONS_REQUEST_LOCATION_PHONE = 511;
+
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "userId";
     private static final String ARG_PARAM2 = "param2";
@@ -1173,5 +1178,7 @@ public class FragmentOrderACNew extends Fragment {
         void onError(Exception e);
 
         void onOrderCreated(OrderHeader newOrder);
+
+        void onPermissionDeniedByUser();
     }
 }

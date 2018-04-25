@@ -3,9 +3,7 @@ package com.elkana.customer.screen.order;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -643,9 +641,8 @@ public class FragmentSummaryOrder extends Fragment {
 
                     String availPhone = mitra.getPhone1() == null ? mitra.getPhone2() : mitra.getPhone1();
 
-                    Intent callIntent = new Intent(Intent.ACTION_CALL);
-                    callIntent.setData(Uri.parse("tel:" + availPhone));
-                    startActivity(callIntent);
+                    if (mListener != null)
+                        mListener.onCallMitra(availPhone);
 
                 } finally {
                     realm.close();
@@ -1037,5 +1034,7 @@ public class FragmentSummaryOrder extends Fragment {
         void onOrderRescheduled(int serviceType, String invoiceNo);
 
         void onClickCheckTechnicianGps(String orderId, String technicianName);
+
+        void onCallMitra(String availPhone);
     }
 }

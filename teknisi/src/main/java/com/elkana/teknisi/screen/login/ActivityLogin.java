@@ -37,13 +37,18 @@ import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import io.realm.Realm;
 
+/*
+ utk login sbg layar utama jgn extend AfirebaseTeknisiActivity krn akan force close di mobilesetup
+  */
 public class ActivityLogin extends FirebaseActivity {
     private static final String TAG = ActivityLogin.class.getSimpleName();
 
@@ -81,7 +86,7 @@ public class ActivityLogin extends FirebaseActivity {
         setContentView(R.layout.activity_login);
 
         // having mobilesetup is mandatory. no userid needed
-        mDatabase.getReference(TeknisiUtil.REF_MASTER_SETUP)
+        FirebaseDatabase.getInstance().getReference(TeknisiUtil.REF_MASTER_SETUP)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -159,26 +164,6 @@ public class ActivityLogin extends FirebaseActivity {
         mEmailView.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_mail_outline_black_24dp, android.R.color.darker_gray), null, null, null);
         mPassword.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_lock_outline_black_24dp, android.R.color.darker_gray), null, null, null);
 
-//        mPasswordView = (EditText) findViewById(R.id.password);
-//        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-//                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-//                    attemptLogin();
-//                    return true;
-//                }
-//                return false;
-//            }
-//        });
-
-//        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-//        mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                attemptLogin();
-//            }
-//        });
-
     }
 
     @Override
@@ -229,11 +214,12 @@ public class ActivityLogin extends FirebaseActivity {
 
     @Override
     protected void onLoggedOff() {
-
+        btnSignIn.setEnabled(true);
     }
 
     @Override
     protected void onLoggedOn(FirebaseUser user) {
+        btnSignIn.setEnabled(false);
 
         // check valid version ?
         int versionCode = BuildConfig.VERSION_CODE;

@@ -3,14 +3,17 @@ package com.elkana.customer.screen;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
@@ -23,8 +26,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,9 +41,7 @@ import com.elkana.customer.screen.order.FragmentOrderList;
 import com.elkana.customer.screen.order.FragmentSummaryOrder;
 import com.elkana.customer.screen.profile.ActivityProfile;
 import com.elkana.customer.screen.register.ActivityWelcomeNewUser;
-import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.util.CustomerUtil;
-import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.elkana.dslibrary.firebase.FBFunction_BasicCallableRecord;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.fragment.AdapterFragments;
@@ -80,6 +79,12 @@ public class MainActivity extends AFirebaseCustomerActivity
         , FragmentMitraListInRange.OnFragmentMitraListInRangeInteractionListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    // permission berikut sengaja dipisah2 spy Customer perlu tau ijin pemakaian utk suatu proses
+    private static final int MY_PERMISSIONS_REQUEST_STORAGE = 411;
+    private static final int MY_PERMISSIONS_REQUEST_CAMERA = 412;
+    private static final int MY_PERMISSIONS_REQUEST_PHONE = 413;
+
     public static final String ORDER_NEW_ID = "order.new.id";
 
     private static final int PAGE_ORDER_LIST = 0;
@@ -96,6 +101,17 @@ public class MainActivity extends AFirebaseCustomerActivity
     ViewPager viewPager;
 
     private MenuItem menuEditProfile, menuLogout;
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        ActivityCompat.requestPermissions(this, new String[]{
+                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                },
+                MY_PERMISSIONS_REQUEST_STORAGE);
+
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -331,6 +347,38 @@ public class MainActivity extends AFirebaseCustomerActivity
 
         prepareScreen(false);
 
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        ) {
+//                    signIn();
+                } else {
+                    Toast.makeText(this, "You need to allow requested access to continue.", Toast.LENGTH_LONG).show();
+                    logout();
+                }
+                break;
+            case MY_PERMISSIONS_REQUEST_CAMERA:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        ) {
+//                    signIn();
+                } else {
+                    Toast.makeText(this, "You need to allow requested access to continue.", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case MY_PERMISSIONS_REQUEST_PHONE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        ) {
+//                    signIn();
+                } else {
+                    Toast.makeText(this, "You need to allow requested access to continue.", Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
 
     }
 
@@ -674,6 +722,19 @@ public class MainActivity extends AFirebaseCustomerActivity
     }
 
     @Override
+    public void onCallMitra(String availPhone) {
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CALL_PHONE}, MY_PERMISSIONS_REQUEST_PHONE);
+        } else {
+            Intent callIntent = new Intent(Intent.ACTION_CALL);
+            callIntent.setData(Uri.parse("tel:" + availPhone));
+            startActivity(callIntent);
+        }
+    }
+
+    @Override
     public void onClickSelectMitra(List<TmpMitra> mitraInRange) {
         Realm r = Realm.getDefaultInstance();
         try {
@@ -720,6 +781,12 @@ public class MainActivity extends AFirebaseCustomerActivity
         onGoToScreen(PAGE_ORDER_DETAIL, true, true);
 
         Util.showDialog(this, null, getString(R.string.message_order_created));
+
+    }
+
+    @Override
+    public void onPermissionDeniedByUser() {
+        Toast.makeText(this, "You need to allow requested access to continue.", Toast.LENGTH_LONG).show();
 
     }
 

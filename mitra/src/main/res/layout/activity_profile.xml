@@ -50,6 +50,7 @@
                     android:drawablePadding="20dp"
                     android:clickable="false"
                     android:focusable="false"
+                    android:textColor="@color/cardTextColorDisabled"
                     android:hint="@string/prompt_email"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"

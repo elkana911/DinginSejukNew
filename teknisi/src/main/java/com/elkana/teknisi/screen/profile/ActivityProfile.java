@@ -3,6 +3,7 @@ package com.elkana.teknisi.screen.profile;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.elkana.dslibrary.activity.FirebaseActivity;
@@ -55,6 +57,7 @@ public class ActivityProfile extends AFirebaseTeknisiActivity {
 
     private EditText etNama, etEmail, etPhone;
     private Button btnUpdate;
+    ImageView ivScanKTP;
 
     private List<UserMitra> mList = new ArrayList<>();
     private RVAdapterLamarMitra mAdapter;
@@ -112,6 +115,11 @@ public class ActivityProfile extends AFirebaseTeknisiActivity {
 
         final BasicInfo basicInfo = this.realm.where(BasicInfo.class).findFirst();
 
+        // bisa saja blm keburu dapat wkt sync di mainactivity. spy ga force close
+        if (basicInfo == null)
+            finish();
+
+        ivScanKTP = findViewById(R.id.ivScanKTP);
         etNama = findViewById(R.id.nama);
         etEmail = findViewById(R.id.email);
         etPhone = findViewById(R.id.etPhone);
@@ -137,6 +145,7 @@ public class ActivityProfile extends AFirebaseTeknisiActivity {
         });
 
         Button btnScanKTP = findViewById(R.id.btnScanKTP);
+        btnScanKTP.setVisibility(Util.DEVELOPER_MODE && Util.TESTING_MODE ? View.VISIBLE : View.GONE);
         btnScanKTP.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -235,10 +244,6 @@ public class ActivityProfile extends AFirebaseTeknisiActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode != REQUEST_CODE_MITRA) {
-            return;
-        }
-
         if (resultCode != RESULT_OK)
             return;
 
@@ -275,6 +280,8 @@ public class ActivityProfile extends AFirebaseTeknisiActivity {
 //                final ImageView imageView = ButterKnife.findById(v, R.id.imageView);
 //
 //                imageView.setImageBitmap(BitmapFactory.decodeStream(ims));
+                ivScanKTP.setImageBitmap(BitmapFactory.decodeStream(ims));
+                ivScanKTP.setVisibility(View.VISIBLE);
 
             } catch (FileNotFoundException e) {
                 return;
