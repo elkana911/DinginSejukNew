@@ -66,6 +66,15 @@
                 android:padding="4dp">
 
                 <TextView
+                    android:id="@+id/tvInvoiceNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:text="Invoice"
+                    android:textColor="@color/cardTextColor"
+                    android:textSize="12sp" />
+
+                <TextView
                     android:id="@+id/tvMitra"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -83,6 +92,14 @@
                     android:text="Tanggal Pesan:"
                     android:textColor="#c5ff0000"
                     android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btnPickTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:text="Pilih Jam Pengerjaan"
+                    android:textSize="14sp"/>
             </LinearLayout>
 
         </RelativeLayout>

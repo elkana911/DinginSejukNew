@@ -277,6 +277,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
 
                         final AlertDialog _dialog =  Util.showProgressDialog(MapsActivity.this);
                         final Map<String, Object> keyVal = new HashMap<>();
+                        keyVal.put("actionName", FBUtil.FUNCTION_TECHNICIAN_ACTION_START_WORKING);
                         keyVal.put("mitraId", mMitraId);
                         keyVal.put("technicianId", mTechnicianId);
                         keyVal.put("assignmentId", mAssignmentId);
@@ -284,7 +285,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                         keyVal.put("orderId", mOrderId);
                         keyVal.put("requestBy", String.valueOf(Const.USER_AS_TECHNICIAN));
 
-                        mFunctions.getHttpsCallable(FBUtil.FUNCTION_TECHNICIAN_START_WORKING)
+                        mFunctions.getHttpsCallable(FBUtil.FUNCTION_TECHNICIAN_ACTION)
                                 .call(keyVal)
                                 .continueWith(new FBFunction_BasicCallableRecord())
                                 .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {
@@ -399,6 +400,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                 final AlertDialog _dialog = Util.showProgressDialog(MapsActivity.this);
 
                 final Map<String, Object> keyVal = new HashMap<>();
+                keyVal.put("actionName", FBUtil.FUNCTION_TECHNICIAN_ACTION_START_OTW);
                 keyVal.put("mitraId", mMitraId);
                 keyVal.put("technicianId", mTechnicianId);
                 keyVal.put("assignmentId", mAssignmentId);
@@ -406,7 +408,7 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                 keyVal.put("orderId", mOrderId);
                 keyVal.put("requestBy", String.valueOf(Const.USER_AS_TECHNICIAN));
 
-                mFunctions.getHttpsCallable(FBUtil.FUNCTION_TECHNICIAN_START_OTW)
+                mFunctions.getHttpsCallable(FBUtil.FUNCTION_TECHNICIAN_ACTION)
                         .call(keyVal)
                         .continueWith(new FBFunction_BasicCallableRecord())
                         .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {

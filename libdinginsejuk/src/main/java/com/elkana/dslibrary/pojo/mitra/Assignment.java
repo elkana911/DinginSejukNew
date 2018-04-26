@@ -14,6 +14,7 @@ public class Assignment extends RealmObject implements Serializable {
     @PrimaryKey
     private String uid;
     private String orderId;         //orderHeader.uid
+    private String invoiceNo;
     private String technicianId;
     private String technicianName;
     private String customerId;      //orderHeader.customerId
@@ -30,6 +31,8 @@ public class Assignment extends RealmObject implements Serializable {
     private int serviceType;
     private String mitraId;
     private String mitraName;
+    private int mitraOpenTime;
+    private int mitraCloseTime;
     private String statusDetailId;  //should synchron 1 way with orderHeader.statusDetailId
     private String statusComment;   // diperlukan jika Server cancel dan customer diberikan alasan mengapa di cancel
     private long updatedTimestamp;
@@ -49,6 +52,14 @@ public class Assignment extends RealmObject implements Serializable {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
+    }
+
+    public String getInvoiceNo() {
+        return invoiceNo;
+    }
+
+    public void setInvoiceNo(String invoiceNo) {
+        this.invoiceNo = invoiceNo;
     }
 
     public String getTechnicianId() {
@@ -203,11 +214,28 @@ public class Assignment extends RealmObject implements Serializable {
         this.serviceType = serviceType;
     }
 
+    public int getMitraOpenTime() {
+        return mitraOpenTime;
+    }
+
+    public void setMitraOpenTime(int mitraOpenTime) {
+        this.mitraOpenTime = mitraOpenTime;
+    }
+
+    public int getMitraCloseTime() {
+        return mitraCloseTime;
+    }
+
+    public void setMitraCloseTime(int mitraCloseTime) {
+        this.mitraCloseTime = mitraCloseTime;
+    }
+
     @Override
     public String toString() {
         return "Assignment{" +
                 "uid='" + uid + '\'' +
                 ", orderId='" + orderId + '\'' +
+                ", invoiceNo='" + invoiceNo + '\'' +
                 ", technicianId='" + technicianId + '\'' +
                 ", technicianName='" + technicianName + '\'' +
                 ", customerId='" + customerId + '\'' +
@@ -223,6 +251,8 @@ public class Assignment extends RealmObject implements Serializable {
                 ", serviceType=" + serviceType +
                 ", mitraId='" + mitraId + '\'' +
                 ", mitraName='" + mitraName + '\'' +
+                ", mitraOpenTime=" + mitraOpenTime +
+                ", mitraCloseTime=" + mitraCloseTime +
                 ", statusDetailId='" + statusDetailId + '\'' +
                 ", statusComment='" + statusComment + '\'' +
                 ", updatedTimestamp=" + updatedTimestamp +

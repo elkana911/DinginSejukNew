@@ -45,6 +45,7 @@ import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.firebase.FBFunction_BasicCallableRecord;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.fragment.AdapterFragments;
+import com.elkana.dslibrary.fragment.FragmentBanner;
 import com.elkana.dslibrary.listener.ListenerSync;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.TmpMitra;
@@ -76,7 +77,8 @@ public class MainActivity extends AFirebaseCustomerActivity
         , FragmentOrderList.OnFragmentOrderListInteractionListener
         , FragmentOrderACNew.OnFragmentOrderACInteractionListener
         , FragmentSummaryOrder.OnFragmentSOInteractionListener
-        , FragmentMitraListInRange.OnFragmentMitraListInRangeInteractionListener {
+        , FragmentMitraListInRange.OnFragmentMitraListInRangeInteractionListener
+        ,FragmentBanner.OnFragmentBannerInteractionListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
 

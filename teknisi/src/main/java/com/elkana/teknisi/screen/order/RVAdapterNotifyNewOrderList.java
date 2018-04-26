@@ -220,7 +220,15 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
 
             // TODO perlu konfirmasi ke rony, jika suatu saat mitra bisa menentukan slot wkt apakah teknisi bisa ganti jam lain ?
             if (data.isServiceTimeFree()) {
-                btnPickTime.setVisibility(View.VISIBLE);
+
+                switch (data.getServiceTimeFreeDecisionType()){
+                    case Const.SERVICETIMEFREEDECISIONTYPE_NOW:
+                        btnPickTime.setVisibility(View.VISIBLE);
+                        break;
+                    case Const.SERVICETIMEFREEDECISIONTYPE_LATER:
+                        btnPickTime.setVisibility(View.GONE);
+                        break;
+                }
                 sb.append("Jadwal : ");
                 if (data.getTimeOfService().equals("99:99")) {
 

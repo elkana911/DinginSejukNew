@@ -71,14 +71,20 @@ public class FBUtil {
 
     public static final String FUNCTION_CREATE_ORDER = "createBooking";
     public static final String FUNCTION_CANCEL_ORDER = "cancelBooking";
+
     public static final String FUNCTION_RESCHEDULE_SERVICE = "rescheduleBooking";
-    public static final String FUNCTION_TECHNICIAN_GRAB_ORDER = "grabOrder";
-    public static final String FUNCTION_TECHNICIAN_START_OTW = "technicianStartOtw";
-    public static final String FUNCTION_TECHNICIAN_START_WORKING = "technicianStartWorking";
     public static final String FUNCTION_REQUEST_STATUS_CHECK  = "requestStatusCheck";
     public static final String FUNCTION_MANUAL_ASSIGNMENT  = "manualAssignment";
 
-    public static void IsPathExists(String completePath, final ListenerDataExists listener) {
+//    public static final String FUNCTION_TECHNICIAN_GRAB_ORDER = "grabOrder";
+    public static final String FUNCTION_TECHNICIAN_ACTION = "technicianAction";
+    public static final String FUNCTION_TECHNICIAN_ACTION_GRAB_ORDER = "GRAB_ORDER";
+    public static final String FUNCTION_TECHNICIAN_ACTION_SUBMIT_SERVICE_TIME  = "SUBMIT_SERVICE_TIME";
+    public static final String FUNCTION_TECHNICIAN_ACTION_START_OTW  = "START_OTW";
+    public static final String FUNCTION_TECHNICIAN_ACTION_START_WORKING  = "START_WORKING";
+
+
+        public static void IsPathExists(String completePath, final ListenerDataExists listener) {
         IsPathExists(FirebaseDatabase.getInstance().getReference(completePath), listener);
     }
 

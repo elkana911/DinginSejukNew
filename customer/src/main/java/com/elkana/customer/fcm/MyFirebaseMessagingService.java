@@ -13,6 +13,7 @@ import android.util.Log;
 import com.elkana.customer.R;
 import com.elkana.customer.screen.login.ActivityLogin;
 import com.elkana.dslibrary.util.Const;
+import com.elkana.dslibrary.util.NotificationUtils;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -116,7 +117,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         if (remoteMessage == null)
             return;
-
-        broadcastMessage(remoteMessage.getFrom(), remoteMessage.getNotification(), remoteMessage.getData());
+        if (NotificationUtils.isAppIsInBackground(this))
+            broadcastMessage(remoteMessage.getFrom(), remoteMessage.getNotification(), remoteMessage.getData());
     }
 }

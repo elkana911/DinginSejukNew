@@ -2,7 +2,11 @@ package com.elkana.customer.screen.order;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,7 +15,7 @@ import android.view.ViewGroup;
 
 import com.elkana.customer.R;
 import com.elkana.dslibrary.firebase.FBUtil;
-import com.elkana.dslibrary.pojo.OrderHeader;
+import com.elkana.dslibrary.fragment.FragmentBanner;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -39,9 +43,18 @@ public class FragmentOrderList extends Fragment {
     private String mUserId;
     private String mParam2;
 
-    private List<OrderHeader> mList = new ArrayList<>();
+
+//    private List<OrderHeader> mList = new ArrayList<>();
     private Realm realm;
     private RVAdapterOrders mAdapter;
+
+    private Handler mBannerHandler = new Handler();
+    public static final int DELAY_BANNER = 4000;
+    private Runnable mRunnableBanner;
+    private int currentBannerIndex;
+    List<Fragment> fBannerList = new ArrayList<Fragment>();
+    MyBannerAdapter bannerAdapter;
+    ViewPager viewPagerBanner;
 
     RecyclerView rvOrders;
 
@@ -78,11 +91,35 @@ public class FragmentOrderList extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+        fBannerList.add(FragmentBanner.newInstance("http://www.imaging-resource.com/PRODS/nikon-d3300/ZYDSC_0314-600.JPG", "eric"));
+        fBannerList.add(FragmentBanner.newInstance("http://www.imaging-resource.com/PRODS/nikon-d3300/ZYDSC_0335-600.JPG", "elkana"));
+        fBannerList.add(FragmentBanner.newInstance("http://www.imaging-resource.com/PRODS/nikon-d3300/ZYDSC_0226-600.JPG", "tarigan"));
+
+        bannerAdapter = new MyBannerAdapter(getActivity().getSupportFragmentManager(), fBannerList);
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
+
+        mRunnableBanner = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if (currentBannerIndex >= 3) {
+                    currentBannerIndex = 0;
+                }
+                if (viewPagerBanner != null)
+                    viewPagerBanner.setCurrentItem(currentBannerIndex++, true);
+                mBannerHandler.postDelayed(mRunnableBanner, DELAY_BANNER );
+            }
+        };
+
+        mBannerHandler.postDelayed(mRunnableBanner, DELAY_BANNER );
+
+
         this.realm = Realm.getDefaultInstance();
 
         if (this.mUserId == null)
@@ -94,6 +131,9 @@ public class FragmentOrderList extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+
+        mBannerHandler.removeCallbacks(mRunnableBanner);
+
         if (this.realm != null) {
             this.realm.close();
             this.realm = null;
@@ -108,6 +148,10 @@ public class FragmentOrderList extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_order_list, container, false);
+
+        viewPagerBanner = v.findViewById(R.id.viewPagerBanner);
+        viewPagerBanner.setAdapter(bannerAdapter);
+        viewPagerBanner.setOffscreenPageLimit(fBannerList.size());
 
         rvOrders = v.findViewById(R.id.rvOrders);
         rvOrders.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -159,6 +203,25 @@ public class FragmentOrderList extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentOrderListInteractionListener extends ListenerOrderList {
+    }
+
+    class MyBannerAdapter extends FragmentPagerAdapter {
+        private List<Fragment> fragments;
+
+        public MyBannerAdapter(FragmentManager fm, List<Fragment> fragments) {
+            super(fm);
+            this.fragments = fragments;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return this.fragments.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return this.fragments.size();
+        }
     }
 
 }

@@ -11,6 +11,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.elkana.dslibrary.util.Const;
+import com.elkana.dslibrary.util.NotificationUtils;
 import com.elkana.teknisi.R;
 import com.elkana.teknisi.screen.MainActivity;
 import com.elkana.teknisi.screen.login.ActivityLogin;
@@ -118,6 +119,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage == null)
             return;
 
-        broadcastMessage(remoteMessage.getFrom(), remoteMessage.getNotification(), remoteMessage.getData());
+        if (NotificationUtils.isAppIsInBackground(this))
+            broadcastMessage(remoteMessage.getFrom(), remoteMessage.getNotification(), remoteMessage.getData());
     }
 }

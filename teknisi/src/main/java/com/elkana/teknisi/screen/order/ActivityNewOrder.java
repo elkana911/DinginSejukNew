@@ -126,6 +126,7 @@ public class ActivityNewOrder extends AFirebaseTeknisiActivity {
                 final AlertDialog dialog = Util.showProgressDialog(ActivityNewOrder.this, "Grab Order...");
 
                 final Map<String, Object> keyVal = new HashMap<>();
+                keyVal.put("actionName", FBUtil.FUNCTION_TECHNICIAN_ACTION_GRAB_ORDER);
                 keyVal.put("mitraId", data.getMitraId());
                 keyVal.put("techId", data.getTechId());
                 keyVal.put("techName", mTechName);
@@ -137,7 +138,7 @@ public class ActivityNewOrder extends AFirebaseTeknisiActivity {
                 keyVal.put("serviceTimestamp", data.getServiceTimestamp());
                 keyVal.put("timestamp", ServerValue.TIMESTAMP);
 
-                mFunctions.getHttpsCallable(FBUtil.FUNCTION_TECHNICIAN_GRAB_ORDER)
+                mFunctions.getHttpsCallable(FBUtil.FUNCTION_TECHNICIAN_ACTION)
                         .call(keyVal)
                         .continueWith(new FBFunction_BasicCallableRecord())
                         .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {
