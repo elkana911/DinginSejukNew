@@ -9,6 +9,7 @@ import android.view.WindowManager;
 
 import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.util.CustomerUtil;
+import com.elkana.dslibrary.activity.AFacebookLoginActivity;
 import com.elkana.dslibrary.activity.FirebaseActivity;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -16,7 +17,7 @@ import com.google.firebase.auth.FirebaseUser;
  * Created by Eric on 15-Mar-18.
  */
 
-public abstract class AFirebaseCustomerActivity extends FirebaseActivity{
+public abstract class AFirebaseCustomerActivity extends AFacebookLoginActivity{
     protected MobileSetup mobileSetup = null;
 
     @Override

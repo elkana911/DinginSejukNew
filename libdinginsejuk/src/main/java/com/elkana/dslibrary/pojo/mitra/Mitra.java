@@ -17,6 +17,7 @@ public class Mitra extends RealmObject implements Serializable {
     private String name;
     private String status;
 
+    private String workingDays;    //0111111   digit pertama adalah minggu
     private int workingHourStart;   //8
     private int workingHourEnd;     //17
     private int rating;     // 0 - 50
@@ -63,6 +64,14 @@ public class Mitra extends RealmObject implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getWorkingDays() {
+        return workingDays;
+    }
+
+    public void setWorkingDays(String workingDays) {
+        this.workingDays = workingDays;
     }
 
     public int getWorkingHourStart() {
@@ -215,6 +224,7 @@ public class Mitra extends RealmObject implements Serializable {
                 "uid='" + uid + '\'' +
                 ", name='" + name + '\'' +
                 ", status='" + status + '\'' +
+                ", workingDays='" + workingDays + '\'' +
                 ", workingHourStart=" + workingHourStart +
                 ", workingHourEnd=" + workingHourEnd +
                 ", rating=" + rating +

@@ -63,6 +63,10 @@ public class MobileSetup extends RealmObject implements Serializable {
      */
     private boolean auto_cancel;
 
+    private boolean enableForgotPwd;
+
+    private boolean enableSocialMediaLogin;
+
     public int getId() {
         return id;
     }
@@ -207,6 +211,22 @@ public class MobileSetup extends RealmObject implements Serializable {
         this.appLifeTime = appLifeTime;
     }
 
+    public boolean isEnableForgotPwd() {
+        return enableForgotPwd;
+    }
+
+    public void setEnableForgotPwd(boolean enableForgotPwd) {
+        this.enableForgotPwd = enableForgotPwd;
+    }
+
+    public boolean isEnableSocialMediaLogin() {
+        return enableSocialMediaLogin;
+    }
+
+    public void setEnableSocialMediaLogin(boolean enableSocialMediaLogin) {
+        this.enableSocialMediaLogin = enableSocialMediaLogin;
+    }
+
     @Override
     public String toString() {
         return "MobileSetup{" +
@@ -227,6 +247,8 @@ public class MobileSetup extends RealmObject implements Serializable {
                 ", show_timer=" + show_timer +
                 ", serviceTimeFreeDecisionType=" + serviceTimeFreeDecisionType +
                 ", auto_cancel=" + auto_cancel +
+                ", enableForgotPwd=" + enableForgotPwd +
+                ", enableSocialMediaLogin=" + enableSocialMediaLogin +
                 '}';
     }
 }

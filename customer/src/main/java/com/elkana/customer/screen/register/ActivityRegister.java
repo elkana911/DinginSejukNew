@@ -13,6 +13,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -24,6 +25,9 @@ import com.elkana.customer.R;
 import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.screen.AFirebaseCustomerActivity;
 import com.elkana.customer.util.CustomerUtil;
+import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.listener.ListenerDataExists;
+import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.UserAddress;
 import com.elkana.dslibrary.util.Const;
@@ -49,11 +53,15 @@ public class ActivityRegister extends AFirebaseCustomerActivity {
     private static final int REQUESTCODE_MAP = 66;
 
     private RVAdapterUserAddress mAdapter;
-    private List<UserAddress> mList = new ArrayList<>();;
+    private List<UserAddress> mList = new ArrayList<>();
 
     RecyclerView rvAddress;
     EditText mNama, mEmail, mPassword, mPhone;
     Button btnRegister, btnSignIn;
+    View tilPassword;
+
+    private boolean registerViaSocMed = false;
+    private String userIdFromSocialMedia;
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -74,6 +82,7 @@ public class ActivityRegister extends AFirebaseCustomerActivity {
         mEmail = findViewById(R.id.email);
         mPassword = findViewById(R.id.password);
         mPhone = findViewById(R.id.etPhone);
+        tilPassword = findViewById(R.id.tilPassword);
 
         btnSignIn = findViewById(R.id.btnPleaseSignIn);
         btnSignIn.setOnClickListener(new View.OnClickListener() {
@@ -90,12 +99,46 @@ public class ActivityRegister extends AFirebaseCustomerActivity {
             }
         });
 
+        String facebookMode = getIntent().getStringExtra("facebook_mode");
+        if (!TextUtils.isEmpty(facebookMode)) {
+            if (facebookMode.equals("1")) {
+                registerViaSocMed = true;
+
+                String email = getIntent().getStringExtra("email");
+                String displayName = getIntent().getStringExtra("display_name");
+                String phone = getIntent().getStringExtra("phone");
+                userIdFromSocialMedia = getIntent().getStringExtra("userId_social_media");
+
+                mEmail.setText(email);
+                mNama.setText(displayName);
+                mPhone.setText(phone);
+
+                tilPassword.setVisibility(View.GONE);
+
+//                View line = findViewById(R.id.line);
+//                line.setVisibility(View.INVISIBLE);
+
+//                View tvOR = findViewById(R.id.tvOR);
+//                tvOR.setVisibility(View.INVISIBLE);
+//                btnLogin.setVisibility(View.INVISIBLE);
+            }
+        } else {
+            if (Util.DEVELOPER_MODE && Util.TESTING_MODE) {
+                mNama.setText("elkana911");
+                mPassword.setText("elkana911");
+                mEmail.setText("elkana911@yahoo.com");
+                mPhone.setText("087886283377");
+            }
+
+        }
+
+
         if (getSupportActionBar() != null) {
 //            getSupportActionBar().setTitle(title);
 //            getSupportActionBar().setSubtitle(userFullName);
 //            getSupportActionBar().setDisplayUseLogoEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(TAG);
+//            getSupportActionBar().setTitle(TAG);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(mobileSetup.getTheme_color_default())));
         }
         // if you want to center title https://stackoverflow.com/questions/18418635/how-to-align-title-at-center-of-actionbar-in-default-themetheme-holo-light
@@ -108,7 +151,7 @@ public class ActivityRegister extends AFirebaseCustomerActivity {
         mEmail.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_mail_outline_black_24dp, android.R.color.darker_gray), null, null, null);
         mPhone.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(this, R.drawable.ic_phone_black_24dp, android.R.color.darker_gray), null, null, null);
 
-        mAdapter = new RVAdapterUserAddress(this, mList, new ListenerAddressList(){
+        mAdapter = new RVAdapterUserAddress(this, mList, new ListenerAddressList() {
 
             @Override
             public void onSelectAddress(UserAddress address) {
@@ -126,12 +169,6 @@ public class ActivityRegister extends AFirebaseCustomerActivity {
         rvAddress.setAdapter(mAdapter);
         rvAddress.setLayoutManager(new LinearLayoutManager(this));
 
-        if (Util.DEVELOPER_MODE && Util.TESTING_MODE) {
-            mNama.setText("elkana911");
-            mPassword.setText("elkana911");
-            mEmail.setText("elkana911@yahoo.com");
-            mPhone.setText("087886283377");
-        }
     }
 
     @Override
@@ -152,7 +189,7 @@ public class ActivityRegister extends AFirebaseCustomerActivity {
 
     @Override
     protected void onLoggedOn(FirebaseUser user) {
-        finish();
+//        finish(); biar diatur ActivityLogin saja
     }
 
     @Override
@@ -196,7 +233,7 @@ public class ActivityRegister extends AFirebaseCustomerActivity {
 
     }
 
-    private void attemptRegister(){
+    private void attemptRegister() {
         boolean cancel = false;
         View focusView = null;
         // Reset errors.
@@ -222,19 +259,13 @@ public class ActivityRegister extends AFirebaseCustomerActivity {
             cancel = true;
         }
 
-        if (TextUtils.isEmpty(password)) {
-            mPassword.setError(getString(R.string.error_field_required));
-            focusView = mPassword;
-            cancel = true;
-        }
-
         if (!TextUtils.isEmpty(nama) && nama.length() < 2) {
             mNama.setError(getString(R.string.error_field_too_short));
             focusView = mNama;
             cancel = true;
         }
 
-        if (!TextUtils.isEmpty(password) && password.length() < 6) {
+        if (!registerViaSocMed && password.length() < 6) {
             mPassword.setError(getString(R.string.error_field_too_short));
             focusView = mPassword;
             cancel = true;
@@ -263,81 +294,138 @@ public class ActivityRegister extends AFirebaseCustomerActivity {
         btnSignIn.setEnabled(false);
         btnRegister.setEnabled(false);
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        alertDialog.dismiss();
+        if (registerViaSocMed) {
+//            Toast.makeText(getApplicationContext(), "Registered successfully", Toast.LENGTH_SHORT).show();
 
-                        btnSignIn.setEnabled(true);
-                        btnRegister.setEnabled(true);
+            registerUser(userIdFromSocialMedia, email, nama.toUpperCase(), phone, mList, new ListenerModifyData() {
+                @Override
+                public void onSuccess() {
+                    Toast.makeText(ActivityRegister.this, "Registered successfully", Toast.LENGTH_SHORT).show();
+                    alertDialog.dismiss();
+                    btnSignIn.setEnabled(true);
+                    btnRegister.setEnabled(true);
 
-                        if (task.isSuccessful()) {
-                            Toast.makeText(getApplicationContext(), "Registered successfully", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK);
+                    finish();
 
-                            registerUser(nama.toUpperCase(), phone, mList);
-                            finish();
-                        } else {
-                            task.getException().printStackTrace();
-                            Util.showDialog(ActivityRegister.this, null, getString(R.string.error_register));
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    alertDialog.dismiss();
+                    btnSignIn.setEnabled(true);
+                    btnRegister.setEnabled(true);
+
+                    Log.e(TAG, e.getMessage(), e);
+                    Util.showDialog(ActivityRegister.this, "Error", getString(R.string.error_register));
+                }
+            });
+        } else {
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+
+                            if (task.isSuccessful()) {
+                                registerUser(mAuth.getCurrentUser().getUid(), email, nama.toUpperCase(), phone, mList, new ListenerModifyData() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Toast.makeText(ActivityRegister.this, "Registered successfully", Toast.LENGTH_SHORT).show();
+                                        btnSignIn.setEnabled(true);
+                                        btnRegister.setEnabled(true);
+                                        alertDialog.dismiss();
+
+                                        setResult(RESULT_OK);
+                                        finish();
+                                    }
+
+                                    @Override
+                                    public void onError(Exception e) {
+                                        btnSignIn.setEnabled(true);
+                                        btnRegister.setEnabled(true);
+                                        alertDialog.dismiss();
+
+                                        Log.e(TAG, e.getMessage(), e);
+                                        Toast.makeText(ActivityRegister.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            } else {
+                                btnSignIn.setEnabled(true);
+                                btnRegister.setEnabled(true);
+                                alertDialog.dismiss();
+
+                                Log.e(TAG, task.getException().getMessage(), task.getException());
+                                Util.showDialog(ActivityRegister.this, null, getString(R.string.error_register));
+                            }
                         }
-                    }
-                });
+                    });
+        }
 
     }
 
-    public void registerUser(final String nama, final String phone, final List<UserAddress> address) {
-        final FirebaseUser currentUser = mAuth.getCurrentUser();
-        DatabaseReference ref = mDatabase.getReference().child("users");
+    public void registerUser(String userId, final String email, final String nama, final String phone, final List<UserAddress> address, final ListenerModifyData listener) {
+//        final FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        final DatabaseReference userIdRef = ref.child(currentUser.getUid());
+        final DatabaseReference userIdRef = FBUtil.Customer_GetRef(userId);
 
-        Realm r = Realm.getDefaultInstance();
-        try {
-            r.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
+        long now = new Date().getTime();
 
-                    BasicInfo user = new BasicInfo();
-                    user.setUid(currentUser.getUid());
-                    user.setName(nama.toUpperCase());
-                    user.setUserType(Const.USER_AS_COSTUMER);
+        final BasicInfo user = new BasicInfo();
+        user.setUid(userId);
+        user.setName(nama.toUpperCase());
+        user.setUserType(Const.USER_AS_COSTUMER);
+        user.setUpdatedTimestamp(now);
+        user.setCreatedTimestamp(now);
+        user.setPhone1(phone);
 
-                    long timestamp = new Date().getTime();
-                    user.setUpdatedTimestamp(timestamp);
-                    user.setCreatedTimestamp(timestamp);
-                    user.setPhone1(phone);
+        FBUtil.IsPathExists(userIdRef, new ListenerDataExists() {
+            @Override
+            public void onFound() {
+                listener.onError(new RuntimeException("Account sudah ada !"));
+            }
 
-                    if (userIdRef != null) {
+            @Override
+            public void onNotFound() {
 //                        userIdRef.child("basicInfo").setValue(user);
 
-                        List<String> tokens = new ArrayList<>();
-                        tokens.add(new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
+                List<String> tokens = new ArrayList<>();
+                tokens.add(new SharedPrefUtil(getApplicationContext()).getString(Const.ARG_FIREBASE_TOKEN));
 
 //                        userIdRef.child("firebaseToken").setValue(tokens);
 //                        userIdRef.child("address").setValue(address);
 
-                        for (UserAddress ua : address) {
-                            // TODO: pastikan isi ua.getLabel tidak berisi tanda / krn akan dianggap path :( see https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes
+                for (UserAddress ua : address) {
+                    // TODO: pastikan isi ua.getLabel tidak berisi tanda / krn akan dianggap path :( see https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes
 //                            userIdRef.child("address").child(ua.getLabel()).setValue(ua);
-                            userIdRef.child("address").child(ua.getUid()).setValue(ua);
-                        }
-
-                        Map<String, Object> keyVal = new HashMap<>();
-                        keyVal.put("email", currentUser.getEmail());
-                        keyVal.put("basicInfo", user);
-                        keyVal.put("firebaseToken", tokens);
-
-                        userIdRef.updateChildren(keyVal);
-
-                    }
-
-                    realm.copyToRealmOrUpdate(user);
+                    userIdRef.child("address").child(ua.getUid()).setValue(ua);
                 }
-            });
-        } finally {
-            r.close();
-        }
+
+                Map<String, Object> keyVal = new HashMap<>();
+                keyVal.put("email", email);
+                keyVal.put("basicInfo", user);
+                keyVal.put("firebaseToken", tokens);
+
+                userIdRef.updateChildren(keyVal).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            realm.beginTransaction();
+                            realm.copyToRealmOrUpdate(user);
+                            realm.commitTransaction();
+                            listener.onSuccess();
+                        } else {
+                            listener.onError(task.getException());
+                        }
+                    }
+                });
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+                listener.onError(e);
+            }
+        });
 
     }
 

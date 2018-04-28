@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
@@ -13,7 +12,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
@@ -1079,6 +1077,19 @@ public class FragmentOrderACNew extends Fragment {
                 Toast.makeText(getContext(), "Maaf, hanya diperbolehkan membuat " + maxNewOrder + " pesanan baru.", Toast.LENGTH_LONG).show();
                 return;
             }
+
+            // normalnya hari minggu tidak buka kecuali di override
+            String workingDays = Util.sNVL(mitraObj.getWorkingDays(), DateUtil.WORKING_DAYS_DEFAULT_PATTERN);   //0111111
+            Date tgl = Util.convertStringToDate(kapanYYYYMMDD, "yyyyMMdd");
+            int selectedDayIndex = DateUtil.getDayIndex(tgl.getTime());  // 1
+            String selectedDayName = DateUtil.getDayNameInIndonesia(tgl.getTime());  // 1
+
+            if (!DateUtil.isWorkingDay(selectedDayIndex, workingDays)) {
+                Toast.makeText(getContext(), "Maaf, kami tidak buka di hari " + selectedDayName, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
         } finally {
             r.close();
         }

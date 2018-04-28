@@ -14,8 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.elkana.customer.R;
+import com.elkana.customer.util.CustomerUtil;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.fragment.FragmentBanner;
+import com.elkana.dslibrary.listener.ListenerGetAllData;
+import com.elkana.dslibrary.pojo.Banner;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -91,12 +94,37 @@ public class FragmentOrderList extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        fBannerList.add(FragmentBanner.newInstance("http://www.imaging-resource.com/PRODS/nikon-d3300/ZYDSC_0314-600.JPG", "eric"));
-        fBannerList.add(FragmentBanner.newInstance("http://www.imaging-resource.com/PRODS/nikon-d3300/ZYDSC_0335-600.JPG", "elkana"));
-        fBannerList.add(FragmentBanner.newInstance("http://www.imaging-resource.com/PRODS/nikon-d3300/ZYDSC_0226-600.JPG", "tarigan"));
+        fBannerList.add(FragmentBanner.newInstance("https://firebasestorage.googleapis.com/v0/b/dinginsejuk-2fdef.appspot.com/o/ZYDSC_0226-600.JPG?alt=media", "eric"));
+        fBannerList.add(FragmentBanner.newInstance("https://firebasestorage.googleapis.com/v0/b/dinginsejuk-2fdef.appspot.com/o/ZYDSC_0314-600.JPG?alt=media", "elkana"));
 
         bannerAdapter = new MyBannerAdapter(getActivity().getSupportFragmentManager(), fBannerList);
+/*
+        CustomerUtil.GetBanners(new ListenerGetAllData() {
+            @Override
+            public void onSuccess(List<?> list) {
 
+                for (int i = 0; i < list.size(); i++) {
+                    Banner obj = (Banner) list.get(i);
+
+                    FragmentBanner fb = FragmentBanner.newInstance(obj.getUrl(), obj.getTag());
+                    fBannerList.add(fb);
+                }
+
+                bannerAdapter.updateList(fBannerList);
+                bannerAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+
+            @Override
+            public void onPrepare() {
+
+            }
+        });
+*/
     }
 
     @Override
@@ -221,6 +249,12 @@ public class FragmentOrderList extends Fragment {
         @Override
         public int getCount() {
             return this.fragments.size();
+        }
+
+        public void updateList(List<Fragment> fBannerList) {
+            this.fragments.clear();
+            this.fragments.addAll(fBannerList);
+            this.notifyDataSetChanged();
         }
     }
 

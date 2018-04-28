@@ -11,9 +11,11 @@ import com.elkana.customer.R;
 import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.pojo.QuickOrderProfile;
 import com.elkana.dslibrary.firebase.FBUtil;
+import com.elkana.dslibrary.listener.ListenerGetAllData;
 import com.elkana.dslibrary.listener.ListenerGetString;
 import com.elkana.dslibrary.listener.ListenerModifyData;
 import com.elkana.dslibrary.listener.ListenerSync;
+import com.elkana.dslibrary.pojo.Banner;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
@@ -819,6 +821,34 @@ udah di taruh di lib
                         // failed to check ? skip
                         if (listener != null) {
                             listener.onSuccess();
+                        }
+                    }
+                });
+    }
+
+    public static void GetBanners(final ListenerGetAllData listener) {
+        FirebaseDatabase.getInstance().getReference(REF_MASTER_SETUP)
+                .child("banner")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (listener == null)
+                            return;
+
+                        GenericTypeIndicator<ArrayList<Banner>> t = new GenericTypeIndicator<ArrayList<Banner>>() {
+                        };
+
+                        List<Banner> banners = dataSnapshot.getValue(t);
+
+                        listener.onSuccess(banners);
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        // failed to check ? skip
+                        if (listener != null) {
+                            listener.onError(databaseError.toException());
                         }
                     }
                 });

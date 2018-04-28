@@ -16,6 +16,7 @@
     <string name="action_call_vendor">Call Vendor</string>
     <string name="action_copy_clipboard">Copy To Clipboard</string>
     <string name="action_edit_profile">Edit Profile</string>
+    <string name="action_penalty">Wait %1s</string>
 
     <string name="cancel_service">Cancel Service</string>
 

@@ -22,6 +22,8 @@ public class DateUtil {
     public static final long TIME_ONE_DAYS_MILLIS = 1 * 24 * TIME_ONE_HOUR_MILLIS;
     public static final int TIME_ONE_HOUR_MINUTES = 60;
 
+    public static final String WORKING_DAYS_DEFAULT_PATTERN = "0111111";    //digit pertama adalah hari minggu
+
     /**
      * <p>Checks if two dates are on the same day ignoring time.</p>
      * @param date1  the first date, not altered, not null
@@ -261,5 +263,54 @@ public class DateUtil {
         long serviceTimestamp = Util.convertStringToDate(dateYYYYMMDD + timeHH_MM, "yyyyMMddHH:mm").getTime();
 
         return serviceTimestamp;
+    }
+
+    public static int getDayIndex(long timestamp) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date(timestamp));
+
+        return c.get(Calendar.DAY_OF_WEEK); // 1 is Sunday
+
+    }
+
+    public static String getDayNameInIndonesia(long timestamp) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date(timestamp));
+
+        switch (c.get(Calendar.DAY_OF_WEEK)){
+            case 1:
+                return "Minggu";
+            case 2:
+                return "Senin";
+            case 3:
+                return "Selasa";
+            case 4:
+                return "Rabu";
+            case 5:
+                return "Kamis";
+            case 6:
+                return "Jumat";
+            case 7:
+                return "Sabtu";
+        }
+        return "";
+    }
+
+    public static boolean isWorkingDay(int selectedDayIndex, String workingDays) {
+        // 2
+        // 0111111
+
+        if (selectedDayIndex > workingDays.length())
+            throw new IndexOutOfBoundsException("Out of range. Maximum is " + workingDays.length());
+
+        // tinggal dicek apakah 0 ? jika 0 berarti bukan working day
+        char[] chars = workingDays.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            if (selectedDayIndex - 1 == i) {
+                return (chars[i] == '0' ? false : true);
+            }
+        }
+
+        return false;
     }
 }

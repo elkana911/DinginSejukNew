@@ -568,4 +568,8 @@ public class Util {
         return str == null ? true : str.trim().length() < 1;
     }
 
+    public static String sNVL(String value, String defaultValue) {
+        return isEmpty(value) ? defaultValue : value;
+    }
+
 }

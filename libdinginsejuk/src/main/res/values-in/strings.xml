@@ -4,7 +4,7 @@
     <string name="action_signup">Daftar</string>
     <string name="action_signout">Logout</string>
     <string name="action_next">Selanjutnya</string>
-    <string name="action_signinfacebook">Hubungkan ke Facebook</string>
+    <string name="action_signinfacebook">Login via Facebook</string>
     <string name="action_register">Daftar</string>
     <string name="action_pick_address">Pilih lokasi ini</string>
     <string name="action_add_address">Tambah</string>
@@ -13,6 +13,7 @@
     <string name="action_check_technician_gps">Cek Posisi Teknisi</string>
     <string name="action_payment">Bayar</string>
     <string name="action_call_vendor">Hubungi Mitra</string>
+    <string name="action_penalty">Tunggu %1s</string>
 
     <string name="msg_hello_user">Halo %1s</string>
 
