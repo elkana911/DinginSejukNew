@@ -28,6 +28,10 @@ public class MobileSetup extends RealmObject implements Serializable {
      */
     private int timeout_cancel_minute;  // ga jelas maksudnya apa sih
 
+    private boolean reminderToOtw;      // able to install reminder when status is ASSIGNED
+
+    private int movements_gap_minutes;  // 10 menit
+
     public MobileSetup() {
     }
 
@@ -119,6 +123,23 @@ public class MobileSetup extends RealmObject implements Serializable {
 //        this.window_new_order_minutes = window_new_order_minutes;
 //    }
 
+
+    public boolean isReminderToOtw() {
+        return reminderToOtw;
+    }
+
+    public void setReminderToOtw(boolean reminderToOtw) {
+        this.reminderToOtw = reminderToOtw;
+    }
+
+    public int getMovements_gap_minutes() {
+        return movements_gap_minutes;
+    }
+
+    public void setMovements_gap_minutes(int movements_gap_minutes) {
+        this.movements_gap_minutes = movements_gap_minutes;
+    }
+
     @Override
     public String toString() {
         return "MobileSetup{" +
@@ -128,11 +149,12 @@ public class MobileSetup extends RealmObject implements Serializable {
                 ", theme_color_default='" + theme_color_default + '\'' +
                 ", theme_color_default_inactive='" + theme_color_default_inactive + '\'' +
                 ", theme_color_default_accent='" + theme_color_default_accent + '\'' +
-//                ", window_new_order_minutes=" + window_new_order_minutes +
                 ", trackingGps=" + trackingGps +
                 ", trackingOrderId='" + trackingOrderId + '\'' +
                 ", min_minutes_otw=" + min_minutes_otw +
                 ", timeout_cancel_minute=" + timeout_cancel_minute +
+                ", reminderToOtw=" + reminderToOtw +
+                ", movements_gap_minutes=" + movements_gap_minutes +
                 '}';
     }
 }

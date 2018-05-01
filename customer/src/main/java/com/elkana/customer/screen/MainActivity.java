@@ -78,7 +78,7 @@ public class MainActivity extends AFirebaseCustomerActivity
         , FragmentOrderACNew.OnFragmentOrderACInteractionListener
         , FragmentSummaryOrder.OnFragmentSOInteractionListener
         , FragmentMitraListInRange.OnFragmentMitraListInRangeInteractionListener
-        ,FragmentBanner.OnFragmentBannerInteractionListener{
+        {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 

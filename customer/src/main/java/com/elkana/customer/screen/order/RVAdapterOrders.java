@@ -35,6 +35,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * Created by Eric on 05-Oct-17.
@@ -127,7 +128,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
             RealmResults<OrderHeader> all = r.where(OrderHeader.class)
                     .equalTo("customerId", mCustomerId)
 //                    .notEqualTo("statusId", EOrderStatus.FINISHED.name())
-                    .findAll();
+                    .findAllSorted(new String[]{"statusId", "updatedTimestamp"}, new Sort[]{Sort.DESCENDING, Sort.DESCENDING});
 
             MobileSetup config = r.where(MobileSetup.class).findFirst();
 
@@ -273,8 +274,14 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 if (orderStatus == EOrderDetailStatus.UNHANDLED && _expiredTime > 0) {
                     tvStatus.setText(mContext.getString(R.string.status_unhandled_timeout));
-                } else
-                    tvStatus.setText(CustomerUtil.getMessageStatusDetail(mContext, orderStatus));
+                } else {
+                    String msg = CustomerUtil.getMessageStatusDetail(mContext, orderStatus);
+
+                    if (orderStatus == EOrderDetailStatus.PAID && EOrderStatus.convertValue(data.getStatusId()) != EOrderStatus.FINISHED) {
+                        msg += "\nMohon berikan review layanan dari kami.";
+                    }
+                    tvStatus.setText(msg);
+                }
 
 
                 showTimer = config.isShow_timer();

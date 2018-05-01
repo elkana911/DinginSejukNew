@@ -27,6 +27,9 @@ import okhttp3.OkHttpClient;
  * to handle interaction events.
  * Use the {@link FragmentBanner#newInstance} factory method to
  * create an instance of this fragment.
+ * @deprecated
+ *
+ * see {@link com.elkana.dslibrary.adapter.MyBannerAdapter}
  */
 public class FragmentBanner extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -80,7 +83,7 @@ public class FragmentBanner extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_banner, container, false);
+        View v = inflater.inflate(R.layout.banner_slide, container, false);
 
         ImageView ivBanner = v.findViewById(R.id.ivBanner);
 
@@ -111,6 +114,16 @@ public class FragmentBanner extends Fragment {
 //        if (mListener != null) {
 //            mListener.onFragmentInteraction(uri);
 //        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
     @Override

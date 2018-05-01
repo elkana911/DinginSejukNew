@@ -7,6 +7,7 @@ import android.content.Intent;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.map.Location;
 import com.elkana.dslibrary.pojo.Movement;
+import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.NetUtil;
 import com.elkana.teknisi.pojo.MobileSetup;
 import com.elkana.teknisi.util.TeknisiUtil;
@@ -71,14 +72,28 @@ public class SyncMovementJob extends BroadcastReceiver {
                 lastMovement = allSorted.first();
             }
 
-            if (lastMovement != null && lastMovement.getLatitude().equals(latitude)
-                    && lastMovement.getLongitude().equals(longitude)) {
-                return;
+            // kalo udah jarakya 10 menit tetep kirim aja
+            if (lastMovement != null) {
+
+                int gap_minutes = setup.getMovements_gap_minutes();
+                if (gap_minutes < 1)
+                    gap_minutes = 10;
+
+
+                Date now = new Date();
+                long deltaMillis = now.getTime() - lastMovement.getId();
+                if (deltaMillis >= (gap_minutes * DateUtil.TIME_ONE_MINUTE_MILLIS)) {
+
+                } else if (lastMovement.getLatitude().equals(latitude)
+                        && lastMovement.getLongitude().equals(longitude)) {
+                    return;
+                }
             }
 
             lastMovement = new Movement(latitude, longitude);
+            lastMovement.setId(new Date().getTime());
             r.beginTransaction();
-            r.copyToRealm(lastMovement);
+            r.copyToRealmOrUpdate(lastMovement);
             r.commitTransaction();
 
             sync_Location(ctx, currentUser.getUid(), orderId, lastMovement, false);

@@ -9,6 +9,9 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:remove="android:maxSdkVersion" />
@@ -45,6 +48,7 @@
         <!-- [END firebase_iid_service] -->
 
         <receiver android:name=".job.SyncMovementJob" />
+        <receiver android:name="com.elkana.dslibrary.alarm.AlarmReceiver" />
 
         <activity
             android:name=".screen.login.ActivityLogin"

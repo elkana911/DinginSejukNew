@@ -303,8 +303,7 @@ public class RVAdapterNotifyNewOrderList extends RecyclerView.Adapter<RecyclerVi
                                 timer.cancel();
                             }
                         });
-                    }
-
+                    } else
                     switch (data.getServiceTimeFreeDecisionType()) {
                         case Const.SERVICETIMEFREEDECISIONTYPE_LATER:
                             // jadi biarin aja isi timeOfservice=99:99 krn bisa diatur menyusul

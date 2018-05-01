@@ -13,6 +13,11 @@ public class Assignment extends RealmObject implements Serializable {
 
     @PrimaryKey
     private String uid;
+    /* diperlukan utk notificationID/reminderId ga bisa pake string.
+    rangenya cuma 0 - 1000000 saja krn jarang teknisi punya 1000000 order. jika <1 akan digenerate di client.
+    kalau overlimitpun bisa ditmpa
+     */
+//    private int uniqueId;
     private String orderId;         //orderHeader.uid
     private String invoiceNo;
     private String technicianId;
@@ -33,6 +38,7 @@ public class Assignment extends RealmObject implements Serializable {
     private String mitraName;
     private int mitraOpenTime;
     private int mitraCloseTime;
+    private String statusId;    // diperlukan utk membedakan di list mana yg selesai mana yg belum. utk versi 0.5.1 up
     private String statusDetailId;  //should synchron 1 way with orderHeader.statusDetailId
     private String statusComment;   // diperlukan jika Server cancel dan customer diberikan alasan mengapa di cancel
     private long updatedTimestamp;
@@ -230,6 +236,14 @@ public class Assignment extends RealmObject implements Serializable {
         this.mitraCloseTime = mitraCloseTime;
     }
 
+    public String getStatusId() {
+        return statusId;
+    }
+
+    public void setStatusId(String statusId) {
+        this.statusId = statusId;
+    }
+
     @Override
     public String toString() {
         return "Assignment{" +
@@ -253,6 +267,7 @@ public class Assignment extends RealmObject implements Serializable {
                 ", mitraName='" + mitraName + '\'' +
                 ", mitraOpenTime=" + mitraOpenTime +
                 ", mitraCloseTime=" + mitraCloseTime +
+                ", statusId='" + statusId + '\'' +
                 ", statusDetailId='" + statusDetailId + '\'' +
                 ", statusComment='" + statusComment + '\'' +
                 ", updatedTimestamp=" + updatedTimestamp +

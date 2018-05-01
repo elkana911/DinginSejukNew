@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,12 +13,13 @@ import android.view.ViewGroup;
 
 import com.elkana.customer.R;
 import com.elkana.customer.util.CustomerUtil;
+import com.elkana.dslibrary.adapter.MyBannerAdapter;
 import com.elkana.dslibrary.firebase.FBUtil;
-import com.elkana.dslibrary.fragment.FragmentBanner;
 import com.elkana.dslibrary.listener.ListenerGetAllData;
 import com.elkana.dslibrary.pojo.Banner;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.rd.PageIndicatorView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,11 +54,13 @@ public class FragmentOrderList extends Fragment {
     public static final int DELAY_BANNER = 4000;
     private Runnable mRunnableBanner;
     private int currentBannerIndex;
-    List<Fragment> fBannerList = new ArrayList<Fragment>();
+    List<Banner> fBannerList = new ArrayList<>();
     MyBannerAdapter bannerAdapter;
     ViewPager viewPagerBanner;
 
+    PageIndicatorView pageIndicatorView;
     RecyclerView rvOrders;
+
 
     private OnFragmentOrderListInteractionListener mListener;
     private DatabaseReference orderRef;
@@ -94,24 +95,30 @@ public class FragmentOrderList extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        fBannerList.add(FragmentBanner.newInstance("https://firebasestorage.googleapis.com/v0/b/dinginsejuk-2fdef.appspot.com/o/ZYDSC_0226-600.JPG?alt=media", "eric"));
-        fBannerList.add(FragmentBanner.newInstance("https://firebasestorage.googleapis.com/v0/b/dinginsejuk-2fdef.appspot.com/o/ZYDSC_0314-600.JPG?alt=media", "elkana"));
+       //fBannerList.add(FragmentBanner.newInstance("https://firebasestorage.googleapis.com/v0/b/dinginsejuk-2fdef.appspot.com/o/ZYDSC_0226-600.JPG?alt=media", "eric"));
+      //  fBannerList.add(FragmentBanner.newInstance("https://firebasestorage.googleapis.com/v0/b/dinginsejuk-2fdef.appspot.com/o/ZYDSC_0314-600.JPG?alt=media", "elkana"));
 
-        bannerAdapter = new MyBannerAdapter(getActivity().getSupportFragmentManager(), fBannerList);
-/*
+//        bannerAdapter = new MyBannerAdapter(getActivity(), fBannerList);
+//        bannerAdapter = new MyBannerAdapter(getActivity().getSupportFragmentManager(), fBannerList);
+
+        //TODO ada masalah di banner kalo fragment dalam fragment, onCreate malah ga kepanggil
         CustomerUtil.GetBanners(new ListenerGetAllData() {
             @Override
             public void onSuccess(List<?> list) {
 
+                fBannerList.clear();
                 for (int i = 0; i < list.size(); i++) {
                     Banner obj = (Banner) list.get(i);
 
-                    FragmentBanner fb = FragmentBanner.newInstance(obj.getUrl(), obj.getTag());
-                    fBannerList.add(fb);
+                    fBannerList.add(obj);
                 }
 
-                bannerAdapter.updateList(fBannerList);
-                bannerAdapter.notifyDataSetChanged();
+                bannerAdapter = new MyBannerAdapter(getActivity(), fBannerList);
+                viewPagerBanner.setAdapter(bannerAdapter);
+                viewPagerBanner.setOffscreenPageLimit(fBannerList.size());
+
+                pageIndicatorView.setCount(fBannerList.size()); // specify total count of indicators
+//                bannerAdapter.updateList(fBannerList);
             }
 
             @Override
@@ -124,7 +131,6 @@ public class FragmentOrderList extends Fragment {
 
             }
         });
-*/
     }
 
     @Override
@@ -136,7 +142,7 @@ public class FragmentOrderList extends Fragment {
             @Override
             public void run()
             {
-                if (currentBannerIndex >= 3) {
+                if (currentBannerIndex >= fBannerList.size()) {
                     currentBannerIndex = 0;
                 }
                 if (viewPagerBanner != null)
@@ -154,6 +160,8 @@ public class FragmentOrderList extends Fragment {
             return;
 
         reInitiate(getActivity(), this.mUserId);
+
+
     }
 
     @Override
@@ -178,8 +186,8 @@ public class FragmentOrderList extends Fragment {
         View v = inflater.inflate(R.layout.fragment_order_list, container, false);
 
         viewPagerBanner = v.findViewById(R.id.viewPagerBanner);
-        viewPagerBanner.setAdapter(bannerAdapter);
-        viewPagerBanner.setOffscreenPageLimit(fBannerList.size());
+
+        pageIndicatorView = v.findViewById(R.id.pageIndicatorView);
 
         rvOrders = v.findViewById(R.id.rvOrders);
         rvOrders.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -189,8 +197,8 @@ public class FragmentOrderList extends Fragment {
 
     @Override
     public void onAttach(Context context) {
-        super.onAttach(context);
         if (context instanceof OnFragmentOrderListInteractionListener) {
+        super.onAttach(context);
             mListener = (OnFragmentOrderListInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
@@ -231,31 +239,6 @@ public class FragmentOrderList extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentOrderListInteractionListener extends ListenerOrderList {
-    }
-
-    class MyBannerAdapter extends FragmentPagerAdapter {
-        private List<Fragment> fragments;
-
-        public MyBannerAdapter(FragmentManager fm, List<Fragment> fragments) {
-            super(fm);
-            this.fragments = fragments;
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return this.fragments.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return this.fragments.size();
-        }
-
-        public void updateList(List<Fragment> fBannerList) {
-            this.fragments.clear();
-            this.fragments.addAll(fBannerList);
-            this.notifyDataSetChanged();
-        }
     }
 
 }

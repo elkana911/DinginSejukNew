@@ -3,6 +3,7 @@ package com.elkana.teknisi.screen;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.AppCompatDrawableManager;
@@ -16,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.elkana.dslibrary.alarm.AlarmReceiver;
 import com.elkana.dslibrary.firebase.FBFunction_BasicCallableRecord;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
@@ -25,6 +27,9 @@ import com.elkana.dslibrary.util.DateUtil;
 import com.elkana.dslibrary.util.EOrderDetailStatus;
 import com.elkana.dslibrary.util.Util;
 import com.elkana.teknisi.R;
+import com.elkana.teknisi.pojo.MobileSetup;
+import com.elkana.teknisi.pojo.ReminderAssignment;
+import com.elkana.teknisi.util.TeknisiUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -44,6 +49,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+
+import io.realm.Realm;
 
 /**
  * Created by Eric on 13-Nov-17.
@@ -54,6 +62,7 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private Context mContext;
     private List<Assignment> mList = new ArrayList<>();
+//    private List<ReminderAssignment> listReminder = new ArrayList<>();
 
     private ListenerAssignmentList mListener;
 
@@ -73,30 +82,93 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
 //                dialog.dismiss();
 
                 mList.clear();
-                // berisi list assignment
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                Realm r = Realm.getDefaultInstance();
+                try{
 
-                    // ambil informasi assign
-                    Assignment assignment = postSnapshot.child("assign").getValue(Assignment.class);
+                    MobileSetup ms = r.where(MobileSetup.class).findFirst();
+                    // berisi list assignment
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
 
-                    // ambil informasi items
+                        // ambil informasi assign
+                        Assignment assignment = postSnapshot.child("assign").getValue(Assignment.class);
 
-                    Log.e(TAG, assignment.toString());
-                    mList.add(assignment);
+                        // ambil informasi items
+
+                        Log.e(TAG, assignment.toString());
+                        mList.add(assignment);
+
+                        long minMillisOtw = ms.getMin_minutes_otw() * DateUtil.TIME_ONE_MINUTE_MILLIS;
+                        long timeBeforeOtw = DateUtil.compileDateAndTime(assignment.getDateOfService(), assignment.getTimeOfService()) - minMillisOtw;
+                        // misalkan minimal 160 menit dr jam layanan, maka remindernya 160 menit - 1 jam
+                        long remindMeMillis = timeBeforeOtw - DateUtil.TIME_ONE_HOUR_MILLIS;
+
+                        // TODO custom with arrays.xml reminder_technician
+                        r.beginTransaction();
+
+                        ReminderAssignment re = new ReminderAssignment();
+                        re.setUid(assignment.getUid());
+                        re.setUniqueCode(new Random().nextInt(1000000));
+                        re.setRemindType(0);    // default 1 jam (sebelum jam service dikurangi min_minutes_otw)
+
+                        switch (re.getRemindType()) {
+                            case 0:
+                                break;
+                            case 1:
+                                remindMeMillis = timeBeforeOtw - (2 * DateUtil.TIME_ONE_HOUR_MILLIS);   // 2jam
+                                break;
+                            case 2:
+                                remindMeMillis = timeBeforeOtw - (10 * DateUtil.TIME_ONE_MINUTE_MILLIS);   // 10menit
+                                break;
+                            case 3:
+                                remindMeMillis = timeBeforeOtw;
+                                break;
+                        }
+
+                        re.setReminderTime(remindMeMillis);
+                        r.copyToRealmOrUpdate(re);
+                        r.commitTransaction();
+                    }
+
+
+                }finally {
+                    r.close();
                 }
 
-                if (mList.size() > 0)
+                if (mList.size() > 0) {
+
                     Collections.sort(mList, new Comparator<Assignment>() {
                         @Override
                         public int compare(Assignment s1, Assignment s2) {
+                            //1. compare by status first. kalo sukses brarti 1. masalahnya versi 0.5.0 blm ada statusId jd masih ngandalin statusdetailid
+                            int compareStatus;
+                            EOrderDetailStatus s1DetailStatus = EOrderDetailStatus.convertValue(s1.getStatusDetailId());
+                            switch (s1DetailStatus) {
+                                case PAID:
+                                case CANCELLED_BY_CUSTOMER:
+                                case CANCELLED_BY_SERVER:
+                                case CANCELLED_BY_TIMEOUT:
+                                    compareStatus = 1;
+                                    break;
+                                default:
+                                    if (s1DetailStatus == EOrderDetailStatus.convertValue(s2.getStatusDetailId()))
+                                        compareStatus = 0;
+                                    else compareStatus = -1;
+                            }
+
+                            if (compareStatus != 0)
+                                return compareStatus;
+
+                            //2. compare by timestamp
                             if (s1.getUpdatedTimestamp() < s2.getUpdatedTimestamp())
                                 return 1;   // DESCENDING
                             else if (s1.getUpdatedTimestamp() > s2.getUpdatedTimestamp())
                                 return -1;
                             else
                                 return 0;
+
                         }
                     });
+                }
 
                 notifyDataSetChanged();
 
@@ -148,9 +220,9 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView tvAddress, tvCustomerName, tvInvoiceNo, tvMitra, tvDateOfService;
+        public TextView tvAddress, tvCustomerName, tvInvoiceNo, tvMitra, tvDateOfService, tvReminder;
         public View view;
-        public ImageView ivMap, ivIconStatus;
+        public ImageView ivMap, ivIconStatus, ivReminder;
         public Button btnPickTime;
 
         public MyViewHolder(View itemView) {
@@ -164,6 +236,8 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
             tvDateOfService = itemView.findViewById(R.id.tvDateOfService);
             ivMap = itemView.findViewById(R.id.ivMap);
             ivIconStatus = itemView.findViewById(R.id.ivIconStatus);
+            ivReminder = itemView.findViewById(R.id.ivReminder);
+            tvReminder = itemView.findViewById(R.id.tvReminder);
             btnPickTime = itemView.findViewById(R.id.btnPickTime);
         }
 
@@ -171,10 +245,47 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
 
             boolean showMap = false;
             int resIcon = -1;
+            ivReminder.setVisibility(View.GONE);
+            tvReminder.setVisibility(View.GONE);
+
+            MobileSetup mobileSetup = TeknisiUtil.getMobileSetup();
+
             switch (EOrderDetailStatus.convertValue(data.getStatusDetailId())) {
                 case ASSIGNED:
                     showMap = true;
-                    // use default icon
+
+                    // reminder sepenuhnya di atur di client, ga perlu update ke cloud krn masalah quota
+                    if (!data.getTimeOfService().equals("99:99") && mobileSetup.isReminderToOtw()) {
+                        ivReminder.setVisibility(View.VISIBLE);
+                        tvReminder.setVisibility(View.VISIBLE);
+
+                        Realm _r = Realm.getDefaultInstance();
+                        try{
+                            ReminderAssignment ra = _r.where(ReminderAssignment.class).equalTo("uid", data.getUid())
+                                    .findFirst();
+
+                            if (new Date().getTime() > ra.getReminderTime()) {
+
+                            } else if (ra != null) {
+                                Intent i = new Intent(mContext, AlarmReceiver.class);
+                                i.putExtra("title", "Time To Go Reminder");
+                                i.putExtra("message", data.getCustomerAddress());
+                                i.putExtra("time", ra.getReminderTime());
+
+                                Calendar cal = Calendar.getInstance();
+                                cal.setTimeInMillis(ra.getReminderTime());
+
+                                Toast.makeText(mContext, "Reminder for " + data.getInvoiceNo() + " set at " + DateUtil.displayTimeInJakarta(ra.getReminderTime(), "dd-MMM-yyyy HH:mm"), Toast.LENGTH_SHORT).show();
+
+                                DateUtil.setAlarm(mContext, i, cal, ra.getUniqueCode());
+                            }
+
+                        }finally {
+                            _r.close();
+                        }
+
+                    }
+
                     break;
                 case OTW:
                     showMap = true;
@@ -351,6 +462,96 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
                 }
             }
 
+            ivReminder.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(mContext, "Under construction", Toast.LENGTH_SHORT).show();
+
+                    final String[] time_services = mContext.getResources().getStringArray(R.array.reminder_technician);
+
+                    android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(mContext);
+                    builder.setTitle("Pilih Waktu Pengingat");
+
+                    builder.setItems(time_services, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            String pick = time_services[which];
+
+                            final String[] _short_time_services = mContext.getResources().getStringArray(R.array.short_reminder_technician);
+
+                            String label = _short_time_services[which];
+                            // calculate timeservice then register reminder
+                            tvReminder.setText(label);
+
+                            // cocokin dulu sama data di local
+                            Realm _r = Realm.getDefaultInstance();
+                            try{
+
+                                MobileSetup ms = _r.where(MobileSetup.class).findFirst();
+
+                                ReminderAssignment _ra = _r.where(ReminderAssignment.class).equalTo("uid", data.getUid()).findFirst();
+
+                                if (_ra != null) {
+                                    if (_ra.getRemindType() == which)
+                                        return;
+
+                                    long minMillisOtw = ms.getMin_minutes_otw() * DateUtil.TIME_ONE_MINUTE_MILLIS;
+                                    long timeBeforeOtw = DateUtil.compileDateAndTime(data.getDateOfService(), data.getTimeOfService()) - minMillisOtw;
+                                    // misalkan minimal 160 menit dr jam layanan, maka remindernya 160 menit - 1 jam
+                                    long remindMeMillis = timeBeforeOtw - DateUtil.TIME_ONE_HOUR_MILLIS;
+
+                                    switch (which) {
+                                        case 0:
+                                            break;
+                                        case 1:
+                                            remindMeMillis = timeBeforeOtw - (2 * DateUtil.TIME_ONE_HOUR_MILLIS);   // 2jam
+                                            break;
+                                        case 2:
+                                            remindMeMillis = timeBeforeOtw - (10 * DateUtil.TIME_ONE_MINUTE_MILLIS);   // 10menit
+                                            break;
+                                        case 3:
+                                            remindMeMillis = timeBeforeOtw;
+                                            break;
+                                    }
+
+
+                                    _r.beginTransaction();
+
+                                    _ra.setUniqueCode(which);
+                                    _ra.setReminderTime(remindMeMillis);
+                                    _r.copyToRealmOrUpdate(_ra);
+
+                                    _r.commitTransaction();
+
+                                    // replace notification id
+                                    Calendar cal = Calendar.getInstance();
+                                    cal.setTimeInMillis(_ra.getReminderTime());
+
+                                    Intent i = new Intent(mContext, AlarmReceiver.class);
+                                    i.putExtra("title", "Time To Go Reminder");
+                                    i.putExtra("message", data.getCustomerAddress());
+                                    i.putExtra("time", _ra.getReminderTime());
+
+                                    DateUtil.setAlarm(mContext, i, cal, _ra.getUniqueCode());
+
+                                }
+
+                            }finally {
+                                _r.close();
+                            }
+
+//                            buildReminder();
+
+                        }
+                    });
+
+                    android.support.v7.app.AlertDialog dialog = builder.create();
+                    dialog.show();
+
+                }
+            });
+
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -360,12 +561,10 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
                     if (detailStatus == EOrderDetailStatus.ASSIGNED) {
                         if (data.getTimeOfService().equals("99:99")) {
                             Toast.makeText(mContext, "Mohon " + btnPickTime.getText().toString(), Toast.LENGTH_SHORT).show();
-                        } else
-                            if (mListener != null)
-                                mListener.onItemSelected(data);
-                    } else
-                        if (mListener != null)
+                        } else if (mListener != null)
                             mListener.onItemSelected(data);
+                    } else if (mListener != null)
+                        mListener.onItemSelected(data);
                 }
             });
 

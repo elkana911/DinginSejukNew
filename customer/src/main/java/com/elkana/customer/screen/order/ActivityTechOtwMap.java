@@ -1,11 +1,16 @@
 package com.elkana.customer.screen.order;
 
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -19,6 +24,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -27,8 +34,12 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ActivityTechOtwMap extends AFirebaseCustomerActivity implements OnMapReadyCallback {
 
@@ -42,6 +53,7 @@ public class ActivityTechOtwMap extends AFirebaseCustomerActivity implements OnM
 
     private DatabaseReference movementsRef;
     private GoogleMap mMap;
+//    private ValueEventListener mChildEventListener;
     private ChildEventListener mChildEventListener;
 
     @Override
@@ -73,14 +85,23 @@ public class ActivityTechOtwMap extends AFirebaseCustomerActivity implements OnM
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+/*
+        mChildEventListener = new ValueEventListener(){
 
-        mChildEventListener = new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                GenericTypeIndicator<ArrayList<Movement>> t = new GenericTypeIndicator<ArrayList<Movement>>() {
+                };
+
+                List<Movement> movements = dataSnapshot.getValue(t);
+
 
                 String time = dataSnapshot.getKey();
                 Movement _obj = dataSnapshot.getValue(Movement.class);
 
+                if (_obj == null || _obj.getLatitude() == null )
+                    return;
 
                 double lat = Double.parseDouble(_obj.getLatitude());
                 double lng = Double.parseDouble(_obj.getLongitude());
@@ -90,8 +111,70 @@ public class ActivityTechOtwMap extends AFirebaseCustomerActivity implements OnM
                 mMap.moveCamera(cameraUpdate);
 
                 Date date = new Date(Long.parseLong(time));
+//                https://stackoverflow.com/questions/42365658/custom-marker-in-google-maps-in-android-with-vector-asset-icon
+                //marker using vector
                 // Inside The Circle
-                MarkerOptions title = new MarkerOptions().position(new LatLng(lat, lng)).title(Util.convertDateToString(date, "HH:mm:ss"));
+                MarkerOptions title = new MarkerOptions().position(new LatLng(lat, lng)).title(Util.convertDateToString(date, "HH:mm:ss"))
+                        .icon(bitmapDescriptorFromVector(ActivityTechOtwMap.this, R.drawable.ic_motorcycle_black_24dp));
+                Marker marker = mMap.addMarker(title);
+
+//                if (mobileSetup.isMap_show_vendor_title())
+//                    marker.showInfoWindow();
+
+                String time = dataSnapshot.getKey();
+                Movement _obj = dataSnapshot.getValue(Movement.class);
+
+                if (_obj == null || _obj.getLatitude() == null )
+                    return;
+
+                double lat = Double.parseDouble(_obj.getLatitude());
+                double lng = Double.parseDouble(_obj.getLongitude());
+                LatLng latLng = new LatLng(lat, lng);
+
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(CameraPosition.fromLatLngZoom(latLng, MAP_ZOOM_DEFAULT));
+                mMap.moveCamera(cameraUpdate);
+
+                Date date = new Date(Long.parseLong(time));
+//                https://stackoverflow.com/questions/42365658/custom-marker-in-google-maps-in-android-with-vector-asset-icon
+                //marker using vector
+                // Inside The Circle
+                MarkerOptions title = new MarkerOptions().position(new LatLng(lat, lng)).title(Util.convertDateToString(date, "HH:mm:ss"))
+                        .icon(bitmapDescriptorFromVector(ActivityTechOtwMap.this, R.drawable.ic_motorcycle_black_24dp));
+                Marker marker = mMap.addMarker(title);
+
+//                if (mobileSetup.isMap_show_vendor_title())
+//                    marker.showInfoWindow();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        */
+        mChildEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                String time = dataSnapshot.getKey();
+                Movement _obj = dataSnapshot.getValue(Movement.class);
+
+                if (_obj == null || _obj.getLatitude() == null)
+                    return;
+
+                double lat = Double.parseDouble(_obj.getLatitude());
+                double lng = Double.parseDouble(_obj.getLongitude());
+                LatLng latLng = new LatLng(lat, lng);
+
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(CameraPosition.fromLatLngZoom(latLng, MAP_ZOOM_DEFAULT));
+                mMap.moveCamera(cameraUpdate);
+
+                Date date = new Date(Long.parseLong(time));
+//                https://stackoverflow.com/questions/42365658/custom-marker-in-google-maps-in-android-with-vector-asset-icon
+                //marker using vector
+                // Inside The Circle
+                MarkerOptions title = new MarkerOptions().position(new LatLng(lat, lng)).title(Util.convertDateToString(date, "HH:mm:ss"))
+                        .icon(bitmapDescriptorFromVector(ActivityTechOtwMap.this, R.drawable.ic_motorcycle_black_24dp));
                 Marker marker = mMap.addMarker(title);
 
 //                if (mobileSetup.isMap_show_vendor_title())
@@ -119,10 +202,10 @@ public class ActivityTechOtwMap extends AFirebaseCustomerActivity implements OnM
 
             }
         };
-
         movementsRef = mDatabase.getReference(FBUtil.REF_MOVEMENTS)
                 .child(mOrderId);
 
+//        movementsRef.addValueEventListener(mChildEventListener);
         movementsRef.addChildEventListener(mChildEventListener);
     }
 
@@ -174,4 +257,15 @@ public class ActivityTechOtwMap extends AFirebaseCustomerActivity implements OnM
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
+
+    public static BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+
 }

@@ -827,6 +827,7 @@ udah di taruh di lib
     }
 
     public static void GetBanners(final ListenerGetAllData listener) {
+
         FirebaseDatabase.getInstance().getReference(REF_MASTER_SETUP)
                 .child("banner")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -850,8 +851,10 @@ udah di taruh di lib
                         if (listener != null) {
                             listener.onError(databaseError.toException());
                         }
+
                     }
                 });
+
     }
 
     public static void SaveOrderProfile(String userId, String profileLabel, QuickOrderProfile profile, ListenerModifyData listener) {

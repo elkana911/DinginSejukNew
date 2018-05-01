@@ -1,5 +1,10 @@
 package com.elkana.dslibrary.util;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -313,4 +318,17 @@ public class DateUtil {
 
         return false;
     }
+
+    public static void setAlarm(Context ctx, Intent intent, Calendar target, int requestCode){
+//        info.setText("\n\n***\n"
+//                + "Alarm is set@ " + target.getTime() + "\n"
+//                + "***\n");
+//        Intent intent = new Intent(getBaseContext(), AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, requestCode, intent, 0);
+        AlarmManager alarmManager = (AlarmManager)ctx.getSystemService(Context.ALARM_SERVICE);
+
+        //create or update alarm
+        alarmManager.set(AlarmManager.RTC_WAKEUP, target.getTimeInMillis(), pendingIntent);
+    }
+
 }

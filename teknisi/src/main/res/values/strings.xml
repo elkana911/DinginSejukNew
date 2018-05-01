@@ -7,7 +7,7 @@
     <string name="action_reset">Reset</string>
     <string name="action_settings">Settings</string>
     <string name="action_checkout">CHECK OUT</string>
-    <string name="action_start_service">Mulai Layanan</string>
+    <string name="action_start_service">Mulai Berangkat</string>
     <string name="action_start_working">Mulai Bekerja</string>
     <string name="action_lunas">LUNAS</string>
 
@@ -42,7 +42,7 @@
     <!--<string name="status_assigned">Vendor has found a Technician to help you.</string>-->
     <!--<string name="status_otw">The Technician is already on the way.</string>-->
     <!--<string name="status_rescheduled">You reschedule the order</string>-->
-    <!--<string name="status_paid">Thank you for using our service.\nPlease give Rating for this Service :)</string>-->
+    <string name="status_paid">Thank you :)</string>
     <!--<string name="status_working">Technician is working your Order</string>-->
     <!--<string name="status_payment">Please proceed with Payment</string>-->
     <!--<string name="status_payment_amount">Please pay %1s to Technician</string>-->

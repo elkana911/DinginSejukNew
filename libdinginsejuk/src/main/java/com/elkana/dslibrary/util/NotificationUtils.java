@@ -15,6 +15,8 @@ import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
+import com.elkana.dslibrary.R;
+
 import java.util.List;
 
 /**
@@ -22,6 +24,8 @@ import java.util.List;
  */
 
 public class NotificationUtils {
+    public static int NOTIFICATION_ID = 1;
+
     public static void clearNotifications(Context context) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
@@ -62,7 +66,7 @@ public class NotificationUtils {
             return;
 
         // notification icon
-        final int icon = -1; //R.mipmap.ic_radana;
+        final int icon = R.mipmap.ic_launcher;
 
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         final PendingIntent resultPendingIntent =
@@ -70,7 +74,7 @@ public class NotificationUtils {
                         context,
                         0,
                         intent,
-                        0
+                        PendingIntent.FLAG_ONE_SHOT
                 );
 
         final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
@@ -90,11 +94,9 @@ public class NotificationUtils {
 
         inboxStyle.addLine(message);
 
-//        Notification notification;
-
         mBuilder
-//                .setSmallIcon(icon)
-                .setTicker(title).setWhen(0)
+                .setSmallIcon(icon)
+                .setTicker(title)
                 .setAutoCancel(true)
                 .setContentTitle(title)
                 .setContentIntent(resultPendingIntent)
@@ -102,15 +104,16 @@ public class NotificationUtils {
                 .setStyle(inboxStyle)
                 .setWhen(timeStamp)
 //                .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), icon))
+//                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), icon))
                 .setContentText(message);
 
-        if (icon > -1)
-            mBuilder.setSmallIcon(icon);
-//                .build();
+        if (NOTIFICATION_ID > 1073741824) {
+            NOTIFICATION_ID = 0;
+        }
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(Const.NOTIFICATION_ID, mBuilder.build());
+//        notificationManager.notify(Const.NOTIFICATION_ID, mBuilder.build());
+        notificationManager.notify(NOTIFICATION_ID++, mBuilder.build());
     }
 
     // Playing notification sound

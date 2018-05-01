@@ -25,8 +25,8 @@ public class Const {
 
     // id to handle the notification in the notification tray
     public static final String PUSH_NOTIFICATION = "pushNotification";
-    public static final int NOTIFICATION_ID = 100;
-    public static final int NOTIFICATION_ID_BIG_IMAGE = 101;
+//    public static final int NOTIFICATION_ID = 100;
+//    public static final int NOTIFICATION_ID_BIG_IMAGE = 101;
     public static final String KEY_FROM = "key_from";
     public static final String KEY_UID = "key_uid";
     public static final String KEY_STATUS = "key_status";

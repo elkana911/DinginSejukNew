@@ -260,6 +260,26 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                     Collections.sort(mList, new Comparator<OrderBucket>() {
                         @Override
                         public int compare(OrderBucket s1, OrderBucket s2) {
+
+                            //1. compare by status first. kalo sukses brarti 1. masalahnya versi 0.5.0 blm ada statusId jd masih ngandalin statusdetailid
+                            int compareStatus;
+                            EOrderDetailStatus s1DetailStatus = EOrderDetailStatus.convertValue(s1.getStatusDetailId());
+                            switch (s1DetailStatus) {
+                                case PAID:
+                                case CANCELLED_BY_CUSTOMER:
+                                case CANCELLED_BY_SERVER:
+                                case CANCELLED_BY_TIMEOUT:
+                                    compareStatus = 1;
+                                    break;
+                                default:
+                                    if (s1DetailStatus == EOrderDetailStatus.convertValue(s2.getStatusDetailId()))
+                                        compareStatus = 0;
+                                    else compareStatus = -1;
+                            }
+
+                            if (compareStatus != 0)
+                                return compareStatus;
+
                             if (s1.getUpdatedTimestamp() < s2.getUpdatedTimestamp())
                                 return 1;   // DESCENDING
                             else if (s1.getUpdatedTimestamp() > s2.getUpdatedTimestamp())

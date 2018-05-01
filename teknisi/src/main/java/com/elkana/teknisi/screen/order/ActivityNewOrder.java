@@ -144,7 +144,8 @@ public class ActivityNewOrder extends AFirebaseTeknisiActivity {
                         .addOnCompleteListener(new OnCompleteListener<Map<String, Object>>() {
                             @Override
                             public void onComplete(@NonNull Task<Map<String, Object>> task) {
-                                dialog.dismiss();
+                                if (!isDestroyed())
+                                    dialog.dismiss();
 
                                 if (!task.isSuccessful()) {
                                     Log.e(TAG, task.getException().getMessage(), task.getException());

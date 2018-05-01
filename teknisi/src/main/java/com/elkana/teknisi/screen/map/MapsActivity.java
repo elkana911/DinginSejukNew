@@ -686,6 +686,23 @@ public class MapsActivity extends AFirebaseTeknisiActivity implements OnMapReady
                     case OTW:
                         btnStartOtw.setVisibility(View.GONE);
                         btnStartWorking.setVisibility(View.VISIBLE);
+
+                        // resume tracking state
+                        Realm r = Realm.getDefaultInstance();
+                        try{
+                            MobileSetup setup = r.where(MobileSetup.class).findFirst();
+
+                            r.beginTransaction();
+                            setup.setTrackingGps(true);
+                            setup.setTrackingOrderId(orderInfo.getUid());
+
+                            r.copyToRealmOrUpdate(setup);
+                            r.commitTransaction();
+
+                        }finally {
+                            r.close();
+                        }
+
                         break;
                     case CANCELLED_BY_CUSTOMER:
                     case CANCELLED_BY_TIMEOUT:

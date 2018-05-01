@@ -118,7 +118,7 @@
     <string name="status_created">Saat ini Mitra sedang mencarikan spesialis untuk membantu Anda.</string>
     <string name="status_unhandled">Saat ini Mitra sedang mencarikan spesialis untuk membantu Anda.</string>
     <string name="status_unhandled_timeout">Kami masih mencarikan spesialis untuk membantu Anda, barangkali Anda mau cek kembali jadwal Servis.</string>
-    <string name="status_assigned">Mitra sudah mendapatkan Teknisi yang tepat untuk membantu Anda.</string>
+    <string name="status_assigned">Kami sudah mendapatkan Teknisi untuk membantu Anda.</string>
     <string name="status_otw">Teknisi sedang dalam perjalanan menuju alamat Anda.</string>
     <string name="status_working">Teknisi sedang mengerjakan Pesanan Anda.</string>
     <string name="status_payment">Mohon segera lakukan proses pembayaran kepada Teknisi.\nTerima Kasih :)</string>

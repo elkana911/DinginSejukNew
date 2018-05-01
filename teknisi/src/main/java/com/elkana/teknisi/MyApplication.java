@@ -1,6 +1,7 @@
 package com.elkana.teknisi;
 
 import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 
 import com.elkana.dslibrary.MyLibraryModule;
 import com.elkana.teknisi.util.TeknisiUtil;
@@ -12,7 +13,7 @@ import io.realm.RealmConfiguration;
  * Created by Eric on 20-Oct-17.
  */
 
-public class MyApplication extends Application {
+public class MyApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();

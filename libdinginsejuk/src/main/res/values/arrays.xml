@@ -21,4 +21,17 @@
         <item>16:30</item>
         <item>17:00</item>
     </string-array>
+
+    <string-array name="reminder_technician">
+        <item>1 jam sebelum berangkat</item>
+        <item>2 jam sebelum berangkat</item>
+        <item>10 menit sebelum berangkat</item>
+        <item>Saat mau berangkat</item>
+    </string-array>
+    <string-array name="short_reminder_technician">
+        <item>1 jam</item>
+        <item>2 jam</item>
+        <item>10 men</item>
+        <item>ontime</item>
+    </string-array>
 </resources>
