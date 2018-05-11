@@ -140,19 +140,30 @@ public class RVAdapterAssignment extends RecyclerView.Adapter<RecyclerView.ViewH
                         @Override
                         public int compare(Assignment s1, Assignment s2) {
                             //1. compare by status first. kalo sukses brarti 1. masalahnya versi 0.5.0 blm ada statusId jd masih ngandalin statusdetailid
-                            int compareStatus;
+                            int compareStatus = 0;
                             EOrderDetailStatus s1DetailStatus = EOrderDetailStatus.convertValue(s1.getStatusDetailId());
-                            switch (s1DetailStatus) {
-                                case PAID:
-                                case CANCELLED_BY_CUSTOMER:
-                                case CANCELLED_BY_SERVER:
-                                case CANCELLED_BY_TIMEOUT:
-                                    compareStatus = 1;
-                                    break;
-                                default:
-                                    if (s1DetailStatus == EOrderDetailStatus.convertValue(s2.getStatusDetailId()))
-                                        compareStatus = 0;
-                                    else compareStatus = -1;
+                            EOrderDetailStatus s2DetailStatus = EOrderDetailStatus.convertValue(s2.getStatusDetailId());
+
+                            if (s1DetailStatus != s2DetailStatus) {
+
+                                boolean is_s1StatusIsDone = s1DetailStatus == EOrderDetailStatus.PAID
+                                        || s1DetailStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER
+                                        || s1DetailStatus == EOrderDetailStatus.CANCELLED_BY_SERVER
+                                        || s1DetailStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT;
+
+                                boolean is_s2StatusIsDone = s2DetailStatus == EOrderDetailStatus.PAID
+                                        || s2DetailStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER
+                                        || s2DetailStatus == EOrderDetailStatus.CANCELLED_BY_SERVER
+                                        || s2DetailStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT;
+
+                                if (is_s1StatusIsDone && is_s2StatusIsDone) {
+                                } else {
+                                    if (is_s1StatusIsDone)
+                                        compareStatus = -1;
+                                    else
+                                        compareStatus = 1;
+                                }
+
                             }
 
                             if (compareStatus != 0)

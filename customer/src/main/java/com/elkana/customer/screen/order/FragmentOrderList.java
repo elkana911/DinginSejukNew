@@ -113,6 +113,11 @@ public class FragmentOrderList extends Fragment {
                     fBannerList.add(obj);
                 }
 
+                if (list.size() < 1) {
+                    viewPagerBanner.setVisibility(View.GONE);
+                    pageIndicatorView.setVisibility(View.GONE);
+                }
+
                 bannerAdapter = new MyBannerAdapter(getActivity(), fBannerList);
                 viewPagerBanner.setAdapter(bannerAdapter);
                 viewPagerBanner.setOffscreenPageLimit(fBannerList.size());

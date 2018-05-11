@@ -128,7 +128,7 @@ public class RVAdapterOrders extends RecyclerView.Adapter<RecyclerView.ViewHolde
             RealmResults<OrderHeader> all = r.where(OrderHeader.class)
                     .equalTo("customerId", mCustomerId)
 //                    .notEqualTo("statusId", EOrderStatus.FINISHED.name())
-                    .findAllSorted(new String[]{"statusId", "updatedTimestamp"}, new Sort[]{Sort.DESCENDING, Sort.DESCENDING});
+                    .findAllSorted(new String[]{"statusId", "dateOfService", "updatedTimestamp"}, new Sort[]{Sort.DESCENDING, Sort.ASCENDING, Sort.DESCENDING});
 
             MobileSetup config = r.where(MobileSetup.class).findFirst();
 

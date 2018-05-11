@@ -256,30 +256,48 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
 */
                 }
 
-                if (mList.size() > 0)
+                if (mList.size() > 0){
                     Collections.sort(mList, new Comparator<OrderBucket>() {
                         @Override
                         public int compare(OrderBucket s1, OrderBucket s2) {
 
                             //1. compare by status first. kalo sukses brarti 1. masalahnya versi 0.5.0 blm ada statusId jd masih ngandalin statusdetailid
-                            int compareStatus;
+                            int compareStatus = 0;
                             EOrderDetailStatus s1DetailStatus = EOrderDetailStatus.convertValue(s1.getStatusDetailId());
-                            switch (s1DetailStatus) {
-                                case PAID:
-                                case CANCELLED_BY_CUSTOMER:
-                                case CANCELLED_BY_SERVER:
-                                case CANCELLED_BY_TIMEOUT:
-                                    compareStatus = 1;
-                                    break;
-                                default:
-                                    if (s1DetailStatus == EOrderDetailStatus.convertValue(s2.getStatusDetailId()))
-                                        compareStatus = 0;
-                                    else compareStatus = -1;
+                            EOrderDetailStatus s2DetailStatus = EOrderDetailStatus.convertValue(s2.getStatusDetailId());
+
+                            if (s1DetailStatus != s2DetailStatus) {
+
+                                boolean is_s1StatusIsDone = s1DetailStatus == EOrderDetailStatus.PAID
+                                        || s1DetailStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER
+                                        || s1DetailStatus == EOrderDetailStatus.CANCELLED_BY_SERVER
+                                        || s1DetailStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT;
+
+                                boolean is_s2StatusIsDone = s2DetailStatus == EOrderDetailStatus.PAID
+                                        || s2DetailStatus == EOrderDetailStatus.CANCELLED_BY_CUSTOMER
+                                        || s2DetailStatus == EOrderDetailStatus.CANCELLED_BY_SERVER
+                                        || s2DetailStatus == EOrderDetailStatus.CANCELLED_BY_TIMEOUT;
+
+                                if (is_s1StatusIsDone && is_s2StatusIsDone) {
+                                } else {
+                                    if (is_s1StatusIsDone)
+                                        compareStatus = -1;
+                                    else
+                                        compareStatus = 1;
+                                }
+
                             }
 
                             if (compareStatus != 0)
                                 return compareStatus;
 
+                            //2. compare by dateOfService
+                            compareStatus = s1.getDateOfService().compareTo(s2.getDateOfService());
+
+                            if (compareStatus != 0)
+                                return compareStatus;
+
+                            //3. compare by updatedTimestamp
                             if (s1.getUpdatedTimestamp() < s2.getUpdatedTimestamp())
                                 return 1;   // DESCENDING
                             else if (s1.getUpdatedTimestamp() > s2.getUpdatedTimestamp())
@@ -289,10 +307,12 @@ public class RVAdapterOrderList extends RecyclerView.Adapter<RecyclerView.ViewHo
                         }
                     });
 
-                notifyDataSetChanged();
+                    notifyDataSetChanged();
 
-                if (listener != null)
-                    listener.onRefresh();
+                    if (listener != null)
+                        listener.onRefresh();
+
+                }
             }
 
             @Override
