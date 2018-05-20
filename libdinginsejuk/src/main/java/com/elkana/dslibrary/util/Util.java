@@ -571,4 +571,11 @@ public class Util {
         return isEmpty(value) ? defaultValue : value;
     }
 
+    public static String trimString(String raw, int maxLength) {
+        if (raw.length() <= maxLength)
+            return raw;
+        else
+            return raw.substring(0, maxLength-2) + "..";
+    }
+
 }

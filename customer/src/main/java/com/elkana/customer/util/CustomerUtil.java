@@ -2,9 +2,20 @@ package com.elkana.customer.util;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.elkana.customer.R;
@@ -19,6 +30,7 @@ import com.elkana.dslibrary.pojo.Banner;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
+import com.elkana.dslibrary.pojo.mitra.PriceInfo;
 import com.elkana.dslibrary.pojo.mitra.TmpMitra;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.UserAddress;
@@ -234,6 +246,24 @@ udah di taruh di lib
                                     r.beginTransaction();
                                     r.copyToRealmOrUpdate(__obj);
                                     r.commitTransaction();
+                                } else if (_sub.getKey().equals("info_customer")) {
+
+                                    for (DataSnapshot __sub : _sub.getChildren()) {
+                                        PriceInfo pi = __sub.getValue(PriceInfo.class);
+                                        r.beginTransaction();
+                                        r.copyToRealmOrUpdate(pi);
+                                        r.commitTransaction();
+                                    }
+                                    /*
+                                    _sub.getValue(PriceInfo.class);
+
+                                    PriceInfo pi = _sub.getValue(PriceInfo.class);
+                                    pi.setMitraId(postSnapshot.getKey());   //fill with mitraid for offline reference
+
+                                    r.beginTransaction();
+                                    r.copyToRealmOrUpdate(pi);
+                                    r.commitTransaction();
+                                    */
                                 }
 
                             }
@@ -765,20 +795,84 @@ udah di taruh di lib
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
         builder.setTitle("Pilih Jam");
 
-        builder.setItems(time_services, new DialogInterface.OnClickListener() {
+//        https://android--examples.blogspot.co.id/2016/10/android-alertdialog-listadapter-example.html
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter(ctx, android.R.layout.simple_list_item_single_choice, time_services){
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+//                View view = super.getView(position, convertView, parent);
+//                if (position % 2 == 0) { // we're on an even row
+//                    view.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.cardColor));
+//                } else {
+//                    view.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.cardColor));
+//                }
+//                return view;
+                LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View row = inflater.inflate(android.R.layout.simple_list_item_single_choice, parent, false);
+                if (position % 2 == 0) { // we're on an even row
+                    row.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorPaperBack));
+                } else {
+                    row.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
+                }
+                TextView t1 = row.findViewById(android.R.id.text1);
+                t1.setText(time_services[position]);
+
+                return row;
+            }
+/*
+            @Override
+            public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View row = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+                TextView t1 = row.findViewById(android.R.id.text1);
+                t1.setText(time_services[position] + "XXXX");
+
+                return row;
+            }
+*/
+        };
+
+//        builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//
+//            }
+//        });
+
+        builder.setSingleChoiceItems(arrayAdapter, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
                 if (listener == null)
                     return;
-                String pick = time_services[which];
 
-                listener.onSuccess(pick);
-//                etTime.setText(pick);
+                if (which > -1) {
+                    String pick = time_services[which];
+
+                    listener.onSuccess(pick);
+
+
+                }
+
             }
         });
 
+        builder.setPositiveButton("OK", null);
+
+        //        builder.setItems(time_services, new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//
+//                if (listener == null)
+//                    return;
+//                String pick = time_services[which];
+//
+//                listener.onSuccess(pick);
+//            }
+//        });
+
         AlertDialog dialog = builder.create();
+//        dialog.getWindow().setBackgroundDrawableResource(android.R.color.holo_red_dark);
+
         dialog.show();
 
     }

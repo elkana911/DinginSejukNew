@@ -342,6 +342,16 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
                 .child("sso");
     }
 
+    public static DatabaseReference Mitra_GetInfoPriceRef(String mitraId) {
+        return FirebaseDatabase.getInstance().getReference(REF_MITRA_AC)
+                .child(mitraId)
+                .child("info_customer")
+                .child("prices");
+    }
+
+
+
+
     public static void Mitra_getAllMitra(final ListenerGetAllData listener) {
         FirebaseDatabase.getInstance().getReference(REF_MITRA_AC)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -1208,5 +1218,12 @@ fyi, di list teknisi akan terlihat kosong krn ga ada assignment lagi.
             return "Timeout Connection. Check your network.";
         else
             return exception.getMessage();
+    }
+
+    /*
+    diperlukan krn key melarang karakter yg aneh2 seperti /
+     */
+    public static String encodeString(String raw) {
+        return raw;
     }
 }

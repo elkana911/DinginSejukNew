@@ -13,6 +13,8 @@ public class MobileSetup extends RealmObject implements Serializable {
     @PrimaryKey
     private int id;
 
+    private int maxInfoPriceChars;
+
     private boolean gps_mandatory;
     private long appLifeTime;
     private String theme_color_default;
@@ -34,6 +36,14 @@ public class MobileSetup extends RealmObject implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getMaxInfoPriceChars() {
+        return maxInfoPriceChars;
+    }
+
+    public void setMaxInfoPriceChars(int maxInfoPriceChars) {
+        this.maxInfoPriceChars = maxInfoPriceChars;
     }
 
     public boolean isGps_mandatory() {
@@ -112,12 +122,12 @@ public class MobileSetup extends RealmObject implements Serializable {
     public String toString() {
         return "MobileSetup{" +
                 "id=" + id +
+                ", maxInfoPriceChars=" + maxInfoPriceChars +
                 ", gps_mandatory=" + gps_mandatory +
                 ", appLifeTime=" + appLifeTime +
                 ", theme_color_default='" + theme_color_default + '\'' +
                 ", theme_color_default_inactive='" + theme_color_default_inactive + '\'' +
                 ", theme_color_default_accent='" + theme_color_default_accent + '\'' +
-//                ", lastOrderMinutes=" + lastOrderMinutes +
                 ", singleInstance=" + singleInstance +
                 ", maxOrderPerTechnician=" + maxOrderPerTechnician +
                 ", timeout_cancel_minute=" + timeout_cancel_minute +

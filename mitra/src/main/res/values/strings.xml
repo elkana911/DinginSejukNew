@@ -36,5 +36,6 @@
     <string name="message_blank_no_service_list">Belum ada Jenis Layanan. Mohon tambahkan jenis layanan yang tersedia.</string>
     <string name="title_activity_service_setup">Service Setup</string>
     <string name="prompt_price">Price (Rupiah)</string>
+    <string name="message_confirm_submit">Submit Data ?</string>
 
 </resources>

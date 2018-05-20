@@ -39,6 +39,7 @@ import com.elkana.customer.pojo.MobileSetup;
 import com.elkana.customer.pojo.QuickOrderProfile;
 import com.elkana.customer.screen.register.SimpleAdapterUserAddress;
 import com.elkana.customer.util.CustomerUtil;
+import com.elkana.dslibrary.component.TextViewUtil;
 import com.elkana.dslibrary.firebase.FBFunction_BasicCallableRecord;
 import com.elkana.dslibrary.firebase.FBUtil;
 import com.elkana.dslibrary.listener.ListenerGetString;
@@ -47,6 +48,7 @@ import com.elkana.dslibrary.listener.ListenerPositiveConfirmation;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
+import com.elkana.dslibrary.pojo.mitra.PriceInfo;
 import com.elkana.dslibrary.pojo.mitra.TmpMitra;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.pojo.user.UserAddress;
@@ -136,6 +138,7 @@ public class FragmentOrderACNew extends Fragment {
     FloatingActionButton fabEditAddress, fabSubmitOrder;
     TextView tvDataProfileName;
 
+    TextView tvPriceInfo;
     TextView tvExtraCharge;
 
     public FragmentOrderACNew() {
@@ -220,6 +223,10 @@ public class FragmentOrderACNew extends Fragment {
         etTime = v.findViewById(R.id.etTime);
         tilTime = v.findViewById(R.id.tilTime);
         tilTime.setVisibility(View.GONE);
+
+        tvPriceInfo = v.findViewById(R.id.tvPriceInfo);
+        tvPriceInfo.setCompoundDrawablesWithIntrinsicBounds(Util.changeIconColor(getContext(), R.drawable.ic_info_outline_black_24dp, android.R.color.black), null, null, null);
+        tvPriceInfo.setCompoundDrawablePadding(10);
 
         tvExtraCharge = v.findViewById(R.id.tvExtraCharge);
         etProblem = v.findViewById(R.id.etServiceProblem);
@@ -697,6 +704,9 @@ public class FragmentOrderACNew extends Fragment {
     }
 
     private Mitra selectMitraDefault() {
+
+        tvPriceInfo.setText(null);
+
         Realm realm = Realm.getDefaultInstance();
         try {
             Mitra mitraObj = realm.where(Mitra.class)
@@ -704,6 +714,12 @@ public class FragmentOrderACNew extends Fragment {
 
             if (mitraObj != null) {
                 etSelectMitra.setText(mitraObj.getName());
+
+                PriceInfo _pi = realm.where(PriceInfo.class).equalTo("mitraId", mitraObj.getUid()).findFirst();
+                if (_pi != null) {
+                    tvPriceInfo.setText(_pi.getInfo());
+//                    TextViewUtil.makeTextViewResizable(tvPriceInfo, 3, "More...", true);
+                }
 
                 return realm.copyFromRealm(mitraObj);
             }
@@ -721,7 +737,11 @@ public class FragmentOrderACNew extends Fragment {
             tvDataProfileName.setText(null);
             tvDataProfileName.setVisibility(View.GONE);
 
-            // create wizard alike, maybe ?
+            // create wizard alike, maybe ?SELECT {CUSTPERSONAL}.[CU_REF]
+            //,{CUSTPERSONAL}.[CU_REF]
+            //,(SELECT {CUSTPERSONAL}.[CU_FULLNM] FROM {CUSTPERSONAL} WHERE {CUSTPERSONAL}.[CU_REF] = 29)
+            //,CASE WHEN {CUSTPERSONAL}.[CU_FULLNM]=(SELECT {CUSTPERSONAL}.[CU_FULLNM] FROM {CUSTPERSONAL} WHERE {CUSTPERSONAL}.[CU_REF] = 29) THEN 'M' ELSE 'N' END
+            //FROM {CUSTPERSONAL}
 
             // 1. select When
             viewCardAddress(true, null);
@@ -1007,6 +1027,18 @@ public class FragmentOrderACNew extends Fragment {
             etDate.setError(getString(R.string.error_field_required));
             focus = etDate;
             cancel = true;
+        } else{
+
+            if (mobileSetup.getMax_order_month() < 1)  //buat jaga2 kalo data kosong
+                mobileSetup.setMax_order_month(12);
+
+            long max_order_month_from_now = DateUtil.addMonth(mobileSetup.getMax_order_month()).getTime();
+            if (DateUtil.getTimeInMillis(kapanYYYYMMDD) > max_order_month_from_now) {
+                Toast.makeText(getContext(), "Pilihan Tanggal terlalu lama. Mohon pilih tanggal lainnya.", Toast.LENGTH_SHORT).show();
+                etDate.setError("Pilihan Tanggal terlalu lama. Mohon pilih tanggal lainnya.");
+                focus = etDate;
+                cancel = true;
+            }
         }
 
         if (TextUtils.isEmpty(jam)) {
@@ -1041,6 +1073,7 @@ public class FragmentOrderACNew extends Fragment {
         if (!switch1.isChecked()) {
             // dikurangin one minute spy bisa order pas di 2 jam
             if (serviceTimestamp < ((new Date().getTime() + (mobileSetup.getMinimal_booking_hour() * DateUtil.TIME_ONE_HOUR_MILLIS)) - DateUtil.TIME_ONE_MINUTE_MILLIS)) {
+                etTime.setError("Mohon pilih di jam lainnya.");
                 Toast.makeText(getContext(), "Mohon pilih di jam lainnya.", Toast.LENGTH_SHORT).show();
                 focus = etTime;
                 cancel = true;

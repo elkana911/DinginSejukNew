@@ -155,17 +155,6 @@ public class ActivityRegister extends AFirebaseMitraActivity {
     }
 
     @Override
-    protected void onLoggedOff() {
-
-    }
-
-    @Override
-    protected void onLoggedOn(FirebaseUser user) {
-//        setResult(RESULT_OK);
-//        finish();
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 

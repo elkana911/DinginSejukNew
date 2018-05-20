@@ -31,6 +31,7 @@ import com.elkana.ds.mitraapp.AFirebaseMitraActivity;
 import com.elkana.ds.mitraapp.R;
 import com.elkana.ds.mitraapp.pojo.MobileSetup;
 import com.elkana.ds.mitraapp.screen.assign.FragmentTechnicianList;
+import com.elkana.ds.mitraapp.screen.info.price.ActivityPriceInfo;
 import com.elkana.ds.mitraapp.screen.login.ActivityLogin;
 import com.elkana.ds.mitraapp.screen.order.FragmentOrderList;
 import com.elkana.ds.mitraapp.screen.profile.ActivityProfile;
@@ -284,6 +285,9 @@ public class MainActivity extends AFirebaseMitraActivity
             return false;
         } else if (id == R.id.nav_service_setup) {
             startActivity(new Intent(this, ActivityServiceList.class));
+            return false;
+        } else if (id == R.id.nav_info_price) {
+            startActivity(new Intent(this, ActivityPriceInfo.class));
             return false;
         }
 

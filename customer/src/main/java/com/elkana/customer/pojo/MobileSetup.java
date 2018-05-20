@@ -21,6 +21,7 @@ public class MobileSetup extends RealmObject implements Serializable {
     private String theme_color_default_accent;
 
     private int vendor_radius_km;
+    private int max_order_month;    //dibatasin supaya ga bisa order tahun depan
     private int max_new_order;  // dibatasin maksimal order baru spy custmer ga nakal create order melulu
     private int unit_ac_max;
 
@@ -151,6 +152,14 @@ public class MobileSetup extends RealmObject implements Serializable {
         return appLifeTime;
     }
 
+    public int getMax_order_month() {
+        return max_order_month;
+    }
+
+    public void setMax_order_month(int max_order_month) {
+        this.max_order_month = max_order_month;
+    }
+
     public int getMax_new_order() {
         return max_new_order;
     }
@@ -238,6 +247,7 @@ public class MobileSetup extends RealmObject implements Serializable {
                 ", theme_color_default_inactive='" + theme_color_default_inactive + '\'' +
                 ", theme_color_default_accent='" + theme_color_default_accent + '\'' +
                 ", vendor_radius_km=" + vendor_radius_km +
+                ", max_order_month=" + max_order_month +
                 ", max_new_order=" + max_new_order +
                 ", unit_ac_max=" + unit_ac_max +
                 ", status_unhandled_minutes=" + status_unhandled_minutes +

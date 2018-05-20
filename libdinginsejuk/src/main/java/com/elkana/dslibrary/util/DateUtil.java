@@ -331,4 +331,26 @@ public class DateUtil {
         alarmManager.set(AlarmManager.RTC_WAKEUP, target.getTimeInMillis(), pendingIntent);
     }
 
+    public static Date addMonth(int month) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.MONTH, month);
+
+        return c.getTime();
+
+//        c.add(Calendar.DAY_OF_MONTH, offset);
+//
+//        // kalo jatuhnya hr minggu skip ke senin
+//        if (c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+//            c.add(Calendar.DAY_OF_MONTH, 1);
+//        }
+
+
+    }
+
+    public static long getTimeInMillis(String yyyyMMdd) {
+        Date date = Util.convertStringToDate(yyyyMMdd, "yyyyMMdd");
+
+        return date.getTime();
+    }
 }

@@ -80,8 +80,8 @@
     <string name="hint_label_address">Alamat Jelas</string>
     <string name="warning_field_required">Isian ini lebih baik tidak kosong</string>
     <string name="warning_extracharge1">Layanan Hari Ini dikenakan extra charge 25000</string>
-    <string name="summary_ac_problem">%1d buah AC mengalami masalah seperti %2s.</string>
-    <string name="row_label_ac_service">Service %1d buah AC</string>
+    <string name="summary_ac_problem">%1d unit AC mengalami masalah seperti %2s.</string>
+    <string name="row_label_ac_service">Service %1d unit AC</string>
     <string name="row_order_mitra">Dilayani oleh %1s</string>
     <string name="cancel_service">Batal Service</string>
 
