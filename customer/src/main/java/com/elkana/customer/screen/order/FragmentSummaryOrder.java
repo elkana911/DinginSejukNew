@@ -32,6 +32,7 @@ import com.elkana.dslibrary.listener.ListenerSync;
 import com.elkana.dslibrary.pojo.OrderBucket;
 import com.elkana.dslibrary.pojo.OrderHeader;
 import com.elkana.dslibrary.pojo.mitra.Mitra;
+import com.elkana.dslibrary.pojo.mitra.PriceInfo;
 import com.elkana.dslibrary.pojo.technician.ServiceItem;
 import com.elkana.dslibrary.pojo.user.BasicInfo;
 import com.elkana.dslibrary.util.DateUtil;
@@ -92,7 +93,7 @@ public class FragmentSummaryOrder extends Fragment {
 
     EditText etStatus, etRatingComments;
 
-    TextView tvStatusDetil, tvServiceType, tvDateService, tvDateRequest, tvMitra, tvTechnician, tvAddress, tvProblem, tvBufferInvoice;
+    TextView tvStatusDetil, tvServiceType, tvDateService, tvDateRequest, tvMitra, tvTechnician, tvAddress, tvProblem, tvBufferInvoice, tvPriceInfo;
 
     Button btnCheckTechnicianGps, btnPayment, btnCancelOrder, btnReschedule;
 
@@ -350,6 +351,12 @@ public class FragmentSummaryOrder extends Fragment {
 
             tvProblem.setText(getString(R.string.prompt_problem_ac) + ": " + problem.toString());
 
+            PriceInfo priceInfo = realm.where(PriceInfo.class).equalTo("mitraId", orderHeader.getPartyId()).findFirst();
+            if (priceInfo != null) {
+                tvPriceInfo.setText(priceInfo.getInfo());
+            } else
+                tvPriceInfo.setText(null);
+
             llBlank.setVisibility(View.GONE);
             llNonBlank.setVisibility(View.VISIBLE);
 
@@ -454,6 +461,7 @@ public class FragmentSummaryOrder extends Fragment {
         tvMitra = v.findViewById(R.id.tvMitra);
         tvTechnician = v.findViewById(R.id.tvTechnician);
         tvProblem = v.findViewById(R.id.tvProblem);
+        tvPriceInfo = v.findViewById(R.id.tvPriceInfo);
 
         btnPayment = v.findViewById(R.id.btnPayment);
 

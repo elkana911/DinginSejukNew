@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingEnd="@dimen/activity_horizontal_margin"
-    android:paddingStart="@dimen/activity_horizontal_margin"
-    >
+    android:paddingStart="@dimen/activity_horizontal_margin">
 
     <LinearLayout
         android:id="@+id/llBlank"
@@ -43,8 +42,7 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <AutoCompleteTextView
                     android:id="@+id/etStatus"
@@ -58,10 +56,10 @@
 
             <TextView
                 android:id="@+id/tvStatusDetil"
+                style="@style/TextAppearanceSummaryOrderHello"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                style="@style/TextAppearanceSummaryOrderHello"
                 android:text="Informasi Status" />
 
             <LinearLayout
@@ -86,12 +84,14 @@
 
             </LinearLayout>
 
-            <include android:id="@+id/cardReview" android:visibility="gone" layout="@layout/layout_rating"/>
+            <include
+                android:id="@+id/cardReview"
+                layout="@layout/layout_rating"
+                android:visibility="gone" />
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <AutoCompleteTextView
                     android:layout_width="match_parent"
@@ -105,53 +105,53 @@
 
             <TextView
                 android:id="@+id/tvServiceType"
+                style="@style/TextAppearanceSummaryOrder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/TextAppearanceSummaryOrder"
                 android:text="Jenis Layanan :" />
 
             <TextView
                 android:id="@+id/tvDateRequest"
+                style="@style/TextAppearanceSummaryOrder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/TextAppearanceSummaryOrder"
                 android:text="Tanggal : 22 Oktober 2017" />
 
             <TextView
                 android:id="@+id/tvDateService"
+                style="@style/TextAppearanceSummaryOrder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/TextAppearanceSummaryOrder"
                 android:text="Tanggal : 22 Oktober 2017" />
 
             <TextView
                 android:id="@+id/tvAddress"
+                style="@style/TextAppearanceSummaryOrder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/TextAppearanceSummaryOrder"
                 android:text="Alamat" />
 
             <TextView
                 android:id="@+id/tvProblem"
+                style="@style/TextAppearanceSummaryOrder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/TextAppearanceSummaryOrder"
                 android:text="Problem :" />
 
             <TextView
                 android:id="@+id/tvMitra"
+                style="@style/TextAppearanceSummaryOrder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/TextAppearanceSummaryOrder"
                 android:text="Mitra :" />
 
             <TextView
                 android:id="@+id/tvTechnician"
-                android:visibility="invisible"
+                style="@style/TextAppearanceSummaryOrder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/TextAppearanceSummaryOrder"
-                android:text="Teknisi :" />
+                android:text="Teknisi :"
+                android:visibility="invisible" />
 
             <Button
                 android:id="@+id/btnCallMitra"
@@ -160,7 +160,26 @@
                 android:layout_gravity="end"
                 android:text="@string/action_call_vendor" />
 
-            <include android:id="@+id/cardInvoice" android:visibility="gone" layout="@layout/layout_invoice"/>
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:contentPadding="6dp"
+                android:layout_marginTop="10dp">
+
+                <TextView
+                    android:id="@+id/tvPriceInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="PriceInfo:"
+                    android:textSize="12sp" />
+
+
+            </android.support.v7.widget.CardView>
+
+            <include
+                android:id="@+id/cardInvoice"
+                layout="@layout/layout_invoice"
+                android:visibility="gone" />
 
 
             <LinearLayout
